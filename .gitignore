@@ -4,3 +4,4 @@ TODO-notes.txt
 .vscode
 /node_modules
 package-lock.json
+dist/main.js

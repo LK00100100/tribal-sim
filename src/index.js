@@ -1,11 +1,14 @@
-import _ from 'lodash';
 
-function component() {
-  let element = document.createElement('div');
+import 'phaser';
+import SceneGame from './SceneGame.js';
 
-  element.innerHTML = _.join(['Hello', 'webpack'], ' ');
+var sceneGame = new SceneGame();
 
-  return element;
-}
+var config = {
+    type: Phaser.AUTO,
+    width: 800,
+    height: 800,
+    scene: [sceneGame]
+};
 
-document.body.appendChild(component());
+var game = new Phaser.Game(config);
