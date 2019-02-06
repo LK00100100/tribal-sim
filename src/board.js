@@ -2,7 +2,6 @@
 export default class Board {
 
     constructor(){
-        this.printTest("hello in board");
     }
 
     initBoard(){

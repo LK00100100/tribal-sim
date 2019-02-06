@@ -1,5 +1,6 @@
 
 import Board from './board.js';
+import Village from './village.js';
 
 export default class SceneGame extends Phaser.Scene {
 
@@ -8,44 +9,39 @@ export default class SceneGame extends Phaser.Scene {
 
         this.board = new Board();
 
-        this.villageP1 = { x: 2, y: 2 };
+        this.villageP1 = [{ x: 2, y: 2 }];
 
         //for input and camera
         this.controls;
 
         this.gameOver = false;
 
-        this.cashP1 = 100;
-        this.cashP2 = 0;
+        this.cashPlayers = [];
 
         //ui
         this.btnEndTurn;
 
-        this.txtCashP1;
+        this.txtCashPlayers = [];
 
         this.groupTerrain;
         this.groupGrid;
+
+        this.cam;
     }
 
     preload() {
         this.load.image('grid', 'assets/uv-grid-4096-ian-maclachlan.png');
-        this.load.image('tileGrass', 'assets/tileGrass.png');
-        this.load.image('tileOcean', 'assets/tileOcean.png');
-        this.load.image('tileGrid', 'assets/tileGrid.png');
+        this.load.image('tileGrass', 'assets/tile-grass.png');
+        this.load.image('tileOcean', 'assets/tile-ocean.png');
+        this.load.image('tileGrid', 'assets/tile-grid.png');
 
-        this.load.image('buildVillage', 'assets/buildVillage.png');
+        this.load.image('buildVillage', 'assets/build-village.png');
 
         //ui stuff
-        this.load.image('btnEndTurn', 'assets/btnEndTurn.png');
+        this.load.image('btnEndTurn', 'assets/btn-end-turn.png');
     }
 
     create() {
-
-        this.addCash(1, 100);
-        this.addCash(2, 100);
-
-        this.numPlayers = 2;
-        this.turnOfPlayer = 1;
 
         //draw checkerboard
         this.add.image(0, 0, 'grid').setOrigin(0);
@@ -56,7 +52,7 @@ export default class SceneGame extends Phaser.Scene {
         this.board.initBoard();
         console.log(this.board.board);
         let x, y;
-        let image, sprite;
+        let imageTemp, spriteTemp;
         this.groupTerrain = this.add.group();
         this.groupGrid = this.add.group();
         let theBoard = this.board.board;
@@ -68,13 +64,14 @@ export default class SceneGame extends Phaser.Scene {
                 switch (theBoard[row][col]) {
                     //tile grass
                     case 0:
-                        sprite = this.add.sprite(x, y, 'tileGrass').setInteractive();
+                        spriteTemp = this.add.sprite(x, y, 'tileGrass')
+                            .setInteractive();
 
                         //set data
-                        sprite.setDataEnabled();
-                        sprite.data.set('datax', x);
+                        spriteTemp.setDataEnabled();
+                        spriteTemp.data.set('datax', x);
 
-                        sprite.on('pointerdown', function (pointer) {
+                        spriteTemp.on('pointerdown', function (pointer) {
                             //'this' is the selected sprite
                             this.setTint(0xff0000);
 
@@ -82,13 +79,13 @@ export default class SceneGame extends Phaser.Scene {
                             console.log("this.x: ", this.x);
                         });
 
-                        this.groupTerrain.add(sprite);
+                        this.groupTerrain.add(spriteTemp);
                         break;
 
                     //tile ocean
                     case 1:
-                        sprite = this.add.sprite(x, y, 'tileOcean').setInteractive();
-                        this.groupTerrain.add(sprite);
+                        spriteTemp = this.add.sprite(x, y, 'tileOcean').setInteractive();
+                        this.groupTerrain.add(spriteTemp);
                         break;
 
                     default:
@@ -97,22 +94,35 @@ export default class SceneGame extends Phaser.Scene {
                 }
 
                 //draw grid
-                image = this.add.image(x, y, 'tileGrid');
-                this.groupGrid.add(image);
+                imageTemp = this.add.image(x, y, 'tileGrid');
+                this.groupGrid.add(imageTemp);
 
             }
         }
 
         /*
-        * draw villags
+        * draw villages
         */
+       
+        this.villageP1.forEach(village =>{
+            x = 256 + (village.x * 256);
+            y = 256 + (village.y * 256);
 
+            spriteTemp = this.add.sprite(x, y, 'buildVillage')
+                .setInteractive()
+                .setDataEnabled()
+                .on("pointerdown", this.villageClicked);
+
+            spriteTemp.data.set("a", new Village(this, spriteTemp, 1));
+                
+        });
+        
         /*
         * draw UI
         */
 
         //UI cash
-        this.txtCashP1 = this.add.text(-375, -375)
+        this.txtCashPlayers[1] = this.add.text(-375, -375)
             .setText('$' + this.cashP1)
             .setScrollFactor(0)
             .setFontSize(99)
@@ -146,9 +156,22 @@ export default class SceneGame extends Phaser.Scene {
         };
 
         this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(controlConfig);
-        var cam = this.cameras.main;
+        this.cam = this.cameras.main;
         var zoomLevel = 0.5;
-        cam.setBounds(0, 0, 4096, 4096).setZoom(zoomLevel);
+        this.cam.setBounds(0, 0, 4096, 4096).setZoom(zoomLevel);
+
+
+        //init variables
+        this.numPlayers = 2;
+
+        //init cash
+        for(let i = 1; i <= this.numPlayers; i++){
+            this.cashPlayers[i] = 0;
+            this.addCash(i, 100);
+        }
+        
+        this.turnOfPlayer = 1;
+
     }
 
     update(time, delta) {
@@ -160,8 +183,12 @@ export default class SceneGame extends Phaser.Scene {
     //TODO: change the instance variables to deal with multiple players.
     addCash(player, cash) {
 
-        this.cashP1 += cash;
-        this.txtCashP1.setText("$" + this.cashP1);
+        this.cashPlayers[player] += cash;
+
+        if(player != 1)
+            return;
+
+        this.txtCashPlayers[player].setText("$" + this.cashPlayers[player]);
     }
 
     endTurn(pointer) {
@@ -189,4 +216,16 @@ export default class SceneGame extends Phaser.Scene {
         console.log("ending turn: player2...");
 
     }
+
+    villageClicked(pointer){
+        
+        //this = sprite
+        let village = this.data.get("a");
+
+        let scene = village.scene;
+
+        //center camera on the village (x, y, duration)
+        scene.cam.pan(village.gameObject.x, village.gameObject.y, 500);
+    }
+
 }
