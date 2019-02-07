@@ -7,6 +7,7 @@ export default class Army {
         this.col;
         this.player = player;
         this.village = village;
+        this.name;
 
         this.moveMax;
         this.moveAmount;

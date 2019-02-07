@@ -138,10 +138,9 @@ export default class SceneGame extends Phaser.Scene {
 
             tempText = this.add.text(x - 128, y + 80)
                 .setText(village.name)
-                .setFontSize(40)
+                .setFontSize(38)
                 .setAlign("center")
-                .setBackgroundColor("#000000")
-                .setShadow(1, 1, '#000000', 2);
+                .setBackgroundColor("#000000");
 
             this.textsVillageName.push(tempText);
         });
@@ -181,28 +180,20 @@ export default class SceneGame extends Phaser.Scene {
             .setFontSize(50)
             .setShadow(5, 5, '#000000', 5);
 
-
-            /*
         this.txtArmyVillage = this.add.text(-375, x + 60)
             .setScrollFactor(0)
             .setFontSize(50)
             .setShadow(1, 1, '#000000', 2);
-            */
 
-            /*
         this.txtArmyMoves = this.add.text(-375, x + 120)
             .setScrollFactor(0)
             .setFontSize(50)
             .setShadow(1, 1, '#000000', 2);
-            */
 
-
-        
         this.textsArmy.push(this.txtArmySize);
-        //this.textsArmy.push(this.txtArmyVillage);
-        //this.textsArmy.push(this.txtArmyMoves);
+        this.textsArmy.push(this.txtArmyVillage);
+        this.textsArmy.push(this.txtArmyMoves);
         
-
         //hide
         GameUtils.hideGameObjects(this.buttonsVillage);
         GameUtils.hideGameObjects(this.textsArmy);
@@ -328,8 +319,10 @@ export default class SceneGame extends Phaser.Scene {
             .setDataEnabled()
             .on('pointerdown', scene.selectArmy);
 
-        let army = new Army(1, selectedVillage);
-
+        let army = new Army(row, col, 1, selectedVillage);
+        army.moveAmount = 5;
+        army.moveMax = 5;
+        
         //TODO: change this later
         for (let i = 0; i < 10; i++) {
             let spearman = new Spearman();
@@ -366,10 +359,9 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     updateTextArmy(army) {
-        //this.txtArmySize.setText("Units: " + army.units.length);
-        //this.txtArmyVillage.setText("Village: " + army.village.name);
-        //this.txtArmyMoves.setText("Movem: " + army.moveAmount + "/" + army.moveMax);
-
+        this.txtArmySize.setText("Units: " + army.units.length);
+        this.txtArmyVillage.setText("Village: " + army.village.name);
+        this.txtArmyMoves.setText("Moves: " + army.moveAmount + "/" + army.moveMax);
     }
 
     deselectEverything(pointer) {
