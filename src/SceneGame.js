@@ -4,9 +4,7 @@ import GameUtils from './GameUtils.js';
 import Board from './Board.js';
 import Village from './Village.js';
 import Army from './Army.js';
-import Unit from './army/Unit.js';
 import Spearman from './army/Spearman.js';
-
 
 export default class SceneGame extends Phaser.Scene {
 
@@ -17,7 +15,7 @@ export default class SceneGame extends Phaser.Scene {
 
         this.board = new Board();
 
-        this.villageP1 = [{ x: 2, y: 2 }];
+        this.villageP1 = [{ row: 2, col: 2 }];
 
         //for input and camera
         this.controls;
@@ -28,9 +26,6 @@ export default class SceneGame extends Phaser.Scene {
 
         //ui
         this.buttonsVillage = [];
-
-        this.btnEndTurn;
-
         this.txtCashPlayers = [];
 
         this.groupTerrain;
@@ -42,6 +37,7 @@ export default class SceneGame extends Phaser.Scene {
         this.selectedArmy;
 
         this.textsArmy = [];
+        this.textsVillageName = [];
     }
 
     preload() {
@@ -62,6 +58,9 @@ export default class SceneGame extends Phaser.Scene {
 
     create() {
 
+        let x, y;
+        let tempImage, tempSprite, tempText;
+
         //draw checkerboard
         this.add.image(0, 0, 'grid').setOrigin(0);
 
@@ -70,8 +69,6 @@ export default class SceneGame extends Phaser.Scene {
         */
         this.board.initBoard();
         console.log(this.board.boardTerrain);
-        let x, y;
-        let imageTemp, spriteTemp;
         this.groupTerrain = this.add.group();
         this.groupGrid = this.add.group();
         let theBoard = this.board.boardTerrain;
@@ -83,10 +80,10 @@ export default class SceneGame extends Phaser.Scene {
                 switch (theBoard[row][col]) {
                     //tile grass
                     case 0:
-                        spriteTemp = this.add.sprite(x, y, 'tileGrass')
+                        tempSprite = this.add.sprite(x, y, 'tileGrass')
                             .setInteractive();
 
-                        spriteTemp.on('pointerdown', function (pointer) {
+                        tempSprite.on('pointerdown', function (pointer) {
                             //'this' is the selected sprite
                             if (this.isTinted) {
                                 this.clearTint();
@@ -99,13 +96,13 @@ export default class SceneGame extends Phaser.Scene {
 
                         });
 
-                        this.groupTerrain.add(spriteTemp);
+                        this.groupTerrain.add(tempSprite);
                         break;
 
                     //tile ocean
                     case 1:
-                        spriteTemp = this.add.sprite(x, y, 'tileOcean').setInteractive();
-                        this.groupTerrain.add(spriteTemp);
+                        tempSprite = this.add.sprite(x, y, 'tileOcean').setInteractive();
+                        this.groupTerrain.add(tempSprite);
                         break;
 
                     default:
@@ -114,8 +111,8 @@ export default class SceneGame extends Phaser.Scene {
                 }
 
                 //draw grid
-                imageTemp = this.add.image(x, y, 'tileGrid');
-                this.groupGrid.add(imageTemp);
+                tempImage = this.add.image(x, y, 'tileGrid');
+                this.groupGrid.add(tempImage);
 
             }
         }
@@ -127,27 +124,26 @@ export default class SceneGame extends Phaser.Scene {
         console.log(typeof (this));
 
         this.villageP1.forEach(village => {
-            x = 256 + (village.x * 256);
-            y = 256 + (village.y * 256);
+            x = 256 + (village.row * 256);
+            y = 256 + (village.col * 256);
 
-            spriteTemp = this.add.sprite(x, y, 'buildVillage')
+            tempSprite = this.add.sprite(x, y, 'buildVillage')
                 .setInteractive()
                 .setDataEnabled()
                 .on("pointerdown", this.villageClicked);
 
-            spriteTemp.data.set("data", new Village(village.x, village.y, x, y, 1, "cats are rats"));
+            village = new Village(village.row, village.col, x, y, 1, "cats are rats");
 
-            //TODO: set village name
-            //spriteTemp
+            tempSprite.data.set("data", village);
 
-            //UI cash
-            /*
-            this.txtCashPlayers[1] = this.add.text(-375, -375)
-                .setText('$' + this.cashP1)
-                .setScrollFactor(0)
-                .setFontSize(100)
+            tempText = this.add.text(x - 128, y + 80)
+                .setText(village.name)
+                .setFontSize(40)
+                .setAlign("center")
+                .setBackgroundColor("#000000")
                 .setShadow(1, 1, '#000000', 2);
-                */
+
+            this.textsVillageName.push(tempText);
         });
 
         /*
