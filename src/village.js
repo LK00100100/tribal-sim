@@ -1,11 +1,17 @@
 
 export default class Village {
 
-    constructor(scene, gameObject, player){
+    constructor(row, col, x, y, player, name){
+        this.row = row;
+        this.col = col;
 
-        this.scene = scene;
+        this.x = x;
+        this.y = y;
+        
         this.player = player;
-        this.gameObject = gameObject;
+        this.name = name;
+
+        this.villageId;
     }
 
     printTest(){

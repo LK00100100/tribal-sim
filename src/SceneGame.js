@@ -1,10 +1,18 @@
 
-import Board from './board.js';
-import Village from './village.js';
+import GameUtils from './GameUtils.js';
+
+import Board from './Board.js';
+import Village from './Village.js';
+import Army from './Army.js';
+import Unit from './army/Unit.js';
+import Spearman from './army/Spearman.js';
+
 
 export default class SceneGame extends Phaser.Scene {
 
     constructor() {
+        //this = sys
+
         super('SceneGame');
 
         this.board = new Board();
@@ -19,6 +27,8 @@ export default class SceneGame extends Phaser.Scene {
         this.cashPlayers = [];
 
         //ui
+        this.buttonsVillage = [];
+
         this.btnEndTurn;
 
         this.txtCashPlayers = [];
@@ -27,6 +37,11 @@ export default class SceneGame extends Phaser.Scene {
         this.groupGrid;
 
         this.cam;
+
+        this.selectedVillage;
+        this.selectedArmy;
+
+        this.textsArmy = [];
     }
 
     preload() {
@@ -39,6 +54,10 @@ export default class SceneGame extends Phaser.Scene {
 
         //ui stuff
         this.load.image('btnEndTurn', 'assets/btn-end-turn.png');
+        this.load.image('btnCreateArmy', 'assets/btn-create-army.png');
+
+        //armies
+        this.load.image('armySpearmen', 'assets/army-spearmen.png');
     }
 
     create() {
@@ -50,15 +69,15 @@ export default class SceneGame extends Phaser.Scene {
         * draw the board with images
         */
         this.board.initBoard();
-        console.log(this.board.board);
+        console.log(this.board.boardTerrain);
         let x, y;
         let imageTemp, spriteTemp;
         this.groupTerrain = this.add.group();
         this.groupGrid = this.add.group();
-        let theBoard = this.board.board;
-        for (let row = 0; row < this.board.board.length; row++) {
+        let theBoard = this.board.boardTerrain;
+        for (let row = 0; row < this.board.boardTerrain.length; row++) {
             x = 256 + (row * 256);
-            for (let col = 0; col < this.board.board[0].length; col++) {
+            for (let col = 0; col < this.board.boardTerrain[0].length; col++) {
                 y = 256 + (col * 256);
 
                 switch (theBoard[row][col]) {
@@ -67,16 +86,17 @@ export default class SceneGame extends Phaser.Scene {
                         spriteTemp = this.add.sprite(x, y, 'tileGrass')
                             .setInteractive();
 
-                        //set data
-                        spriteTemp.setDataEnabled();
-                        spriteTemp.data.set('datax', x);
-
                         spriteTemp.on('pointerdown', function (pointer) {
                             //'this' is the selected sprite
-                            this.setTint(0xff0000);
+                            if (this.isTinted) {
+                                this.clearTint();
+                            }
+                            else {
+                                this.setTint(0x550000);
+                            }
 
-                            console.log("data x: ", this.data.get("datax"));
-                            console.log("this.x: ", this.x);
+                            this.scene.deselectEverything();
+
                         });
 
                         this.groupTerrain.add(spriteTemp);
@@ -103,8 +123,10 @@ export default class SceneGame extends Phaser.Scene {
         /*
         * draw villages
         */
-       
-        this.villageP1.forEach(village =>{
+
+        console.log(typeof (this));
+
+        this.villageP1.forEach(village => {
             x = 256 + (village.x * 256);
             y = 256 + (village.y * 256);
 
@@ -113,10 +135,21 @@ export default class SceneGame extends Phaser.Scene {
                 .setDataEnabled()
                 .on("pointerdown", this.villageClicked);
 
-            spriteTemp.data.set("a", new Village(this, spriteTemp, 1));
-                
+            spriteTemp.data.set("data", new Village(village.x, village.y, x, y, 1, "cats are rats"));
+
+            //TODO: set village name
+            //spriteTemp
+
+            //UI cash
+            /*
+            this.txtCashPlayers[1] = this.add.text(-375, -375)
+                .setText('$' + this.cashP1)
+                .setScrollFactor(0)
+                .setFontSize(100)
+                .setShadow(1, 1, '#000000', 2);
+                */
         });
-        
+
         /*
         * draw UI
         */
@@ -125,22 +158,63 @@ export default class SceneGame extends Phaser.Scene {
         this.txtCashPlayers[1] = this.add.text(-375, -375)
             .setText('$' + this.cashP1)
             .setScrollFactor(0)
-            .setFontSize(99)
+            .setFontSize(100)
             .setShadow(1, 1, '#000000', 2);
 
         //button, end turn
         this.btnEndTurn = this.add.sprite(1050, 1100, 'btnEndTurn')
             .setScrollFactor(0)
             .setInteractive()
-            .on('pointerdown', this.endTurn, this);
+            .on('pointerdown', this.endTurn);
 
-        //  Input Events
-        let cursors = this.input.keyboard.createCursorKeys();
+        //UI - village
+
+        this.btnCreateArmy = this.add.sprite(-200, 200, 'btnCreateArmy')
+            .setScrollFactor(0)
+            .setInteractive()
+            .on('pointerdown', this.createArmy);
+
+        this.buttonsVillage.push(this.btnCreateArmy);
+
+        //UI - army
+
+        x = -275;
+
+        this.txtArmySize = this.add.text(-375, x)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setShadow(5, 5, '#000000', 5);
+
+
+            /*
+        this.txtArmyVillage = this.add.text(-375, x + 60)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setShadow(1, 1, '#000000', 2);
+            */
+
+            /*
+        this.txtArmyMoves = this.add.text(-375, x + 120)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setShadow(1, 1, '#000000', 2);
+            */
+
+
+        
+        this.textsArmy.push(this.txtArmySize);
+        //this.textsArmy.push(this.txtArmyVillage);
+        //this.textsArmy.push(this.txtArmyMoves);
+        
+
+        //hide
+        GameUtils.hideGameObjects(this.buttonsVillage);
+        GameUtils.hideGameObjects(this.textsArmy);
 
         /*
         * Camera stuff
         */
-
+        let cursors = this.input.keyboard.createCursorKeys();
         var controlConfig = {
             camera: this.cameras.main,
             left: cursors.left,
@@ -165,11 +239,11 @@ export default class SceneGame extends Phaser.Scene {
         this.numPlayers = 2;
 
         //init cash
-        for(let i = 1; i <= this.numPlayers; i++){
+        for (let i = 1; i <= this.numPlayers; i++) {
             this.cashPlayers[i] = 0;
             this.addCash(i, 100);
         }
-        
+
         this.turnOfPlayer = 1;
 
     }
@@ -185,22 +259,26 @@ export default class SceneGame extends Phaser.Scene {
 
         this.cashPlayers[player] += cash;
 
-        if(player != 1)
+        if (player != 1)
             return;
 
         this.txtCashPlayers[player].setText("$" + this.cashPlayers[player]);
     }
 
+    //TODO: make it for every player
     endTurn(pointer) {
+        //this = btn
+
+        let scene = this.scene;
 
         //disable all game controls
-        this.btnEndTurn.setTint(0xff0000);
+        scene.btnEndTurn.setTint(0xff0000);
 
-        this.turnOfPlayer = 2;
+        scene.turnOfPlayer = 2;
 
-        this.calculateTurnPlayer2();
+        scene.calculateTurnPlayer2();
 
-        this.addCash(1, 100);
+        scene.addCash(1, 100);
     }
 
     calculateTurnPlayer2() {
@@ -214,18 +292,102 @@ export default class SceneGame extends Phaser.Scene {
         this.btnEndTurn.clearTint();
         this.turnOfPlayer = 1;
         console.log("ending turn: player2...");
+    }
+
+    villageClicked(pointer) {
+        console.log("village clicked");
+
+        //this = sprite
+        let village = this.data.get("data");
+
+        let scene = this.scene;
+
+        scene.deselectEverything();
+
+        scene.selectedVillage = this;
+        scene.selectedVillage.setTint("0xffff00");
+
+        //center camera on the village (x, y, duration)
+        scene.cam.pan(this.x, this.y, 500);
+
+        scene.btnCreateArmy.visible = true;
+    }
+
+    createArmy(pointer) {
+
+        let scene = this.scene;
+        let selectedVillage = scene.selectedVillage.data.get("data");
+        let row = selectedVillage.row;
+        let col = selectedVillage.col;
+
+        //space already occupied
+
+        if (scene.board.boardUnits[row][col] != null) {
+            console.log("already occupied");
+            return;
+        }
+
+        let armySprite = scene.add.sprite(selectedVillage.x, selectedVillage.y, 'armySpearmen')
+            .setInteractive()
+            .setDataEnabled()
+            .on('pointerdown', scene.selectArmy);
+
+        let army = new Army(1, selectedVillage);
+
+        //TODO: change this later
+        for (let i = 0; i < 10; i++) {
+            let spearman = new Spearman();
+            army.addUnit(spearman);
+        }
+
+        armySprite.data.set("data", army);
+
+        scene.board.addArmy(row, col, army);
 
     }
 
-    villageClicked(pointer){
-        
-        //this = sprite
-        let village = this.data.get("a");
+    selectArmy(pointer) {
 
-        let scene = village.scene;
+        let scene = this.scene;
+        let army = this.data.get("data");
 
-        //center camera on the village (x, y, duration)
-        scene.cam.pan(village.gameObject.x, village.gameObject.y, 500);
+        scene.deselectEverything();
+
+        //display army texts
+        GameUtils.showGameObjects(scene.textsArmy);
+        scene.updateTextArmy(army);
+
+        scene.cam.pan(this.x, this.y, 500);
+
+        scene.selectedArmy = this;
+
+        GameUtils.showGameObjects(scene.textsArmy);
+
+        console.log("selecting army");
+
+        this.setTint(0xffff00);
+
+    }
+
+    updateTextArmy(army) {
+        //this.txtArmySize.setText("Units: " + army.units.length);
+        //this.txtArmyVillage.setText("Village: " + army.village.name);
+        //this.txtArmyMoves.setText("Movem: " + army.moveAmount + "/" + army.moveMax);
+
+    }
+
+    deselectEverything(pointer) {
+
+        GameUtils.hideGameObjects(this.buttonsVillage);
+        GameUtils.hideGameObjects(this.textsArmy);
+
+        if (this.selectedVillage != null)
+            this.selectedVillage.clearTint();
+        this.selectedVillage = null;
+
+        if (this.selectedArmy != null)
+            this.selectedArmy.clearTint();
+        this.selectedArmy = null;
     }
 
 }
