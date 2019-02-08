@@ -64,7 +64,7 @@ export default class SceneGame extends Phaser.Scene {
         //draw checkerboard
         this.add.image(0, 0, 'grid').setOrigin(0);
 
-        /*
+        /**
         * draw the board with images
         */
         this.board.initBoard();
@@ -81,27 +81,18 @@ export default class SceneGame extends Phaser.Scene {
                     //tile grass
                     case 0:
                         tempSprite = this.add.sprite(x, y, 'tileGrass')
-                            .setInteractive();
-
-                        tempSprite.on('pointerdown', function (pointer) {
-                            //'this' is the selected sprite
-                            if (this.isTinted) {
-                                this.clearTint();
-                            }
-                            else {
-                                this.setTint(0x550000);
-                            }
-
-                            this.scene.deselectEverything();
-
-                        });
+                            .setInteractive()
+                            .on('pointerdown', this.terrainClicked);
 
                         this.groupTerrain.add(tempSprite);
                         break;
 
                     //tile ocean
                     case 1:
-                        tempSprite = this.add.sprite(x, y, 'tileOcean').setInteractive();
+                        tempSprite = this.add.sprite(x, y, 'tileOcean')
+                            .setInteractive()
+                            .on('pointerdown', this.terrainClicked);
+
                         this.groupTerrain.add(tempSprite);
                         break;
 
@@ -117,7 +108,7 @@ export default class SceneGame extends Phaser.Scene {
             }
         }
 
-        /*
+        /**
         * draw villages
         */
 
@@ -136,16 +127,17 @@ export default class SceneGame extends Phaser.Scene {
 
             tempSprite.data.set("data", village);
 
-            tempText = this.add.text(x - 128, y + 80)
+            tempText = this.add.text(x, y + 100)
                 .setText(village.name)
                 .setFontSize(38)
                 .setAlign("center")
+                .setOrigin(0.5)
                 .setBackgroundColor("#000000");
 
             this.textsVillageName.push(tempText);
         });
 
-        /*
+        /**
         * draw UI
         */
 
@@ -178,27 +170,27 @@ export default class SceneGame extends Phaser.Scene {
         this.txtArmySize = this.add.text(-375, x)
             .setScrollFactor(0)
             .setFontSize(50)
-            .setShadow(5, 5, '#000000', 5);
+            .setShadow(3, 3, '#000000', 3);
 
         this.txtArmyVillage = this.add.text(-375, x + 60)
             .setScrollFactor(0)
             .setFontSize(50)
-            .setShadow(1, 1, '#000000', 2);
+            .setShadow(3, 3, '#000000', 3);
 
         this.txtArmyMoves = this.add.text(-375, x + 120)
             .setScrollFactor(0)
             .setFontSize(50)
-            .setShadow(1, 1, '#000000', 2);
+            .setShadow(3, 3, '#000000', 3);
 
         this.textsArmy.push(this.txtArmySize);
         this.textsArmy.push(this.txtArmyVillage);
         this.textsArmy.push(this.txtArmyMoves);
-        
+
         //hide
         GameUtils.hideGameObjects(this.buttonsVillage);
         GameUtils.hideGameObjects(this.textsArmy);
 
-        /*
+        /**
         * Camera stuff
         */
         let cursors = this.input.keyboard.createCursorKeys();
@@ -221,6 +213,15 @@ export default class SceneGame extends Phaser.Scene {
         var zoomLevel = 0.5;
         this.cam.setBounds(0, 0, 4096, 4096).setZoom(zoomLevel);
 
+        /**
+        * mouse
+        */
+
+        this.input.mouse.disableContextMenu();
+
+        /**
+         * init variables
+         */
 
         //init variables
         this.numPlayers = 2;
@@ -254,7 +255,9 @@ export default class SceneGame extends Phaser.Scene {
 
     //TODO: make it for every player
     endTurn(pointer) {
-        //this = btn
+
+        if (pointer.rightButtonDown())
+            return;
 
         let scene = this.scene;
 
@@ -282,7 +285,11 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     villageClicked(pointer) {
+
         console.log("village clicked");
+
+        if (pointer.rightButtonDown())
+            return;
 
         //this = sprite
         let village = this.data.get("data");
@@ -301,6 +308,9 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     createArmy(pointer) {
+
+        if (pointer.rightButtonDown())
+            return;
 
         let scene = this.scene;
         let selectedVillage = scene.selectedVillage.data.get("data");
@@ -322,7 +332,7 @@ export default class SceneGame extends Phaser.Scene {
         let army = new Army(row, col, 1, selectedVillage);
         army.moveAmount = 5;
         army.moveMax = 5;
-        
+
         //TODO: change this later
         for (let i = 0; i < 10; i++) {
             let spearman = new Spearman();
@@ -337,6 +347,9 @@ export default class SceneGame extends Phaser.Scene {
 
     selectArmy(pointer) {
 
+        if (pointer.rightButtonDown())
+            return;
+        
         let scene = this.scene;
         let army = this.data.get("data");
 
@@ -376,6 +389,41 @@ export default class SceneGame extends Phaser.Scene {
         if (this.selectedArmy != null)
             this.selectedArmy.clearTint();
         this.selectedArmy = null;
+    }
+
+    //only used for moving armies.
+    terrainClicked(pointer){
+
+        console.log("terrain clicked...");
+
+        let scene = this.scene;
+
+        if (pointer.leftButtonDown()){
+            this.scene.deselectEverything();
+            return;
+        }
+            
+        if(scene.selectedArmy == null)
+            return;
+
+        console.log("terrain right clicked with army");
+
+        //highlight allowed movement
+        console.log("pointer x: " + pointer.x);
+        console.log("pointer y: " + pointer.y);
+
+        console.log("this.x: " + this.x);
+        console.log("this.y: " + this.y);
+
+        var tween = scene.tweens.add({
+            targets: scene.selectedArmy,
+            x: this.x,
+            y: this.y,
+            ease: 'Linear',
+            duration: 500
+        });
+
+
     }
 
 }
