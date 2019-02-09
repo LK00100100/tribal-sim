@@ -336,8 +336,8 @@ export default class SceneGame extends Phaser.Scene {
             .on('pointerdown', scene.selectArmy);
 
         let army = new Army(row, col, 1, selectedVillage);
-        army.moveAmount = 5;
-        army.moveMax = 5;
+        army.moveAmount = 2;
+        army.moveMax = 2;
 
         //TODO: change this later
         for (let i = 0; i < 10; i++) {
@@ -495,7 +495,7 @@ export default class SceneGame extends Phaser.Scene {
                     let i = directions[d][0];
                     let j = directions[d][1];
 
-                    let coordinate = i + "," + j;
+                    let coordinate = (row + i) + "," + (col + j);
 
                     if (visited.has(coordinate))
                         continue;
