@@ -33,6 +33,7 @@ export default class SceneGame extends Phaser.Scene {
 
         this.cam;
 
+        //gameObjects
         this.selectedVillage;
         this.selectedArmy;
 
@@ -82,24 +83,31 @@ export default class SceneGame extends Phaser.Scene {
                     case 0:
                         tempSprite = this.add.sprite(x, y, 'tileGrass')
                             .setInteractive()
+                            .setDataEnabled()
                             .on('pointerdown', this.terrainClicked);
 
-                        this.groupTerrain.add(tempSprite);
                         break;
 
                     //tile ocean
                     case 1:
                         tempSprite = this.add.sprite(x, y, 'tileOcean')
                             .setInteractive()
+                            .setDataEnabled()
                             .on('pointerdown', this.terrainClicked);
 
-                        this.groupTerrain.add(tempSprite);
                         break;
 
                     default:
                         console.log("can't load board square at: ", row, col);
+                        throw Exception();
                         break;
                 }
+
+                tempSprite.data.set("row", row);
+                tempSprite.data.set("col", col);
+
+                this.groupTerrain.add(tempSprite);
+                this.board.boardSprites[row][col] = tempSprite;
 
                 //draw grid
                 tempImage = this.add.image(x, y, 'tileGrid');
@@ -237,9 +245,7 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     update(time, delta) {
-
         this.controls.update(delta);
-
     }
 
     //TODO: change the instance variables to deal with multiple players.
@@ -301,8 +307,8 @@ export default class SceneGame extends Phaser.Scene {
         scene.selectedVillage = this;
         scene.selectedVillage.setTint("0xffff00");
 
-        //center camera on the village (x, y, duration)
-        scene.cam.pan(this.x, this.y, 500);
+        //TODO: do only on double click.
+        scene.cam.pan(this.x, this.y, 500); //(x, y, duration)
 
         scene.btnCreateArmy.visible = true;
     }
@@ -349,25 +355,29 @@ export default class SceneGame extends Phaser.Scene {
 
         if (pointer.rightButtonDown())
             return;
-        
+
         let scene = this.scene;
         let army = this.data.get("data");
 
         scene.deselectEverything();
 
+        scene.selectedArmy = this;
+
         //display army texts
         GameUtils.showGameObjects(scene.textsArmy);
         scene.updateTextArmy(army);
 
+        //TODO: do only on double click.
         scene.cam.pan(this.x, this.y, 500);
-
-        scene.selectedArmy = this;
 
         GameUtils.showGameObjects(scene.textsArmy);
 
         console.log("selecting army");
 
         this.setTint(0xffff00);
+
+        scene.getPossibleArmyMoves(army);
+        scene.highlightTiles(scene.selectedArmyMoves);
 
     }
 
@@ -386,34 +396,45 @@ export default class SceneGame extends Phaser.Scene {
             this.selectedVillage.clearTint();
         this.selectedVillage = null;
 
-        if (this.selectedArmy != null)
+        if (this.selectedArmy != null) {
             this.selectedArmy.clearTint();
+            this.unhighlightTiles(this.selectedArmyMoves);
+        }
         this.selectedArmy = null;
     }
 
     //only used for moving armies.
-    terrainClicked(pointer){
+    terrainClicked(pointer) {
 
         console.log("terrain clicked...");
 
         let scene = this.scene;
 
-        if (pointer.leftButtonDown()){
+        if (pointer.leftButtonDown()) {
+            //TODO: remove
+            if (this.isTinted) {
+                this.clearTint();
+                return;
+            }
+
+            this.setTint("0xff0000");
             this.scene.deselectEverything();
             return;
         }
-            
-        if(scene.selectedArmy == null)
+
+        if (scene.selectedArmy == null)
             return;
+
+        let row = this.data.get("row");
+        let col = this.data.get("col");
 
         console.log("terrain right clicked with army");
 
         //highlight allowed movement
-        console.log("pointer x: " + pointer.x);
-        console.log("pointer y: " + pointer.y);
-
         console.log("this.x: " + this.x);
         console.log("this.y: " + this.y);
+
+        //move visually and internally (row, col);
 
         var tween = scene.tweens.add({
             targets: scene.selectedArmy,
@@ -423,7 +444,100 @@ export default class SceneGame extends Phaser.Scene {
             duration: 500
         });
 
+    }
 
+    //TODO: almost working
+    getPossibleArmyMoves(army) {
+
+        let possibleMoves = [];
+
+        let visited = new Set();
+
+        let startPoint = {
+            row: army.row,
+            col: army.col,
+            cost: 0
+        }
+
+        //up, down, left, right
+        let directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+        let armyMoveAmount = army.moveAmount;
+
+        let tempSquare;
+
+        let queue = [];
+        queue.push(startPoint);
+
+        while (queue.length > 0) {
+
+            let queueLength = queue.length;
+            queue.sort();
+
+            let smallestMove = queue[0].cost;
+
+            //check around this level
+            for (let x = 0; x < queueLength; x++) {
+                tempSquare = queue.shift();
+
+                let row = tempSquare.row;
+                let col = tempSquare.col;
+                let cost = tempSquare.cost;
+
+                //too costly for now.
+                if (cost > smallestMove) {
+                    queue.push(tempSquare);
+                    continue;
+                }
+
+                //check up, down, left, right
+                for (let d = 0; d < directions.length; d++) {
+                    let i = directions[d][0];
+                    let j = directions[d][1];
+
+                    let coordinate = i + "," + j;
+
+                    if (visited.has(coordinate))
+                        continue;
+
+                    visited.add(coordinate);
+
+                    if (this.board.isWalkable(row + i, col + j)) {
+                        let terrainCost = this.board.movementCost(row + i, col + j);
+
+                        if (armyMoveAmount >= cost + terrainCost) {
+
+                            tempSquare = {
+                                row: row + i,
+                                col: col + j,
+                                cost: cost + terrainCost
+                            };
+
+                            possibleMoves.push(tempSquare);
+                            queue.push(tempSquare);
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+        this.selectedArmyMoves = possibleMoves;
+    }
+
+    highlightTiles(tiles) {
+        tiles.forEach(tile => {
+            //TODO: probably have to tint different terrain differently
+            this.board.boardSprites[tile.row][tile.col].setTint("0x00aaff");
+        });
+    }
+
+    unhighlightTiles(tiles) {
+        tiles.forEach(tile => {
+            this.board.boardSprites[tile.row][tile.col].clearTint();
+        });
     }
 
 }
