@@ -15,7 +15,11 @@ export default class SceneGame extends Phaser.Scene {
 
         this.board = new Board();
 
-        this.villageP1 = [{ row: 2, col: 2, name: "mad katz" }];
+        //TODO: temporary fix
+        //TODO: handle collisions?
+        this.villages = [
+            { row: 2, col: 2, name: "mad katz", player: 1 },
+            { row: 6, col: 6, name: "baddies", player: 2 }];
 
         //for input and camera
         this.controls;
@@ -43,12 +47,15 @@ export default class SceneGame extends Phaser.Scene {
 
         this.textsArmy = [];
         this.textsVillageName = [];
+
+        this.terrainType = ["tileGrass", "tileOcean", "tileHill"];
     }
 
     preload() {
         this.load.image('grid', 'assets/uv-grid-4096-ian-maclachlan.png');
-        this.load.image('tileGrass', 'assets/tile-grass.png');
-        this.load.image('tileOcean', 'assets/tile-ocean.png');
+        this.load.image(this.terrainType[0], 'assets/tile-grass.png');
+        this.load.image(this.terrainType[1], 'assets/tile-ocean.png');
+        this.load.image(this.terrainType[2], 'assets/tile-hill.png');
         this.load.image('tileGrid', 'assets/tile-grid.png');
 
         this.load.image('buildVillage', 'assets/build-village.png');
@@ -78,34 +85,22 @@ export default class SceneGame extends Phaser.Scene {
         this.groupGrid = this.add.group();
         let theBoard = this.board.boardTerrain;
         for (let row = 0; row < this.board.boardTerrain.length; row++) {
-            x = 256 + (row * 256);
+            y = 256 + (row * 256);
             for (let col = 0; col < this.board.boardTerrain[0].length; col++) {
-                y = 256 + (col * 256);
+                x = 256 + (col * 256);
 
-                switch (theBoard[row][col]) {
-                    //tile grass
-                    case 0:
-                        tempSprite = this.add.sprite(x, y, 'tileGrass')
-                            .setInteractive()
-                            .setDataEnabled()
-                            .on('pointerdown', this.terrainClicked);
-
-                        break;
-
-                    //tile ocean
-                    case 1:
-                        tempSprite = this.add.sprite(x, y, 'tileOcean')
-                            .setInteractive()
-                            .setDataEnabled()
-                            .on('pointerdown', this.terrainClicked);
-
-                        break;
-
-                    default:
-                        console.log("can't load board square at: ", row, col);
-                        throw Exception();
-                        break;
+                if (this.terrainType[theBoard[row][col]] == undefined) {
+                    console.log("can't load board square at: ", row, col);
+                    throw "terrain type does not exist at: " + row + "," + col;
                 }
+
+                let currentTerrainName = this.terrainType[theBoard[row][col]];
+
+                //tile of terrain
+                tempSprite = this.add.sprite(x, y, currentTerrainName)
+                    .setInteractive()
+                    .setDataEnabled()
+                    .on('pointerdown', this.terrainClicked);
 
                 tempSprite.data.set("row", row);
                 tempSprite.data.set("col", col);
@@ -126,17 +121,18 @@ export default class SceneGame extends Phaser.Scene {
 
         console.log(typeof (this));
 
-        this.villageP1.forEach(village => {
+        this.villages.forEach(village => {
             x = 256 + (village.row * 256);
             y = 256 + (village.col * 256);
             let name = village.name;
+            let player = village.player;
 
             tempSprite = this.add.sprite(x, y, 'buildVillage')
                 .setInteractive()
                 .setDataEnabled()
                 .on("pointerdown", this.villageClicked);
 
-            village = new Village(village.row, village.col, x, y, 1, name);
+            village = new Village(village.row, village.col, x, y, player, name);
 
             tempSprite.data.set("data", village);
 
@@ -300,8 +296,8 @@ export default class SceneGame extends Phaser.Scene {
         console.log("ending turn: player2...");
     }
 
-    replenishPhase(playerNumber){
-        
+    replenishPhase(playerNumber) {
+
         let armies = this.armyPlayers[playerNumber];
 
         armies.forEach(army => {
@@ -327,6 +323,9 @@ export default class SceneGame extends Phaser.Scene {
         let village = this.data.get("data");
 
         scene.deselectEverything();
+
+        if (village.player != 1)
+            return;
 
         scene.selectedVillage = this;
         scene.selectedVillage.setTint("0xffff00");
@@ -469,7 +468,7 @@ export default class SceneGame extends Phaser.Scene {
 
         let cost = this.getMovementCost(targetRow, targetCol);
 
-        if(cost > army.moveAmount)
+        if (cost > army.moveAmount)
             return;
 
         //remove army

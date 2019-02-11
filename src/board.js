@@ -13,12 +13,12 @@ export default class Board {
     initBoard(someInputHereLater) {
 
         //TODO: make this more dynamic-y later
-
+        //TODO: replace this hardcoded board
         this.boardTerrain = [
             [1, 1, 1, 1, 1, 1, 1, 1],
             [1, 0, 0, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 0, 2, 2, 1],
             [1, 0, 0, 0, 1, 0, 0, 1],
             [1, 0, 0, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 0, 0, 1],
@@ -97,8 +97,12 @@ export default class Board {
 
         let terrainType = this.boardTerrain[row][col];
 
-        if (terrainType == 0)
-            return 1;
+        switch(terrainType){
+            case 0:
+                return 1;
+            case 2:
+                return 2;
+        }
 
         return 99999;
 
