@@ -7,7 +7,7 @@ export default class Board {
         this.boardWalkable = [];
         this.boardSailable = [];
         this.boardSprites = []; //holds terrain sprites
-        this.boardUnits = [];
+        this.boardUnits = [];   //holds occupying units
     }
 
     initBoard(someInputHereLater) {
@@ -66,6 +66,10 @@ export default class Board {
         this.boardUnits[row][col] = army;
     }
 
+    removeArmy(row, col) {
+        this.boardUnits[row][col] = null;
+    }
+
     isWithinBounds(row, col) {
 
         if (row < 0 || row > this.boardTerrain.length)
@@ -80,6 +84,9 @@ export default class Board {
     isWalkable(row, col) {
 
         if (this.isWithinBounds(row, col) == false)
+            return false;
+
+        if(this.boardUnits[row][col] != null)
             return false;
 
         return this.boardWalkable[row][col];

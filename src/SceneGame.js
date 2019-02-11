@@ -15,7 +15,7 @@ export default class SceneGame extends Phaser.Scene {
 
         this.board = new Board();
 
-        this.villageP1 = [{ row: 2, col: 2 }];
+        this.villageP1 = [{ row: 2, col: 2, name: "mad katz" }];
 
         //for input and camera
         this.controls;
@@ -23,6 +23,8 @@ export default class SceneGame extends Phaser.Scene {
         this.gameOver = false;
 
         this.cashPlayers = [];
+        //[player #] = array of army pieces
+        this.armyPlayers = [];
 
         //ui
         this.buttonsVillage = [];
@@ -36,6 +38,8 @@ export default class SceneGame extends Phaser.Scene {
         //gameObjects
         this.selectedVillage;
         this.selectedArmy;
+
+        this.selectedArmyPossibleMoves;
 
         this.textsArmy = [];
         this.textsVillageName = [];
@@ -125,13 +129,14 @@ export default class SceneGame extends Phaser.Scene {
         this.villageP1.forEach(village => {
             x = 256 + (village.row * 256);
             y = 256 + (village.col * 256);
+            let name = village.name;
 
             tempSprite = this.add.sprite(x, y, 'buildVillage')
                 .setInteractive()
                 .setDataEnabled()
                 .on("pointerdown", this.villageClicked);
 
-            village = new Village(village.row, village.col, x, y, 1, "cats are rats");
+            village = new Village(village.row, village.col, x, y, 1, name);
 
             tempSprite.data.set("data", village);
 
@@ -262,16 +267,19 @@ export default class SceneGame extends Phaser.Scene {
     //TODO: make it for every player
     endTurn(pointer) {
 
+        let scene = this.scene;
+
         if (pointer.rightButtonDown())
             return;
 
-        let scene = this.scene;
+        scene.deselectEverything();
 
         //disable all game controls
         scene.btnEndTurn.setTint(0xff0000);
 
         scene.turnOfPlayer = 2;
 
+        //TODO: fix this later
         scene.calculateTurnPlayer2();
 
         scene.addCash(1, 100);
@@ -287,20 +295,36 @@ export default class SceneGame extends Phaser.Scene {
 
         this.btnEndTurn.clearTint();
         this.turnOfPlayer = 1;
+        this.replenishPhase(this.turnOfPlayer);
+
         console.log("ending turn: player2...");
+    }
+
+    replenishPhase(playerNumber){
+        
+        let armies = this.armyPlayers[playerNumber];
+
+        armies.forEach(army => {
+            army.moveAmount = army.moveMax;
+        });
+
     }
 
     villageClicked(pointer) {
 
+        let scene = this.scene;
+
         console.log("village clicked");
 
-        if (pointer.rightButtonDown())
+        if (pointer.rightButtonDown()) {
+            if (scene.selectedArmy == null)
+                return;
+
+            scene.moveArmy(scene.selectedArmy, this);
             return;
+        }
 
-        //this = sprite
         let village = this.data.get("data");
-
-        let scene = this.scene;
 
         scene.deselectEverything();
 
@@ -347,6 +371,12 @@ export default class SceneGame extends Phaser.Scene {
 
         armySprite.data.set("data", army);
 
+        //TODO: change later?
+        if (scene.armyPlayers[1] == null)
+            scene.armyPlayers[1] = [];
+
+        scene.armyPlayers[1].push(army);
+
         scene.board.addArmy(row, col, army);
 
     }
@@ -377,7 +407,7 @@ export default class SceneGame extends Phaser.Scene {
         this.setTint(0xffff00);
 
         scene.getPossibleArmyMoves(army);
-        scene.highlightTiles(scene.selectedArmyMoves);
+        scene.highlightTiles(scene.selectedArmyPossibleMoves);
 
     }
 
@@ -398,7 +428,7 @@ export default class SceneGame extends Phaser.Scene {
 
         if (this.selectedArmy != null) {
             this.selectedArmy.clearTint();
-            this.unhighlightTiles(this.selectedArmyMoves);
+            this.unhighlightTiles(this.selectedArmyPossibleMoves);
         }
         this.selectedArmy = null;
     }
@@ -411,13 +441,6 @@ export default class SceneGame extends Phaser.Scene {
         let scene = this.scene;
 
         if (pointer.leftButtonDown()) {
-            //TODO: remove
-            if (this.isTinted) {
-                this.clearTint();
-                return;
-            }
-
-            this.setTint("0xff0000");
             this.scene.deselectEverything();
             return;
         }
@@ -425,24 +448,53 @@ export default class SceneGame extends Phaser.Scene {
         if (scene.selectedArmy == null)
             return;
 
-        let row = this.data.get("row");
-        let col = this.data.get("col");
+        scene.moveArmy(scene.selectedArmy, this);
+
+    }
+
+    moveArmy(spriteArmy, squareTerrain) {
+
+        let army = spriteArmy.data.get("data");
+
+        let targetRow = squareTerrain.data.get("row");
+        let targetCol = squareTerrain.data.get("col");
 
         console.log("terrain right clicked with army");
 
         //highlight allowed movement
-        console.log("this.x: " + this.x);
-        console.log("this.y: " + this.y);
+        console.log("squareTerrain.x: " + squareTerrain.x);
+        console.log("squareTerrain.y: " + squareTerrain.y);
 
         //move visually and internally (row, col);
 
-        var tween = scene.tweens.add({
-            targets: scene.selectedArmy,
-            x: this.x,
-            y: this.y,
+        let cost = this.getMovementCost(targetRow, targetCol);
+
+        if(cost > army.moveAmount)
+            return;
+
+        //remove army
+        this.board.removeArmy(army.row, army.col);
+        this.unhighlightTiles(this.selectedArmyPossibleMoves);
+
+        army.moveAmount -= cost;
+        army.row = targetRow;
+        army.col = targetCol;
+
+        this.updateTextArmy(army);
+
+        //place army
+        //TODO: dont make it a direct move.
+        this.tweens.add({
+            targets: this.selectedArmy,
+            x: squareTerrain.x,
+            y: squareTerrain.y,
             ease: 'Linear',
             duration: 500
         });
+
+        this.getPossibleArmyMoves(army);
+        this.highlightTiles(this.selectedArmyPossibleMoves);
+        this.board.addArmy(targetRow, targetCol, army);
 
     }
 
@@ -524,7 +576,30 @@ export default class SceneGame extends Phaser.Scene {
 
         }
 
-        this.selectedArmyMoves = possibleMoves;
+        this.selectedArmyPossibleMoves = possibleMoves;
+    }
+
+    //call getPossibleArmyMoves first
+    getMovementCost(row, col) {
+
+        let target = null;
+
+        for (let i = 0; i < this.selectedArmyPossibleMoves.length; i++) {
+            let move = this.selectedArmyPossibleMoves[i];
+
+            if (move.row == row && move.col == col) {
+                target = move;
+                break;
+            }
+        };
+
+        if (target == null) {
+            console.log("not a possible move");
+            return 9999;
+        }
+
+        return target.cost;
+
     }
 
     highlightTiles(tiles) {
