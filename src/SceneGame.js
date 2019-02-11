@@ -34,6 +34,7 @@ export default class SceneGame extends Phaser.Scene {
         this.buttonsVillage = [];
         this.txtCash = [];
         this.txtCashIncome = [];
+        this.txtCashCost = [];
 
         this.groupTerrain;
         this.groupGrid;
@@ -48,15 +49,15 @@ export default class SceneGame extends Phaser.Scene {
 
         this.textsArmy = [];
         this.textsVillageName = [];
-
-        this.terrainType = ["tileGrass", "tileOcean", "tileHill"];
     }
 
     preload() {
+
         this.load.image('grid', 'assets/uv-grid-4096-ian-maclachlan.png');
-        this.load.image(this.terrainType[0], 'assets/tile-grass.png');
-        this.load.image(this.terrainType[1], 'assets/tile-ocean.png');
-        this.load.image(this.terrainType[2], 'assets/tile-hill.png');
+        this.load.image(this.board.terrainType[0], 'assets/tile-grass.png');
+        this.load.image(this.board.terrainType[1], 'assets/tile-ocean.png');
+        this.load.image(this.board.terrainType[2], 'assets/tile-hill.png');
+        this.load.image(this.board.terrainType[3], 'assets/tile-desert.png');
         this.load.image('tileGrid', 'assets/tile-grid.png');
 
         this.load.image('buildVillage', 'assets/build-village.png');
@@ -90,11 +91,11 @@ export default class SceneGame extends Phaser.Scene {
             for (let col = 0; col < this.board.boardTerrain[0].length; col++) {
                 x = 256 + (col * 256);
 
-                if (this.terrainType[theBoard[row][col]] == undefined) {
+                if (this.board.terrainType[theBoard[row][col]] == undefined) {
                     throw "terrain type does not exist at: " + row + "," + col;
                 }
 
-                let currentTerrainName = this.terrainType[theBoard[row][col]];
+                let currentTerrainName = this.board.terrainType[theBoard[row][col]];
 
                 //tile of terrain
                 tempSprite = this.add.sprite(x, y, currentTerrainName)

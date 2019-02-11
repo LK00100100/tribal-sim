@@ -12,6 +12,8 @@ export default class Board {
         this.boardTerrainSprites = []; //holds terrain sprites
         this.boardVillages = []; //holds terrain sprites
         this.boardUnits = [];   //holds occupying units
+
+        this.terrainType = ["tileGrass", "tileOcean", "tileHill", "tileDesert"];
     }
 
     initBoard(someInputHereLater) {
@@ -23,8 +25,8 @@ export default class Board {
             [1, 0, 0, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 2, 2, 1],
-            [1, 0, 0, 0, 1, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 3, 1, 0, 0, 1],
+            [1, 0, 3, 3, 0, 0, 0, 1],
             [1, 0, 0, 0, 0, 0, 0, 1],
             [1, 1, 1, 1, 1, 1, 1, 1]];
 
@@ -98,7 +100,7 @@ export default class Board {
         if (this.isWithinBounds(row, col) == false)
             return false;
 
-        if(this.boardUnits[row][col] != null)
+        if (this.boardUnits[row][col] != null)
             return false;
 
         return this.boardWalkable[row][col];
@@ -109,11 +111,13 @@ export default class Board {
 
         let terrainType = this.boardTerrain[row][col];
 
-        switch(terrainType){
+        switch (terrainType) {
             case 0:
                 return 1;
             case 2:
                 return 2;
+            case 3:
+                return 1;
         }
 
         return 99999;
