@@ -3,10 +3,14 @@ export default class Board {
 
     constructor() {
 
+        //TODO: redo this?
         this.boardTerrain = [];
         this.boardWalkable = [];
         this.boardSailable = [];
-        this.boardSprites = []; //holds terrain sprites
+
+        //these hold gameobjects (which hold data)
+        this.boardTerrainSprites = []; //holds terrain sprites
+        this.boardVillages = []; //holds terrain sprites
         this.boardUnits = [];   //holds occupying units
     }
 
@@ -47,17 +51,25 @@ export default class Board {
             for (let col = 0; col < 8; col++) {
                 theRow.push(null);
             }
-            this.boardSprites.push(theRow);
+            this.boardTerrainSprites.push(theRow);
         }
 
         //init board units
-        this.boardUnits = [];
         for (let row = 0; row < 8; row++) {
             let theRow = [];
             for (let col = 0; col < 8; col++) {
                 theRow.push(null);
             }
             this.boardUnits.push(theRow);
+        }
+
+        //init board villages
+        for (let row = 0; row < 8; row++) {
+            let theRow = [];
+            for (let col = 0; col < 8; col++) {
+                theRow.push(null);
+            }
+            this.boardVillages.push(theRow);
         }
 
     }

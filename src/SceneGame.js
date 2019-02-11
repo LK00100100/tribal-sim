@@ -32,7 +32,8 @@ export default class SceneGame extends Phaser.Scene {
 
         //ui
         this.buttonsVillage = [];
-        this.txtCashPlayers = [];
+        this.txtCash = [];
+        this.txtCashIncome = [];
 
         this.groupTerrain;
         this.groupGrid;
@@ -90,7 +91,6 @@ export default class SceneGame extends Phaser.Scene {
                 x = 256 + (col * 256);
 
                 if (this.terrainType[theBoard[row][col]] == undefined) {
-                    console.log("can't load board square at: ", row, col);
                     throw "terrain type does not exist at: " + row + "," + col;
                 }
 
@@ -106,7 +106,7 @@ export default class SceneGame extends Phaser.Scene {
                 tempSprite.data.set("col", col);
 
                 this.groupTerrain.add(tempSprite);
-                this.board.boardSprites[row][col] = tempSprite;
+                this.board.boardTerrainSprites[row][col] = tempSprite;
 
                 //draw grid
                 tempImage = this.add.image(x, y, 'tileGrid');
@@ -134,6 +134,10 @@ export default class SceneGame extends Phaser.Scene {
 
             village = new Village(village.row, village.col, x, y, player, name);
 
+            this.board.boardVillages[village.row][village.col] = tempSprite;
+
+            tempSprite.data.set("row", village.row);
+            tempSprite.data.set("col", village.col);
             tempSprite.data.set("data", village);
 
             tempText = this.add.text(x, y + 100)
@@ -151,16 +155,26 @@ export default class SceneGame extends Phaser.Scene {
         */
 
         //UI cash
-        this.txtCashPlayers[1] = this.add.text(-375, -375)
+        y = -375
+        this.txtCash[1] = this.add.text(-375, y)
             .setText('$' + this.cashP1)
             .setScrollFactor(0)
             .setFontSize(100)
+            .setDepth(100)
+            .setShadow(1, 1, '#000000', 2);
+
+        this.txtCashIncome[1] = this.add.text(-375, y + 70)
+            .setText('income: ' + "10")
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
             .setShadow(1, 1, '#000000', 2);
 
         //button, end turn
         this.btnEndTurn = this.add.sprite(1050, 1100, 'btnEndTurn')
             .setScrollFactor(0)
             .setInteractive()
+            .setDepth(100)
             .on('pointerdown', this.endTurn);
 
         //UI - village
@@ -168,36 +182,39 @@ export default class SceneGame extends Phaser.Scene {
         this.btnCreateArmy = this.add.sprite(-200, 200, 'btnCreateArmy')
             .setScrollFactor(0)
             .setInteractive()
+            .setDepth(100)
             .on('pointerdown', this.createArmy);
 
         this.buttonsVillage.push(this.btnCreateArmy);
 
         //UI - army
 
-        x = -275;
+        y = -200;
 
-        this.txtArmySize = this.add.text(-375, x)
+        this.txtArmySize = this.add.text(-375, y)
             .setScrollFactor(0)
             .setFontSize(50)
+            .setDepth(100)
             .setShadow(3, 3, '#000000', 3);
 
-        this.txtArmyVillage = this.add.text(-375, x + 60)
+        this.txtArmyVillage = this.add.text(-375, y + 60)
             .setScrollFactor(0)
             .setFontSize(50)
+            .setDepth(100)
             .setShadow(3, 3, '#000000', 3);
 
-        this.txtArmyMoves = this.add.text(-375, x + 120)
+        this.txtArmyMoves = this.add.text(-375, y + 120)
             .setScrollFactor(0)
             .setFontSize(50)
+            .setDepth(100)
             .setShadow(3, 3, '#000000', 3);
 
         this.textsArmy.push(this.txtArmySize);
         this.textsArmy.push(this.txtArmyVillage);
         this.textsArmy.push(this.txtArmyMoves);
 
-        //hide
-        GameUtils.hideGameObjects(this.buttonsVillage);
-        GameUtils.hideGameObjects(this.textsArmy);
+        //hide some ui elements
+        this.deselectEverything();
 
         /**
         * Camera stuff
@@ -238,7 +255,7 @@ export default class SceneGame extends Phaser.Scene {
         //init cash
         for (let i = 1; i <= this.numPlayers; i++) {
             this.cashPlayers[i] = 0;
-            this.addCash(i, 100);
+            this.addCash(i, 200);
         }
 
         this.turnOfPlayer = 1;
@@ -257,7 +274,7 @@ export default class SceneGame extends Phaser.Scene {
         if (player != 1)
             return;
 
-        this.txtCashPlayers[player].setText("$" + this.cashPlayers[player]);
+        this.txtCash[player].setText("$" + this.cashPlayers[player]);
     }
 
     //TODO: make it for every player
@@ -278,7 +295,7 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: fix this later
         scene.calculateTurnPlayer2();
 
-        scene.addCash(1, 100);
+        scene.addCash(1, 10);
     }
 
     calculateTurnPlayer2() {
@@ -352,6 +369,14 @@ export default class SceneGame extends Phaser.Scene {
             console.log("already occupied");
             return;
         }
+
+        //TODO: change this later
+        if (scene.cashPlayers[1] < 100) {
+            console.log("not enough $");
+            return;
+        }
+
+        scene.addCash(1, -100);
 
         let armySprite = scene.add.sprite(selectedVillage.x, selectedVillage.y, 'armySpearmen')
             .setInteractive()
@@ -603,14 +628,29 @@ export default class SceneGame extends Phaser.Scene {
 
     highlightTiles(tiles) {
         tiles.forEach(tile => {
-            //TODO: probably have to tint different terrain differently
-            this.board.boardSprites[tile.row][tile.col].setTint("0x00aaff");
+            let row = tile.row;
+            let col = tile.col;
+
+            //village
+            if (this.board.boardVillages[row][col] != null) {
+                let village = this.board.boardVillages[row][col];
+
+                if (village.data.get("data").player == 1)
+                    this.board.boardTerrainSprites[row][col].setTint("0x00aaff");
+                else
+                    this.board.boardTerrainSprites[row][col].setTint("0xaa0000");
+            }
+            //plain terrain
+            else {
+                this.board.boardTerrainSprites[row][col].setTint("0x00aaff");
+            }
+
         });
     }
 
     unhighlightTiles(tiles) {
         tiles.forEach(tile => {
-            this.board.boardSprites[tile.row][tile.col].clearTint();
+            this.board.boardTerrainSprites[tile.row][tile.col].clearTint();
         });
     }
 
