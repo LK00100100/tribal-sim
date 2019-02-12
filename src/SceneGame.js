@@ -156,18 +156,23 @@ export default class SceneGame extends Phaser.Scene {
         */
 
         //UI cash
+        //TODO: consolidate texts?
         y = -375
         this.txtCash[1] = this.add.text(-375, y)
-            .setText('$' + this.cashP1)
             .setScrollFactor(0)
             .setFontSize(100)
             .setDepth(100)
             .setShadow(1, 1, '#000000', 2);
 
-        this.txtCashIncome[1] = this.add.text(-375, y + 70)
-            .setText('income: ' + "10")
+        this.txtCashIncome[1] = this.add.text(-375, y + 90)
             .setScrollFactor(0)
-            .setFontSize(50)
+            .setFontSize(70)
+            .setDepth(100)
+            .setShadow(1, 1, '#000000', 2);
+
+        this.txtCashCost[1] = this.add.text(-375, y + 150)
+            .setScrollFactor(0)
+            .setFontSize(70)
             .setDepth(100)
             .setShadow(1, 1, '#000000', 2);
 
@@ -190,7 +195,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //UI - army
 
-        y = -200;
+        y = -120;
 
         this.txtArmySize = this.add.text(-375, y)
             .setScrollFactor(0)
@@ -261,10 +266,21 @@ export default class SceneGame extends Phaser.Scene {
 
         this.turnOfPlayer = 1;
 
+
+        
+        this.updateUI();
     }
 
     update(time, delta) {
         this.controls.update(delta);
+    }
+
+    updateUI(){
+
+        this.txtCash[1].setText('$' + this.cashPlayers[1]);
+        this.txtCashIncome[1].setText("income: $" + this.calculatePlayerIncome(1));
+        this.txtCashCost[1].setText("cost: $" + this.calculatePlayerCosts(1));
+        
     }
 
     //TODO: change the instance variables to deal with multiple players.
@@ -275,8 +291,9 @@ export default class SceneGame extends Phaser.Scene {
         if (player != 1)
             return;
 
-        this.txtCash[player].setText("$" + this.cashPlayers[player]);
+        this.updateUI();
     }
+
 
     //TODO: make it for every player
     endTurn(pointer) {
@@ -295,8 +312,6 @@ export default class SceneGame extends Phaser.Scene {
 
         //TODO: fix this later
         scene.calculateTurnPlayer2();
-
-        scene.addCash(1, 10);
     }
 
     calculateTurnPlayer2() {
@@ -316,11 +331,17 @@ export default class SceneGame extends Phaser.Scene {
 
     replenishPhase(playerNumber) {
 
+        //army stuff
         let armies = this.armyPlayers[playerNumber];
-
         armies.forEach(army => {
             army.moveAmount = army.moveMax;
         });
+
+        //money stuff
+        let income = this.calculatePlayerIncome(1) - this.calculatePlayerCosts(1);        
+        this.addCash(1, income);
+
+        //
 
     }
 
@@ -403,6 +424,8 @@ export default class SceneGame extends Phaser.Scene {
         scene.armyPlayers[1].push(army);
 
         scene.board.addArmy(row, col, army);
+
+        scene.updateUI();
 
     }
 
@@ -653,6 +676,29 @@ export default class SceneGame extends Phaser.Scene {
         tiles.forEach(tile => {
             this.board.boardTerrainSprites[tile.row][tile.col].clearTint();
         });
+    }
+
+    calculatePlayerIncome(player){
+
+        //TODO: complete this
+        return 10;
+    }
+
+    calculatePlayerCosts(player){
+
+        //TODO: complete this
+
+        let totalCost = 0;
+
+        if(this.armyPlayers[player] == null)
+            return 0;
+
+        this.armyPlayers[player].forEach(army =>{
+            totalCost += army.calculateCost();
+        });
+
+        return totalCost;
+
     }
 
 }

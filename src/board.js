@@ -111,11 +111,15 @@ export default class Board {
 
         let terrainType = this.boardTerrain[row][col];
 
+        //TODO: replace with array?
         switch (terrainType) {
+            //grass
             case 0:
                 return 1;
+            //hill
             case 2:
                 return 2;
+            //desert
             case 3:
                 return 1;
         }

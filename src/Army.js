@@ -31,4 +31,17 @@ export default class Army {
 
     }
 
+    calculateCost(){
+
+        //TODO: complete this later
+
+        return this.units.length;
+
+    }
+
+    calculateAttrition(){
+
+        return;
+    }
+
 }
