@@ -3,14 +3,14 @@ A strategy game that simulates tribes.
 
 This game uses Phaser 3.
 
-**This repository is under construction**
+**This repository is under construction. This game will be published when completed**
 
 ## Setup and notes
 1) In root directory, type the following to install all of the necessary packages. **Do this once.**
 ```
 npm install 
 ```
-2) Open up a terminal and type the following to allow automatic code build whenever code changes:
+2) Open up a terminal and type the following to allow automatic code building whenever code changes:
 ```
 npm run dev
 ```
