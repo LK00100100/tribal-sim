@@ -13,7 +13,7 @@ export default class Board {
         this.boardVillages = []; //holds terrain sprites
         this.boardUnits = [];   //holds occupying units
 
-        this.terrainType = ["tileGrass", "tileOcean", "tileHill", "tileDesert"];
+        this.terrainType = ["tileGrass", "tileOcean", "tileHill", "tileDesert", "tileForest"];
     }
 
     initBoard(someInputHereLater) {
@@ -22,8 +22,8 @@ export default class Board {
         //TODO: replace this hardcoded board
         this.boardTerrain = [
             [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 0, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 4, 4, 4, 1],
+            [1, 0, 0, 0, 4, 4, 4, 1],
             [1, 0, 0, 0, 0, 2, 2, 1],
             [1, 0, 0, 3, 1, 0, 0, 1],
             [1, 0, 3, 3, 0, 0, 0, 1],
@@ -121,6 +121,9 @@ export default class Board {
                 return 2;
             //desert
             case 3:
+                return 3;
+            //forest
+            case 4:
                 return 1;
         }
 

@@ -52,22 +52,25 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     preload() {
-
+        //terrain
         this.load.image('grid', 'assets/uv-grid-4096-ian-maclachlan.png');
         this.load.image(this.board.terrainType[0], 'assets/tile-grass.png');
         this.load.image(this.board.terrainType[1], 'assets/tile-ocean.png');
         this.load.image(this.board.terrainType[2], 'assets/tile-hill.png');
         this.load.image(this.board.terrainType[3], 'assets/tile-desert.png');
+        this.load.image(this.board.terrainType[4], 'assets/tile-forest.png');
         this.load.image('tileGrid', 'assets/tile-grid.png');
 
         this.load.image('buildVillage', 'assets/build-village.png');
+        this.load.image('buildRatCave', 'assets/build-rat-cave.png');
 
         //ui stuff
         this.load.image('btnEndTurn', 'assets/btn-end-turn.png');
         this.load.image('btnCreateArmy', 'assets/btn-create-army.png');
 
         //armies
-        this.load.image('armySpearmen', 'assets/army-spearmen.png');
+        this.load.image('armySpearmen', 'assets/army-clubmen.png');
+        this.load.image('armyClubmen', 'assets/army-spearmen.png');
     }
 
     create() {
@@ -267,7 +270,7 @@ export default class SceneGame extends Phaser.Scene {
         this.turnOfPlayer = 1;
 
 
-        
+
         this.updateUI();
     }
 
@@ -275,12 +278,12 @@ export default class SceneGame extends Phaser.Scene {
         this.controls.update(delta);
     }
 
-    updateUI(){
+    updateUI() {
 
         this.txtCash[1].setText('$' + this.cashPlayers[1]);
         this.txtCashIncome[1].setText("income: $" + this.calculatePlayerIncome(1));
         this.txtCashCost[1].setText("cost: $" + this.calculatePlayerCosts(1));
-        
+
     }
 
     //TODO: change the instance variables to deal with multiple players.
@@ -318,10 +321,13 @@ export default class SceneGame extends Phaser.Scene {
 
         console.log("calculating turn: player2...");
 
-        this.cashP2 += 100;
+        this.replenishPhase(2);
 
-        //do something
+        //do something for player 2
 
+
+
+        //now player 1's turn
         this.btnEndTurn.clearTint();
         this.turnOfPlayer = 1;
         this.replenishPhase(this.turnOfPlayer);
@@ -331,18 +337,27 @@ export default class SceneGame extends Phaser.Scene {
 
     replenishPhase(playerNumber) {
 
-        //army stuff
+        /**
+         * money stuff
+         */
+
+        let income = this.calculatePlayerIncome(1) - this.calculatePlayerCosts(1);
+        this.addCash(playerNumber, income);
+
+        /**
+         * army stuff
+         */
         let armies = this.armyPlayers[playerNumber];
-        armies.forEach(army => {
-            army.moveAmount = army.moveMax;
-        });
 
-        //money stuff
-        let income = this.calculatePlayerIncome(1) - this.calculatePlayerCosts(1);        
-        this.addCash(1, income);
+        if (armies != null) {
+            armies.forEach(army => {
+                army.moveAmount = army.moveMax;
+            });
+        }
 
-        //
 
+
+        console.log("cash of " + playerNumber + ": " + this.cashPlayers[playerNumber]);
     }
 
     villageClicked(pointer) {
@@ -678,22 +693,22 @@ export default class SceneGame extends Phaser.Scene {
         });
     }
 
-    calculatePlayerIncome(player){
+    calculatePlayerIncome(player) {
 
         //TODO: complete this
         return 10;
     }
 
-    calculatePlayerCosts(player){
+    calculatePlayerCosts(player) {
 
         //TODO: complete this
 
         let totalCost = 0;
 
-        if(this.armyPlayers[player] == null)
+        if (this.armyPlayers[player] == null)
             return 0;
 
-        this.armyPlayers[player].forEach(army =>{
+        this.armyPlayers[player].forEach(army => {
             totalCost += army.calculateCost();
         });
 
