@@ -3,8 +3,10 @@ import GameUtils from './GameUtils.js';
 
 import Board from './Board.js';
 import Village from './Village.js';
+import RatCave from './RatCave.js';
+
 import Army from './Army.js';
-import Spearman from './army/Spearman.js';
+import Spearman from './army/Caveman.js';
 
 export default class SceneGame extends Phaser.Scene {
 
@@ -17,14 +19,18 @@ export default class SceneGame extends Phaser.Scene {
 
         //TODO: temporary fix
         //TODO: handle collisions?
-        this.villages = [
-            { row: 2, col: 2, name: "mad katz", player: 1 },
-            { row: 6, col: 6, name: "baddies", player: 2 }];
+        this.buildings = [
+            { row: 2, col: 2, name: "mad katz", type: "village", player: 1 },
+            { row: 6, col: 6, name: "baddies", type: "village", player: 2 },
+            { row: 2, col: 6, name: "rats", type: "ratCave", player: 3 }
+        ];
 
         //for input and camera
         this.controls;
 
         this.gameOver = false;
+
+        this.numPlayers;
 
         this.cashPlayers = [];
         //[player #] = array of army pieces
@@ -69,8 +75,8 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image('btnCreateArmy', 'assets/btn-create-army.png');
 
         //armies
-        this.load.image('armySpearmen', 'assets/army-clubmen.png');
-        this.load.image('armyClubmen', 'assets/army-spearmen.png');
+        this.load.image('armyClubmen', 'assets/army-clubmen.png');
+        this.load.image('armySpearmen', 'assets/army-spearmen.png');
     }
 
     create() {
@@ -120,38 +126,54 @@ export default class SceneGame extends Phaser.Scene {
         }
 
         /**
-        * draw villages
+        * draw buildings
         */
 
-        console.log(typeof (this));
+        console.log("in create, 'this' is:" + typeof (this));
 
-        this.villages.forEach(village => {
-            x = 256 + (village.row * 256);
-            y = 256 + (village.col * 256);
-            let name = village.name;
-            let player = village.player;
+        this.buildings.forEach(building => {
+            x = 256 + (building.col * 256);
+            y = 256 + (building.row * 256);
+            let name = building.name;
+            let player = building.player;
 
-            tempSprite = this.add.sprite(x, y, 'buildVillage')
+            let imageName, data;
+            let hasText = false;
+            switch (building.type) {
+                case "village":
+                    imageName = "buildVillage";
+                    data = new Village(building.row, building.col, x, y, player, name);
+                    hasText = true;
+                    break;
+                case "ratCave":
+                    imageName = "buildRatCave";
+                    data = new RatCave(building.row, building.col, x, y, player);
+                    break;
+                default:
+                    throw "undefined building type loaded";
+            }
+
+            tempSprite = this.add.sprite(x, y, imageName)
                 .setInteractive()
                 .setDataEnabled()
                 .on("pointerdown", this.villageClicked);
 
-            village = new Village(village.row, village.col, x, y, player, name);
+            this.board.boardBuildings[building.row][building.col] = tempSprite;
 
-            this.board.boardVillages[village.row][village.col] = tempSprite;
+            tempSprite.data.set("row", building.row);
+            tempSprite.data.set("col", building.col);
+            tempSprite.data.set("data", data);
 
-            tempSprite.data.set("row", village.row);
-            tempSprite.data.set("col", village.col);
-            tempSprite.data.set("data", village);
+            if (hasText) {
+                tempText = this.add.text(x, y + 100)
+                    .setText(building.name)
+                    .setFontSize(38)
+                    .setAlign("center")
+                    .setOrigin(0.5)
+                    .setBackgroundColor("#000000");
 
-            tempText = this.add.text(x, y + 100)
-                .setText(village.name)
-                .setFontSize(38)
-                .setAlign("center")
-                .setOrigin(0.5)
-                .setBackgroundColor("#000000");
-
-            this.textsVillageName.push(tempText);
+                this.textsVillageName.push(tempText);
+            }
         });
 
         /**
@@ -160,6 +182,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //UI cash
         //TODO: consolidate texts?
+        //TODO: experiment with overlapping scenes
         y = -375
         this.txtCash[1] = this.add.text(-375, y)
             .setScrollFactor(0)
@@ -259,7 +282,7 @@ export default class SceneGame extends Phaser.Scene {
          */
 
         //init variables
-        this.numPlayers = 2;
+        this.numPlayers = 3;
 
         //init cash
         for (let i = 1; i <= this.numPlayers; i++) {
@@ -268,8 +291,6 @@ export default class SceneGame extends Phaser.Scene {
         }
 
         this.turnOfPlayer = 1;
-
-
 
         this.updateUI();
     }
@@ -311,26 +332,32 @@ export default class SceneGame extends Phaser.Scene {
         //disable all game controls
         scene.btnEndTurn.setTint(0xff0000);
 
-        scene.turnOfPlayer = 2;
-
         //TODO: fix this later
-        scene.calculateTurnPlayer2();
-    }
+        for (let i = 2; i <= this.numPlayers; i++) {
 
-    calculateTurnPlayer2() {
-
-        console.log("calculating turn: player2...");
-
-        this.replenishPhase(2);
-
-        //do something for player 2
-
-
+            scene.turnOfPlayer = i;
+            scene.calculateTurnPlayer(scene.turnOfPlayer);
+        }
 
         //now player 1's turn
-        this.btnEndTurn.clearTint();
-        this.turnOfPlayer = 1;
+        scene.turnOfPlayer = 1;
         this.replenishPhase(this.turnOfPlayer);
+
+        //TODO: disable button when needed
+        this.btnEndTurn.clearTint();
+    }
+
+    calculateTurnPlayer(player) {
+
+        console.log("calculating turn: player: " + player);
+
+        this.replenishPhase(player);
+
+        //do something for player
+
+        //TODO: replace this function with more functions
+        if (this.turnOfPlayer == 3)
+            logicRats();
 
         console.log("ending turn: player2...");
     }
@@ -355,9 +382,11 @@ export default class SceneGame extends Phaser.Scene {
             });
         }
 
-
-
         console.log("cash of " + playerNumber + ": " + this.cashPlayers[playerNumber]);
+    }
+
+    logicRats() {
+
     }
 
     villageClicked(pointer) {
@@ -671,8 +700,8 @@ export default class SceneGame extends Phaser.Scene {
             let col = tile.col;
 
             //village
-            if (this.board.boardVillages[row][col] != null) {
-                let village = this.board.boardVillages[row][col];
+            if (this.board.boardBuildings[row][col] != null) {
+                let village = this.board.boardBuildings[row][col];
 
                 if (village.data.get("data").player == 1)
                     this.board.boardTerrainSprites[row][col].setTint("0x00aaff");
@@ -713,6 +742,12 @@ export default class SceneGame extends Phaser.Scene {
         });
 
         return totalCost;
+
+    }
+
+    ratCaveClicked(pointer) {
+
+        let scene = this.scene;
 
     }
 

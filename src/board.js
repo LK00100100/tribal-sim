@@ -10,7 +10,7 @@ export default class Board {
 
         //these hold gameobjects (which hold data)
         this.boardTerrainSprites = []; //holds terrain sprites
-        this.boardVillages = []; //holds terrain sprites
+        this.boardBuildings = []; //holds terrain sprites
         this.boardUnits = [];   //holds occupying units
 
         this.terrainType = ["tileGrass", "tileOcean", "tileHill", "tileDesert", "tileForest"];
@@ -71,7 +71,7 @@ export default class Board {
             for (let col = 0; col < 8; col++) {
                 theRow.push(null);
             }
-            this.boardVillages.push(theRow);
+            this.boardBuildings.push(theRow);
         }
 
     }
