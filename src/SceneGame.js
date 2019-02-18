@@ -53,6 +53,8 @@ export default class SceneGame extends Phaser.Scene {
         //for input and camera
         this.controls;
 
+        this.day;
+
         this.gameOver = false;
 
         this.numPlayers;
@@ -165,7 +167,7 @@ export default class SceneGame extends Phaser.Scene {
             let imageName, data;
             switch (building.type) {
                 case "village":
-                    switch(this.playerType[building.player]){
+                    switch (this.playerType[building.player]) {
                         case "cavemen":
                             imageName = "buildVillage";
                             break;
@@ -175,7 +177,7 @@ export default class SceneGame extends Phaser.Scene {
                         default:
                             throw "undefined building type for this race"
                     }
-                    
+
                     data = new Village(building.row, building.col, x, y, player, name);
                     data.population = building.population;
                     data.amountFood = building.amountFood;
@@ -209,6 +211,12 @@ export default class SceneGame extends Phaser.Scene {
         /**
         * draw UI
         */
+        this.txtDay = this.add.text(1180, 980)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setOrigin(1, 0) //right-to-left text
+            .setShadow(1, 1, '#000000', 2);
 
         //UI cash
         //TODO: consolidate texts?
@@ -341,6 +349,7 @@ export default class SceneGame extends Phaser.Scene {
         }
 
         this.turnOfPlayer = 1;
+        this.day = 1;
 
         this.updateUI();
     }
@@ -352,6 +361,7 @@ export default class SceneGame extends Phaser.Scene {
     updateUI() {
 
         //TODO: replace with icons later
+        this.txtDay.setText("day: " + this.day);
 
         //cash
         this.txtCash[1].setText('$' + this.cashPlayers[1]);
@@ -405,6 +415,8 @@ export default class SceneGame extends Phaser.Scene {
         scene.replenishPhase(scene.turnOfPlayer);
 
         //TODO: disable button when needed
+        scene.day++;
+        scene.updateUI();
         scene.btnEndTurn.clearTint();
     }
 
