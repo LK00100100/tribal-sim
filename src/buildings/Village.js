@@ -8,10 +8,15 @@ export default class Village extends Building {
         this.name = name;
 
         this.villageId;
-    }
+        this.population;
 
-    printTest(){
-        console.log("test village");
+        this.incomeFood;
+        this.incomeStone;
+        this.incomeWood;
+        
+        this.amountFood;
+        this.amountStone;
+        this.amountWood;
     }
 
 }
