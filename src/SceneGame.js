@@ -404,6 +404,9 @@ export default class SceneGame extends Phaser.Scene {
             this.txtVillageWood.setText("Wood: " + village.amountWood + " +" + village.incomeWood);
         }
 
+        if (this.selectedArmy != null)
+            this.updateTextArmy(this.selectedArmy.data.get("data"));
+
     }
 
     //TODO: change the instance variables to deal with multiple players.
@@ -426,8 +429,6 @@ export default class SceneGame extends Phaser.Scene {
         if (pointer.rightButtonDown())
             return;
 
-        scene.deselectEverything();
-
         //disable all game controls
         scene.btnEndTurn.setTint(0xff0000);
 
@@ -441,6 +442,9 @@ export default class SceneGame extends Phaser.Scene {
         //now player 1's turn
         scene.turnOfPlayer = 1;
         scene.replenishPhase(scene.turnOfPlayer);
+
+        if (scene.selectedArmy != null)
+            scene.showPossibleArmyMoves(scene.selectedArmy.data.get("data"));
 
         //TODO: disable button when needed
         scene.day++;
@@ -603,7 +607,6 @@ export default class SceneGame extends Phaser.Scene {
 
         //display army texts
         GameUtils.showGameObjects(scene.uiArmy);
-        scene.updateTextArmy(army);
 
         //TODO: do only on double click.
         scene.cam.pan(this.x, this.y, 500);
@@ -614,9 +617,15 @@ export default class SceneGame extends Phaser.Scene {
 
         this.setTint(0xffff00);
 
-        scene.getPossibleArmyMoves(army);
-        scene.highlightTiles(scene.selectedArmyPossibleMoves);
+        scene.showPossibleArmyMoves(army);
 
+        scene.updateUI();
+
+    }
+
+    showPossibleArmyMoves(army) {
+        this.getPossibleArmyMoves(army);
+        this.highlightTiles(this.selectedArmyPossibleMoves);
     }
 
     updateTextArmy(army) {
