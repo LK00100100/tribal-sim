@@ -1,7 +1,7 @@
 
 export default class Army {
 
-    constructor(row, col, player, village){
+    constructor(row, col, player, village) {
 
         this.row = row;
         this.col = col;
@@ -14,12 +14,12 @@ export default class Army {
         this.units = [];
     }
 
-    addUnit(unit){
+    addUnit(unit) {
         this.units.push(unit);
     }
 
     //returns the complete size of the army    
-    size(){
+    size() {
 
         let total = 0;
 
@@ -31,7 +31,7 @@ export default class Army {
 
     }
 
-    calculateCost(){
+    calculateCost() {
 
         //TODO: complete this later
 
@@ -39,7 +39,7 @@ export default class Army {
 
     }
 
-    calculateAttrition(){
+    calculateAttrition() {
 
         return;
     }

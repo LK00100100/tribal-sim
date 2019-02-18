@@ -38,6 +38,7 @@ export default class SceneGame extends Phaser.Scene {
                 population: 100,
                 amountFood: 200,
                 amountStone: 50,
+                amountWood: 100
             },
             {
                 row: 2, col: 6,
@@ -47,6 +48,7 @@ export default class SceneGame extends Phaser.Scene {
                 population: 100,
                 amountFood: 200,
                 amountStone: 50,
+                amountWood: 100
             }
         ];
 
@@ -59,9 +61,11 @@ export default class SceneGame extends Phaser.Scene {
 
         this.numPlayers;
 
+        //TODO: players-cash
         this.cashPlayers = [];
         //[player #] = array of army pieces
         this.armyPlayers = [];
+        this.playersBuilding = [];
 
         //ui
         this.uiVillage = [];
@@ -181,6 +185,9 @@ export default class SceneGame extends Phaser.Scene {
                     data = new Village(building.row, building.col, x, y, player, name);
                     data.population = building.population;
                     data.amountFood = building.amountFood;
+                    data.amountStone = building.amountStone;
+                    data.amountWood = building.amountWood;
+
                     break;
                 default:
                     throw "undefined building type loaded";
@@ -192,6 +199,11 @@ export default class SceneGame extends Phaser.Scene {
                 .on("pointerdown", this.villageClicked);
 
             this.board.boardBuildings[building.row][building.col] = tempSprite;
+
+            if (this.playersBuilding[building.player] == null)
+                this.playersBuilding[building.player] = [];
+
+            this.playersBuilding[building.player].push(tempSprite);
 
             tempSprite.data.set("row", building.row);
             tempSprite.data.set("col", building.col);
@@ -266,6 +278,18 @@ export default class SceneGame extends Phaser.Scene {
             .setDepth(100)
             .setShadow(3, 3, '#000000', 3);
 
+        this.txtVillageStone = this.add.text(-375, y + 120)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setShadow(3, 3, '#000000', 3);
+
+        this.txtVillageWood = this.add.text(-375, y + 180)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setShadow(3, 3, '#000000', 3);
+
         this.btnCreateArmy = this.add.sprite(-200, 200, 'btnCreateArmy')
             .setScrollFactor(0)
             .setInteractive()
@@ -275,6 +299,8 @@ export default class SceneGame extends Phaser.Scene {
 
         this.uiVillage.push(this.txtVillagePopulation);
         this.uiVillage.push(this.txtVillageFood);
+        this.uiVillage.push(this.txtVillageStone);
+        this.uiVillage.push(this.txtVillageWood);
         this.uiVillage.push(this.btnCreateArmy);
 
         //UI - army
@@ -373,7 +399,9 @@ export default class SceneGame extends Phaser.Scene {
             let village = this.selectedVillage.data.get("data");
 
             this.txtVillagePopulation.setText("Population: " + village.population);
-            this.txtVillageFood.setText("Food: " + village.amountFood)
+            this.txtVillageFood.setText("Food: " + village.amountFood + " +" + village.incomeFood);
+            this.txtVillageStone.setText("Stone: " + village.amountStone + " +" + village.incomeStone);
+            this.txtVillageWood.setText("Wood: " + village.amountWood + " +" + village.incomeWood);
         }
 
     }
@@ -454,6 +482,20 @@ export default class SceneGame extends Phaser.Scene {
                 army.moveAmount = army.moveMax;
             });
         }
+
+        /**
+         * village stuff
+         */
+
+        let buildings = this.playersBuilding[playerNumber];
+
+        buildings.forEach(building => {
+            let data = building.data.get("data");
+
+            if (data instanceof Village) {
+                data.calculateDay();
+            }
+        });
 
         console.log("cash of " + playerNumber + ": " + this.cashPlayers[playerNumber]);
     }
