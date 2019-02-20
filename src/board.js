@@ -1,4 +1,6 @@
 
+import Village from "./buildings/Village.js";
+
 export default class Board {
 
     constructor() {
@@ -14,6 +16,9 @@ export default class Board {
         this.boardUnits = [];   //holds occupying units
 
         this.terrainType = ["tileGrass", "tileOcean", "tileHill", "tileDesert", "tileForest"];
+
+        //TODO: pull this out completely.
+        this.directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
     }
 
     initBoard(someInputHereLater) {
@@ -103,6 +108,8 @@ export default class Board {
         if (this.boardUnits[row][col] != null)
             return false;
 
+
+        //TODO: probably remove this board in the future for more features
         return this.boardWalkable[row][col];
     }
 
@@ -129,6 +136,102 @@ export default class Board {
 
         return 99999;
 
+    }
+
+    getRelatedBuildings(targetVillage) {
+
+        let row = targetVillage.row;
+        let col = targetVillage.col;
+
+        return this.getRelatedBuildingsHelper(targetVillage, row, col, new Set());
+    }
+
+    /**
+     * returns an array of row/col with Buildings connected to the target village
+     * @param {*} targetVillage data of
+     * @param {*} row 
+     * @param {*} col 
+     * @param {*} visited - a set of visited coordinates 
+     */
+    getRelatedBuildingsHelper(targetVillage, row, col, visited) {
+
+        let answer = [];
+
+        if (this.isWithinBounds(row, col) == false)
+            return answer;
+
+        let key = row + "," + col;
+
+        if (visited.has(key))
+            return answer;
+
+        visited.add(key);
+
+        let building = this.boardBuildings[row][col];
+
+        //no building here
+        if (building == null)
+            return answer;
+
+        building = building.data.get("data");
+
+        //if this village is not ours
+        if (building instanceof Village) {
+            if (building != targetVillage)
+                return answer;
+        }
+        //if building does not have a target village
+        else if (building.village == null)
+            return answer;
+
+        //connection found, so spread
+        if (building.village == targetVillage || building instanceof Village) {
+            answer.push({ row: row, col: col });
+
+            for (let d = 0; d < this.directions.length; d++) {
+                let i = this.directions[d][0];
+                let j = this.directions[d][1];
+                answer.concat(this.getRelatedBuildingsHelper(targetVillage, row + i, col + j, visited));
+            }
+        }
+
+        return answer;
+
+    }
+
+    /**
+     * gets only neighbors of tiles.
+     * @param {*} tiles 
+     */
+    getNeighbors(tiles) {
+
+        let answer = [];
+
+        let visited = new Set();
+
+        tiles.forEach(tile => {
+            let row = tile.row;
+            let col = tile.col;
+
+            visited.add(row + "," + col);
+
+            for (let d = 0; d < this.directions.length; d++) {
+                let i = this.directions[d][0];
+                let j = this.directions[d][1];
+
+                let key = (row + i) + "," + (col + j);
+
+                if (!this.isWithinBounds(row + i, col + j))
+                    continue;
+
+                if (visited.has(key))
+                    continue;
+
+                answer.push({ row: row + i, col: col + j });
+            }
+        });
+
+        return answer;
     }
 
 }

@@ -25,20 +25,20 @@ export default class SceneGame extends Phaser.Scene {
                 name: "mad katz",
                 type: "village",
                 player: 1,
-                population: 100,
-                amountFood: 200,
-                amountStone: 50,
-                amountWood: 100
+                population: 50,
+                amountFood: 100,
+                amountStone: 25,
+                amountWood: 50
             },
             {
                 row: 6, col: 6,
                 name: "baddies",
                 type: "village",
                 player: 2,
-                population: 100,
-                amountFood: 200,
-                amountStone: 50,
-                amountWood: 100
+                population: 20,
+                amountFood: 100,
+                amountStone: 25,
+                amountWood: 50
             },
             {
                 row: 2, col: 6,
@@ -47,8 +47,8 @@ export default class SceneGame extends Phaser.Scene {
                 player: 3,
                 population: 100,
                 amountFood: 200,
-                amountStone: 50,
-                amountWood: 100
+                amountStone: 0,
+                amountWood: 0
             }
         ];
 
@@ -83,6 +83,9 @@ export default class SceneGame extends Phaser.Scene {
         this.selectedArmy;
 
         this.selectedArmyPossibleMoves;
+        this.selectedVillageBuildings;
+        //TODO: considate army and village moves
+        this.possibleMoves;
 
         this.uiArmy = [];
         this.textsVillageName = [];
@@ -98,12 +101,24 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image(this.board.terrainType[4], 'assets/tile-forest.png');
         this.load.image('tileGrid', 'assets/tile-grid.png');
 
+        //buildings
         this.load.image('buildVillage', 'assets/build-village.png');
         this.load.image('buildRatCave', 'assets/build-rat-cave.png');
+        this.load.image('buildFarm', 'assets/build-farm.png');
+        this.load.image('buildFarm', 'assets/build-lumber-mill.png');
+        this.load.image('buildFarm', 'assets/build-quarry.png');
 
-        //ui stuff
+        /**
+         * ui stuff
+         */
         this.load.image('btnEndTurn', 'assets/btn-end-turn.png');
+
+        //ui, village
         this.load.image('btnCreateArmy', 'assets/btn-create-army.png');
+        this.load.image('btnBuyBuilding', 'assets/btn-buy-building.png');
+        this.load.image('btnBuildFarm', 'assets/btn-build-farm.png');
+        this.load.image('btnBuildQuarry', 'assets/btn-build-quarry.png');
+        this.load.image('btnBuildLumberMill', 'assets/btn-build-lumber-mill.png');
 
         //armies
         this.load.image('armyClubmen', 'assets/army-clubmen.png');
@@ -119,7 +134,7 @@ export default class SceneGame extends Phaser.Scene {
         this.add.image(0, 0, 'grid').setOrigin(0);
 
         /**
-        * draw the board with images
+        * draw the terrain
         */
         this.board.initBoard();
         console.log(this.board.boardTerrain);
@@ -141,7 +156,7 @@ export default class SceneGame extends Phaser.Scene {
                 tempSprite = this.add.sprite(x, y, currentTerrainName)
                     .setInteractive()
                     .setDataEnabled()
-                    .on('pointerdown', this.terrainClicked);
+                    .on('pointerdown', this.clickedTerrain);
 
                 tempSprite.data.set("row", row);
                 tempSprite.data.set("col", col);
@@ -169,9 +184,11 @@ export default class SceneGame extends Phaser.Scene {
             let player = building.player;
 
             let imageName, data;
+            let race = this.playerType[building.player];
+
             switch (building.type) {
                 case "village":
-                    switch (this.playerType[building.player]) {
+                    switch (race) {
                         case "cavemen":
                             imageName = "buildVillage";
                             break;
@@ -187,6 +204,7 @@ export default class SceneGame extends Phaser.Scene {
                     data.amountFood = building.amountFood;
                     data.amountStone = building.amountStone;
                     data.amountWood = building.amountWood;
+                    data.race = race;
 
                     break;
                 default:
@@ -196,7 +214,7 @@ export default class SceneGame extends Phaser.Scene {
             tempSprite = this.add.sprite(x, y, imageName)
                 .setInteractive()
                 .setDataEnabled()
-                .on("pointerdown", this.villageClicked);
+                .on("pointerdown", this.clickedVillage);
 
             this.board.boardBuildings[building.row][building.col] = tempSprite;
 
@@ -259,7 +277,6 @@ export default class SceneGame extends Phaser.Scene {
             .setDepth(100)
             .on('pointerdown', this.endTurn);
 
-
         /**
          * UI - village
          */
@@ -290,20 +307,48 @@ export default class SceneGame extends Phaser.Scene {
             .setDepth(100)
             .setShadow(3, 3, '#000000', 3);
 
-        this.btnCreateArmy = this.add.sprite(-200, 200, 'btnCreateArmy')
+        this.btnCreateArmy = this.add.sprite(-200, y + 300, 'btnCreateArmy')
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', this.createArmy);
 
+        this.btnBuildFarm = this.add.sprite(-200, y + 440, 'btnBuildFarm')
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .on('pointerdown', function (pointer) {
+                this.scene.buyBuilding(pointer, this, "farm");
+            });
+
+        this.btnBuildLumberMill = this.add.sprite(-200, y + 580, 'btnBuildLumberMill')
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .on('pointerdown', function (pointer) {
+                this.scene.buyBuilding(pointer, this, "lumberMill");
+            });
+
+        this.btnBuildQuarry = this.add.sprite(-200, y + 720, 'btnBuildQuarry')
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .on('pointerdown', function (pointer) {
+                this.scene.buyBuilding(pointer, this, "quarry");
+            });
 
         this.uiVillage.push(this.txtVillagePopulation);
         this.uiVillage.push(this.txtVillageFood);
         this.uiVillage.push(this.txtVillageStone);
         this.uiVillage.push(this.txtVillageWood);
         this.uiVillage.push(this.btnCreateArmy);
+        this.uiVillage.push(this.btnBuildFarm);
+        this.uiVillage.push(this.btnBuildLumberMill);
+        this.uiVillage.push(this.btnBuildQuarry);
 
-        //UI - army
+        /**
+         * UI - army
+         */
 
         y = -120;
 
@@ -508,9 +553,13 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    villageClicked(pointer) {
+    clickedVillage(pointer) {
 
         let scene = this.scene;
+
+        if (scene.selectedVillage == this) {
+            scene.cam.pan(this.x, this.y, 500); //(x, y, duration) 
+        }
 
         console.log("village clicked");
 
@@ -532,11 +581,9 @@ export default class SceneGame extends Phaser.Scene {
         scene.selectedVillage = this;
         scene.selectedVillage.setTint("0xffff00");
 
-        //TODO: do only on double click.
-        scene.cam.pan(this.x, this.y, 500); //(x, y, duration)
-
         scene.updateUI();
         GameUtils.showGameObjects(scene.uiVillage);
+        GameUtils.clearTintArray(scene.uiVillage);
     }
 
     createArmy(pointer) {
@@ -545,31 +592,40 @@ export default class SceneGame extends Phaser.Scene {
             return;
 
         let scene = this.scene;
-        let selectedVillage = scene.selectedVillage.data.get("data");
-        let row = selectedVillage.row;
-        let col = selectedVillage.col;
+        let village = scene.selectedVillage.data.get("data");
+        let row = village.row;
+        let col = village.col;
+
+        scene.unhighlightTiles(scene.possibleMoves);
 
         //space already occupied
-
         if (scene.board.boardUnits[row][col] != null) {
             console.log("already occupied");
             return;
         }
 
-        //TODO: change this later
+        //TODO: actual resource calculation
         if (scene.cashPlayers[1] < 100) {
             console.log("not enough $");
             return;
         }
 
+        //TODO: make more precise
+        if (village.population < 10) {
+            console.log("not enough people");
+            return;
+        }
+
+        //cost
+        village.population -= 10;
         scene.addCash(1, -100);
 
-        let armySprite = scene.add.sprite(selectedVillage.x, selectedVillage.y, 'armyClubmen')
+        let armySprite = scene.add.sprite(village.x, village.y, 'armyClubmen')
             .setInteractive()
             .setDataEnabled()
-            .on('pointerdown', scene.selectArmy);
+            .on('pointerdown', scene.clickedArmy);
 
-        let army = new Army(row, col, 1, selectedVillage);
+        let army = new Army(row, col, 1, village);
         army.moveAmount = 2;
         army.moveMax = 2;
 
@@ -593,12 +649,17 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    selectArmy(pointer) {
+    clickedArmy(pointer) {
+        let scene = this.scene;
+
+        //double click panning
+        if (pointer.leftButtonDown() && scene.selectedArmy == this) {
+            scene.cam.pan(this.x, this.y, 500);
+        }
 
         if (pointer.rightButtonDown())
             return;
 
-        let scene = this.scene;
         let army = this.data.get("data");
 
         scene.deselectEverything();
@@ -607,9 +668,6 @@ export default class SceneGame extends Phaser.Scene {
 
         //display army texts
         GameUtils.showGameObjects(scene.uiArmy);
-
-        //TODO: do only on double click.
-        scene.cam.pan(this.x, this.y, 500);
 
         GameUtils.showGameObjects(scene.uiArmy);
 
@@ -629,6 +687,7 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     updateTextArmy(army) {
+        //TODO: refactor and move
         this.txtArmySize.setText("Units: " + army.units.length);
         this.txtArmyVillage.setText("Village: " + army.village.name);
         this.txtArmyMoves.setText("Moves: " + army.moveAmount + "/" + army.moveMax);
@@ -647,12 +706,17 @@ export default class SceneGame extends Phaser.Scene {
         if (this.selectedArmy != null) {
             this.selectedArmy.clearTint();
             this.unhighlightTiles(this.selectedArmyPossibleMoves);
+            this.selectedArmy = null;
         }
-        this.selectedArmy = null;
+
+        if (this.possibleMoves != null) {
+            this.unhighlightTiles(this.possibleMoves);
+            this.possibleMoves = null;
+        }
     }
 
     //only used for moving armies.
-    terrainClicked(pointer) {
+    clickedTerrain(pointer) {
 
         console.log("terrain clicked...");
 
@@ -820,6 +884,10 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
+    /**
+     * 
+     * @param {*} tiles an array of row/col
+     */
     highlightTiles(tiles) {
         if (tiles == null)
             return;
@@ -862,7 +930,7 @@ export default class SceneGame extends Phaser.Scene {
 
     calculatePlayerCosts(player) {
 
-        //TODO: complete this
+        //TODO: complete this or remove this
 
         let totalCost = 0;
 
@@ -877,10 +945,27 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    ratCaveClicked(pointer) {
+    clickedRatCave(pointer) {
 
         let scene = this.scene;
 
     }
 
+    buyBuilding(pointer, gameObject, buildingType) {
+
+        if (pointer.rightButtonDown())
+            return;
+
+        console.log("before: build a " + buildingType);
+
+        GameUtils.clearTintArray(this.uiVillage);
+        gameObject.setTint("0x00ff00");
+
+        let village = this.selectedVillage.data.get("data");
+        this.possibleMoves = this.board.getRelatedBuildings(village);
+        this.possibleMoves = this.board.getNeighbors(this.possibleMoves);
+
+        this.highlightTiles(this.possibleMoves);
+
+    }
 }

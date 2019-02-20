@@ -9,4 +9,8 @@ export default class GameUtils {
     static showGameObjects(array){
         array.forEach(gameObject => gameObject.visible = true);
     }
+
+    static clearTintArray(array){
+        array.forEach(gameObject => gameObject.clearTint());
+    }
 }
