@@ -12,7 +12,7 @@ export default class Board {
 
         //these hold gameobjects (which hold data)
         this.boardTerrainSprites = []; //holds terrain sprites
-        this.boardBuildings = []; //holds terrain sprites
+        this.boardBuildings = []; //holds building sprites
         this.boardUnits = [];   //holds occupying units
 
         this.terrainType = ["tileGrass", "tileOcean", "tileHill", "tileDesert", "tileForest"];

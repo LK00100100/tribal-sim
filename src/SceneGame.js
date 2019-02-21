@@ -1,5 +1,6 @@
 
 import GameUtils from './GameUtils.js';
+import BuildingFactory from './buildings/BuildingFactory.js';
 
 import Board from './Board.js';
 import Village from './buildings/Village.js';
@@ -81,6 +82,7 @@ export default class SceneGame extends Phaser.Scene {
         //gameObjects
         this.selectedVillage;
         this.selectedArmy;
+        this.selectedBuyBuilding;
 
         this.selectedArmyPossibleMoves;
         this.selectedVillageBuildings;
@@ -105,8 +107,8 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image('buildVillage', 'assets/build-village.png');
         this.load.image('buildRatCave', 'assets/build-rat-cave.png');
         this.load.image('buildFarm', 'assets/build-farm.png');
-        this.load.image('buildFarm', 'assets/build-lumber-mill.png');
-        this.load.image('buildFarm', 'assets/build-quarry.png');
+        this.load.image('buildLumberMill', 'assets/build-lumber-mill.png');
+        this.load.image('buildQuarry', 'assets/build-quarry.png');
 
         /**
          * ui stuff
@@ -155,6 +157,7 @@ export default class SceneGame extends Phaser.Scene {
                 //tile of terrain
                 tempSprite = this.add.sprite(x, y, currentTerrainName)
                     .setInteractive()
+                    .setDepth(0)
                     .setDataEnabled()
                     .on('pointerdown', this.clickedTerrain);
 
@@ -232,6 +235,8 @@ export default class SceneGame extends Phaser.Scene {
                 .setFontSize(38)
                 .setAlign("center")
                 .setOrigin(0.5)
+
+                .setDepth(1)
                 .setBackgroundColor("#000000");
 
             this.textsVillageName.push(tempText);
@@ -318,7 +323,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.buyBuilding(pointer, this, "farm");
+                this.scene.buyBuilding(pointer, this, "Farm");
             });
 
         this.btnBuildLumberMill = this.add.sprite(-200, y + 580, 'btnBuildLumberMill')
@@ -326,7 +331,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.buyBuilding(pointer, this, "lumberMill");
+                this.scene.buyBuilding(pointer, this, "LumberMill");
             });
 
         this.btnBuildQuarry = this.add.sprite(-200, y + 720, 'btnBuildQuarry')
@@ -334,7 +339,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.buyBuilding(pointer, this, "quarry");
+                this.scene.buyBuilding(pointer, this, "Quarry");
             });
 
         this.uiVillage.push(this.txtVillagePopulation);
@@ -623,6 +628,7 @@ export default class SceneGame extends Phaser.Scene {
         let armySprite = scene.add.sprite(village.x, village.y, 'armyClubmen')
             .setInteractive()
             .setDataEnabled()
+            .setDepth(2)
             .on('pointerdown', scene.clickedArmy);
 
         let army = new Army(row, col, 1, village);
@@ -727,13 +733,68 @@ export default class SceneGame extends Phaser.Scene {
             return;
         }
 
-        if (scene.selectedArmy == null)
-            return;
+        //place building
+        if (scene.selectedBuyBuilding != null) {
+            scene.placeBuilding(pointer, this);
+            return
+        }
 
-        scene.moveArmy(scene.selectedArmy, this);
+        //move army
+        if (scene.selectedArmy != null) {
+            scene.moveArmy(scene.selectedArmy, this);
+            return;
+        }
 
     }
 
+    //TODO: place in some sort of building manager?
+    placeBuilding(pointer, terrainSprite) {
+
+        let row = terrainSprite.data.get("row");
+        let col = terrainSprite.data.get("col");
+
+        let x = terrainSprite.x;
+        let y = terrainSprite.y;
+
+        if (this.selectedBuyBuilding == null)
+            return;
+
+        if (this.possibleMoves == null)
+            return;
+
+        if (this.selectedVillage == null)
+            return;
+
+        //TODO: not in possible moves
+
+        let village = this.selectedVillage.data.get("data");
+
+        let building = BuildingFactory
+            .getVillageBuilding(this.selectedBuyBuilding, row, col, x, y, village);
+
+        //TODO:
+        let tempSprite = this.add.sprite(x, y, "build" + this.selectedBuyBuilding)
+            .setInteractive()
+            .setDataEnabled()
+            .setDepth(1)
+            .on("pointerdown", this.clickedBuilding);
+
+        this.board.boardBuildings[row][col] = building;
+
+        this.playersBuilding[village.player].push(tempSprite);
+
+        tempSprite.data.set("row", row);
+        tempSprite.data.set("col", col);
+        tempSprite.data.set("data", building);
+
+        //we're done here
+        this.unhighlightTiles(this.villageUi);
+        this.unhighlightTiles(this.possibleMoves);
+        this.possibleMoves = null;
+        this.selectedBuyBuilding = null;
+    }
+
+    //TODO: probably move to some army manager
     moveArmy(spriteArmy, squareTerrain) {
 
         let army = spriteArmy.data.get("data");
@@ -780,7 +841,7 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    //TODO: almost working
+    //TODO: move to some sort of armyManager
     getPossibleArmyMoves(army) {
 
         let possibleMoves = [];
@@ -956,8 +1017,18 @@ export default class SceneGame extends Phaser.Scene {
         if (pointer.rightButtonDown())
             return;
 
+        if (gameObject.isTinted) {
+            gameObject.clearTint();
+            this.unhighlightTiles(this.possibleMoves);
+            this.possibleMoves = null;
+
+            this.selectedBuyBuilding = null;
+            return;
+        }
+
         console.log("before: build a " + buildingType);
 
+        this.selectedBuyBuilding = buildingType;
         GameUtils.clearTintArray(this.uiVillage);
         gameObject.setTint("0x00ff00");
 
@@ -966,6 +1037,21 @@ export default class SceneGame extends Phaser.Scene {
         this.possibleMoves = this.board.getNeighbors(this.possibleMoves);
 
         this.highlightTiles(this.possibleMoves);
+
+    }
+
+    clickedBuilding(pointer) {
+        console.log("building clicked");
+
+        let scene = this.scene;
+
+        if (pointer.rightButtonDown()) {
+            if (scene.selectedArmy == null)
+                return;
+
+            scene.moveArmy(scene.selectedArmy, this);
+            return;
+        }
 
     }
 }
