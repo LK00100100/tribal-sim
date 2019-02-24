@@ -2,15 +2,15 @@
 export default class GameUtils {
 
     //input: an array of gameobjects
-    static hideGameObjects(array){
+    static hideGameObjects(array) {
         array.forEach(gameObject => gameObject.visible = false);
     }
 
-    static showGameObjects(array){
+    static showGameObjects(array) {
         array.forEach(gameObject => gameObject.visible = true);
     }
 
-    static clearTintArray(array){
+    static clearTintArray(array) {
         array.forEach(gameObject => gameObject.clearTint());
     }
 }

@@ -15,6 +15,7 @@ export default class Board {
         this.boardBuildings = []; //holds building sprites
         this.boardUnits = [];   //holds occupying units
 
+        //TODO: make an enums for terrain
         this.terrainType = ["tileGrass", "tileOcean", "tileHill", "tileDesert", "tileForest"];
 
         //TODO: pull this out completely.
@@ -113,6 +114,32 @@ export default class Board {
         return this.boardWalkable[row][col];
     }
 
+    isBuildable(row, col) {
+
+        if (this.isWithinBounds(row, col) == false)
+            return false;
+
+        //building already there
+        if (this.boardBuildings[row][col] != null)
+            return false;
+
+        //difficult terrain
+        switch (this.boardTerrain[row][col]) {
+            //ocean
+            case 1:
+                return false;
+            //hill
+            case 2:
+                return false;
+            //forest
+            case 4:
+                return false;
+        }
+
+        return true;
+
+    }
+
     //call isWalkable before you use this.
     movementCost(row, col) {
 
@@ -191,7 +218,7 @@ export default class Board {
             for (let d = 0; d < this.directions.length; d++) {
                 let i = this.directions[d][0];
                 let j = this.directions[d][1];
-                answer.concat(this.getRelatedBuildingsHelper(targetVillage, row + i, col + j, visited));
+                answer = answer.concat(this.getRelatedBuildingsHelper(targetVillage, row + i, col + j, visited));
             }
         }
 

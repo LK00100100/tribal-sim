@@ -9,11 +9,11 @@ export default class BuildingFactory {
         let player = village.player;
 
         switch (buildingType) {
-            case "farm":
+            case "Farm":
                 return new Farm(row, col, x, y, player, village);
-            case "lumberMill":
+            case "LumberMill":
                 return new LumberMill(row, col, x, y, player, village);
-            case "quarry":
+            case "Quarry":
                 return new Quarry(row, col, x, y, player, village);
         }
     }

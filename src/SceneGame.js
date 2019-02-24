@@ -765,30 +765,36 @@ export default class SceneGame extends Phaser.Scene {
         if (this.selectedVillage == null)
             return;
 
-        //TODO: not in possible moves
+        //not in possible moves
+        let isIn = false;
+        for (let i = 0; i < this.possibleMoves.length; i++) {
+            if (this.possibleMoves[i].row == row && this.possibleMoves[i].col == col)
+                isIn = true;
+        }
+
+        if (!isIn)
+            return false;
 
         let village = this.selectedVillage.data.get("data");
 
         let building = BuildingFactory
             .getVillageBuilding(this.selectedBuyBuilding, row, col, x, y, village);
 
-        //TODO:
         let tempSprite = this.add.sprite(x, y, "build" + this.selectedBuyBuilding)
             .setInteractive()
             .setDataEnabled()
             .setDepth(1)
             .on("pointerdown", this.clickedBuilding);
 
-        this.board.boardBuildings[row][col] = building;
-
-        this.playersBuilding[village.player].push(tempSprite);
-
         tempSprite.data.set("row", row);
         tempSprite.data.set("col", col);
         tempSprite.data.set("data", building);
 
+        this.board.boardBuildings[row][col] = tempSprite;
+        this.playersBuilding[village.player].push(tempSprite);
+
         //we're done here
-        this.unhighlightTiles(this.villageUi);
+        GameUtils.clearTintArray(this.uiVillage);
         this.unhighlightTiles(this.possibleMoves);
         this.possibleMoves = null;
         this.selectedBuyBuilding = null;
@@ -1021,7 +1027,6 @@ export default class SceneGame extends Phaser.Scene {
             gameObject.clearTint();
             this.unhighlightTiles(this.possibleMoves);
             this.possibleMoves = null;
-
             this.selectedBuyBuilding = null;
             return;
         }
@@ -1035,6 +1040,17 @@ export default class SceneGame extends Phaser.Scene {
         let village = this.selectedVillage.data.get("data");
         this.possibleMoves = this.board.getRelatedBuildings(village);
         this.possibleMoves = this.board.getNeighbors(this.possibleMoves);
+
+        //filter out impossible moves
+        for (let i = this.possibleMoves.length - 1; i >= 0; i--) {
+            let row = this.possibleMoves[i].row;
+            let col = this.possibleMoves[i].col;
+
+            if (!this.board.isBuildable(row, col)) {
+                this.possibleMoves.splice(i, 1);
+            }
+
+        }
 
         this.highlightTiles(this.possibleMoves);
 
