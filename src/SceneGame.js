@@ -800,8 +800,14 @@ export default class SceneGame extends Phaser.Scene {
         this.board.boardBuildings[row][col] = tempSprite;
         this.playersBuilding[village.player].push(tempSprite);
 
-        //TODO: change this later to reflect building costs
+        //TODO: change this later to reflect "final" building costs
         village.amountWood -= 100;
+
+        //re-calculate income
+        let coordinates = this.board.getRelatedBuildings(village);
+        let buildingsData = this.board.getBuildingsData(coordinates);
+        let countsOfBuildings = this.countBuildings(buildingsData);
+        village.calculateIncome(countsOfBuildings);
 
         this.updateUI();
 
