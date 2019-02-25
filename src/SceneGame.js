@@ -30,7 +30,7 @@ export default class SceneGame extends Phaser.Scene {
                 name: "mad katz",
                 type: "village",
                 player: 1,
-                population: 50,
+                population: 10,
                 amountFood: 100,
                 amountStone: 25,
                 amountWood: 50
@@ -40,7 +40,7 @@ export default class SceneGame extends Phaser.Scene {
                 name: "baddies",
                 type: "village",
                 player: 2,
-                population: 20,
+                population: 10,
                 amountFood: 100,
                 amountStone: 25,
                 amountWood: 50
@@ -50,7 +50,7 @@ export default class SceneGame extends Phaser.Scene {
                 name: "rabid rats",
                 type: "village",
                 player: 3,
-                population: 100,
+                population: 10,
                 amountFood: 200,
                 amountStone: 0,
                 amountWood: 0
@@ -428,10 +428,18 @@ export default class SceneGame extends Phaser.Scene {
         if (this.selectedVillage != null) {
             let village = this.selectedVillage.data.get("data");
 
-            this.txtVillagePopulation.setText("Population: " + village.population);
-            this.txtVillageFood.setText("Food: " + village.amountFood + " +" + village.incomeFood);
-            this.txtVillageStone.setText("Stone: " + village.amountStone + " +" + village.incomeStone);
-            this.txtVillageWood.setText("Wood: " + village.amountWood + " +" + village.incomeWood);
+            //TODO: put this in some sort of village manager. updateUi should do no calcs
+            let coordinates = this.board.getRelatedBuildings(village);
+            let buildingsData = this.board.getBuildingsData(coordinates);
+            let countsOfBuildings = this.countBuildings(buildingsData);
+            village.calculateIncome(countsOfBuildings);
+
+            let populationGrowth = village.getPopulationGrowthDay(countsOfBuildings.countHousing);
+
+            this.txtVillagePopulation.setText("Population: " + village.population + " (" + populationGrowth + ")");
+            this.txtVillageFood.setText("Food: " + village.amountFood + " (" + village.incomeFood + ")");
+            this.txtVillageStone.setText("Stone: " + village.amountStone + " (" + village.incomeStone + ")");
+            this.txtVillageWood.setText("Wood: " + village.amountWood + " (" + village.incomeWood + ")");
         }
 
         if (this.selectedArmy != null)
@@ -514,9 +522,9 @@ export default class SceneGame extends Phaser.Scene {
             if (data instanceof Village) {
                 let coordinates = this.board.getRelatedBuildings(data);
                 let buildingsData = this.board.getBuildingsData(coordinates);
-
                 let countsOfBuildings = this.countBuildings(buildingsData);
 
+                data.calculateIncome(countsOfBuildings);
                 data.calculateDay(countsOfBuildings);
             }
         });
@@ -804,11 +812,6 @@ export default class SceneGame extends Phaser.Scene {
         village.amountWood -= 100;
 
         //re-calculate income
-        let coordinates = this.board.getRelatedBuildings(village);
-        let buildingsData = this.board.getBuildingsData(coordinates);
-        let countsOfBuildings = this.countBuildings(buildingsData);
-        village.calculateIncome(countsOfBuildings);
-
         this.updateUI();
 
         //we're done here
