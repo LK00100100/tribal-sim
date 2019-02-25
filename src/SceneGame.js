@@ -62,17 +62,12 @@ export default class SceneGame extends Phaser.Scene {
 
         this.numPlayers;
 
-        //TODO: players-cash
-        this.cashPlayers = [];
         //[player #] = array of army pieces
         this.armyPlayers = [];
         this.playersBuilding = [];
 
         //ui
         this.uiVillage = [];
-        this.txtCash = [];
-        this.txtCashIncome = [];
-        this.txtCashCost = [];
 
         this.groupTerrain;
         this.groupGrid;
@@ -253,27 +248,9 @@ export default class SceneGame extends Phaser.Scene {
             .setOrigin(1, 0) //right-to-left text
             .setShadow(1, 1, '#000000', 2);
 
-        //UI cash
         //TODO: consolidate texts?
         //TODO: experiment with overlapping scenes
-        y = -375
-        this.txtCash[1] = this.add.text(-375, y)
-            .setScrollFactor(0)
-            .setFontSize(100)
-            .setDepth(100)
-            .setShadow(1, 1, '#000000', 2);
-
-        this.txtCashIncome[1] = this.add.text(-375, y + 90)
-            .setScrollFactor(0)
-            .setFontSize(70)
-            .setDepth(100)
-            .setShadow(1, 1, '#000000', 2);
-
-        this.txtCashCost[1] = this.add.text(-375, y + 150)
-            .setScrollFactor(0)
-            .setFontSize(70)
-            .setDepth(100)
-            .setShadow(1, 1, '#000000', 2);
+        y = -375;
 
         //button, end turn
         this.btnEndTurn = this.add.sprite(1050, 1100, 'btnEndTurn')
@@ -418,12 +395,6 @@ export default class SceneGame extends Phaser.Scene {
         //init variables
         this.numPlayers = 3;
 
-        //init cash
-        for (let i = 1; i <= this.numPlayers; i++) {
-            this.cashPlayers[i] = 0;
-            this.addCash(i, 200);
-        }
-
         this.turnOfPlayer = 1;
         this.day = 1;
 
@@ -439,11 +410,6 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: replace with icons later
         this.txtDay.setText("day: " + this.day);
 
-        //cash
-        this.txtCash[1].setText('$' + this.cashPlayers[1]);
-        this.txtCashIncome[1].setText("income: $" + this.calculatePlayerIncome(1));
-        this.txtCashCost[1].setText("cost: $" + this.calculatePlayerCosts(1));
-
         //village UI
         if (this.selectedVillage != null) {
             let village = this.selectedVillage.data.get("data");
@@ -458,18 +424,6 @@ export default class SceneGame extends Phaser.Scene {
             this.updateTextArmy(this.selectedArmy.data.get("data"));
 
     }
-
-    //TODO: change the instance variables to deal with multiple players.
-    addCash(player, cash) {
-
-        this.cashPlayers[player] += cash;
-
-        if (player != 1)
-            return;
-
-        this.updateUI();
-    }
-
 
     //TODO: make it for every player
     endTurn(pointer) {
@@ -520,13 +474,6 @@ export default class SceneGame extends Phaser.Scene {
     replenishPhase(playerNumber) {
 
         /**
-         * money stuff
-         */
-
-        let income = this.calculatePlayerIncome(1) - this.calculatePlayerCosts(1);
-        this.addCash(playerNumber, income);
-
-        /**
          * army stuff
          */
         let armies = this.armyPlayers[playerNumber];
@@ -551,7 +498,6 @@ export default class SceneGame extends Phaser.Scene {
             }
         });
 
-        console.log("cash of " + playerNumber + ": " + this.cashPlayers[playerNumber]);
     }
 
     logicRats() {
@@ -610,8 +556,8 @@ export default class SceneGame extends Phaser.Scene {
         }
 
         //TODO: actual resource calculation
-        if (scene.cashPlayers[1] < 100) {
-            console.log("not enough $");
+        if (village.amountWood < 10) {
+            console.log("not enough wood");
             return;
         }
 
@@ -621,9 +567,9 @@ export default class SceneGame extends Phaser.Scene {
             return;
         }
 
-        //cost
+        //subtract cost
+        village.amountWood -= 10;
         village.population -= 10;
-        scene.addCash(1, -100);
 
         let armySprite = scene.add.sprite(village.x, village.y, 'armyClubmen')
             .setInteractive()
@@ -792,6 +738,11 @@ export default class SceneGame extends Phaser.Scene {
 
         this.board.boardBuildings[row][col] = tempSprite;
         this.playersBuilding[village.player].push(tempSprite);
+
+        //TODO: change this later to reflect building costs
+        village.amountWood -= 100;
+
+        this.updateUI();
 
         //we're done here
         GameUtils.clearTintArray(this.uiVillage);
@@ -989,29 +940,6 @@ export default class SceneGame extends Phaser.Scene {
         });
     }
 
-    calculatePlayerIncome(player) {
-
-        //TODO: complete this
-        return 10;
-    }
-
-    calculatePlayerCosts(player) {
-
-        //TODO: complete this or remove this
-
-        let totalCost = 0;
-
-        if (this.armyPlayers[player] == null)
-            return 0;
-
-        this.armyPlayers[player].forEach(army => {
-            totalCost += army.calculateCost();
-        });
-
-        return totalCost;
-
-    }
-
     clickedRatCave(pointer) {
 
         let scene = this.scene;
@@ -1033,11 +961,19 @@ export default class SceneGame extends Phaser.Scene {
 
         console.log("before: build a " + buildingType);
 
+        let village = this.selectedVillage.data.get("data");
+
+        //TODO: ensure enough resources from this specific village
+        if(village.amountWood < 100){
+            console.log("not enough wood. need 100");
+            return;
+        }
+
         this.selectedBuyBuilding = buildingType;
         GameUtils.clearTintArray(this.uiVillage);
         gameObject.setTint("0x00ff00");
 
-        let village = this.selectedVillage.data.get("data");
+        
         this.possibleMoves = this.board.getRelatedBuildings(village);
         this.possibleMoves = this.board.getNeighbors(this.possibleMoves);
 
