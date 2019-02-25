@@ -1,6 +1,7 @@
 import Farm from "./Farm.js";
 import LumberMill from "./LumberMill.js";
 import Quarry from "./Quarry.js";
+import Housing from "./Housing.js";
 
 export default class BuildingFactory {
 
@@ -15,6 +16,8 @@ export default class BuildingFactory {
                 return new LumberMill(row, col, x, y, player, village);
             case "Quarry":
                 return new Quarry(row, col, x, y, player, village);
+            case "Housing":
+                return new Housing(row, col, x, y, player, village);
         }
     }
 

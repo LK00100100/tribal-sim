@@ -4,6 +4,10 @@ import BuildingFactory from './buildings/BuildingFactory.js';
 
 import Board from './Board.js';
 import Village from './buildings/Village.js';
+import Farm from "./buildings/Farm.js";
+import LumberMill from "./buildings/LumberMill.js";
+import Quarry from "./buildings/Quarry.js";
+import Housing from "./buildings/Housing.js";
 
 import Army from './Army.js';
 import Spearman from './army/Caveman.js';
@@ -104,6 +108,7 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image('buildFarm', 'assets/build-farm.png');
         this.load.image('buildLumberMill', 'assets/build-lumber-mill.png');
         this.load.image('buildQuarry', 'assets/build-quarry.png');
+        this.load.image('buildHousing', 'assets/build-housing.png');
 
         /**
          * ui stuff
@@ -112,10 +117,10 @@ export default class SceneGame extends Phaser.Scene {
 
         //ui, village
         this.load.image('btnCreateArmy', 'assets/btn-create-army.png');
-        this.load.image('btnBuyBuilding', 'assets/btn-buy-building.png');
         this.load.image('btnBuildFarm', 'assets/btn-build-farm.png');
         this.load.image('btnBuildQuarry', 'assets/btn-build-quarry.png');
         this.load.image('btnBuildLumberMill', 'assets/btn-build-lumber-mill.png');
+        this.load.image('btnBuildHousing', 'assets/btn-build-housing.png');
 
         //armies
         this.load.image('armyClubmen', 'assets/army-clubmen.png');
@@ -319,6 +324,14 @@ export default class SceneGame extends Phaser.Scene {
                 this.scene.buyBuilding(pointer, this, "Quarry");
             });
 
+        this.btnBuildHousing = this.add.sprite(-200, y + 860, 'btnBuildHousing')
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .on('pointerdown', function (pointer) {
+                this.scene.buyBuilding(pointer, this, "Housing");
+            });
+
         this.uiVillage.push(this.txtVillagePopulation);
         this.uiVillage.push(this.txtVillageFood);
         this.uiVillage.push(this.txtVillageStone);
@@ -327,6 +340,7 @@ export default class SceneGame extends Phaser.Scene {
         this.uiVillage.push(this.btnBuildFarm);
         this.uiVillage.push(this.btnBuildLumberMill);
         this.uiVillage.push(this.btnBuildQuarry);
+        this.uiVillage.push(this.btnBuildHousing);
 
         /**
          * UI - army
@@ -440,7 +454,7 @@ export default class SceneGame extends Phaser.Scene {
         for (let i = 2; i <= this.numPlayers; i++) {
 
             scene.turnOfPlayer = i;
-            scene.calculateTurnPlayer(scene.turnOfPlayer);
+            scene.calculateTurnAiPlayer(scene.turnOfPlayer);
         }
 
         //now player 1's turn
@@ -456,7 +470,11 @@ export default class SceneGame extends Phaser.Scene {
         scene.btnEndTurn.clearTint();
     }
 
-    calculateTurnPlayer(player) {
+    /**
+     * AI calculations
+     * @param {*} player 
+     */
+    calculateTurnAiPlayer(player) {
 
         console.log("calculating turn: player: " + player);
 
@@ -494,9 +512,52 @@ export default class SceneGame extends Phaser.Scene {
             let data = building.data.get("data");
 
             if (data instanceof Village) {
-                data.calculateDay();
+                let coordinates = this.board.getRelatedBuildings(data);
+                let buildingsData = this.board.getBuildingsData(coordinates);
+
+                let countsOfBuildings = this.countBuildings(buildingsData);
+
+                data.calculateDay(countsOfBuildings);
             }
         });
+
+    }
+
+    countBuildings(connectedBuildings) {
+
+        let countsOfBuildings = {
+            countFarm: 0,
+            countLumberMill: 0,
+            countQuarry: 0,
+            countHousing: 0,
+        }
+
+        connectedBuildings.forEach(building => {
+
+            if (building instanceof Village) {
+                //do nothing    
+            }
+            else if (building instanceof Farm) {
+                countsOfBuildings.countFarm++;
+
+            }
+            else if (building instanceof LumberMill) {
+                countsOfBuildings.countLumberMill++;
+
+            }
+            else if (building instanceof Quarry) {
+                countsOfBuildings.countQuarry++;
+
+            }
+            else if (building instanceof Housing) {
+
+                countsOfBuildings.countHousing++;
+            }
+            else
+                console.log("cannot count this building");
+        });
+
+        return countsOfBuildings;
 
     }
 
@@ -964,7 +1025,7 @@ export default class SceneGame extends Phaser.Scene {
         let village = this.selectedVillage.data.get("data");
 
         //TODO: ensure enough resources from this specific village
-        if(village.amountWood < 100){
+        if (village.amountWood < 100) {
             console.log("not enough wood. need 100");
             return;
         }
@@ -973,7 +1034,6 @@ export default class SceneGame extends Phaser.Scene {
         GameUtils.clearTintArray(this.uiVillage);
         gameObject.setTint("0x00ff00");
 
-        
         this.possibleMoves = this.board.getRelatedBuildings(village);
         this.possibleMoves = this.board.getNeighbors(this.possibleMoves);
 

@@ -3,7 +3,7 @@ import Races from "../Races.js";
 
 export default class Village extends Building {
 
-    constructor(row, col, x, y, player, name,) {
+    constructor(row, col, x, y, player, name, ) {
         super(row, col, x, y, player);
 
         this.name = name;
@@ -25,9 +25,14 @@ export default class Village extends Building {
         this.incomeWood = 10;
     }
 
-    calculateDay() {
+    /**
+     * @param {*} connectedBuildings a list of connected buildings data
+     */
+    calculateDay(countsOfBuildings) {
 
-        this.simulatePopulationGrowth();
+        this.simulatePopulationGrowth(countsOfBuildings.countHousing);
+
+        this.calculateIncome(countsOfBuildings);
 
         this.amountFood += this.incomeFood;
 
@@ -39,7 +44,8 @@ export default class Village extends Building {
         this.amountWood += this.incomeWood;
     }
 
-    simulatePopulationGrowth() {
+
+    simulatePopulationGrowth(countHousing) {
         //TODO: different races grow at different rates
 
         //TODO: limit population growth by food and land
@@ -51,6 +57,22 @@ export default class Village extends Building {
             populationGrowth = 1;
 
         this.population += populationGrowth;
+
+        //village itself + housing
+        let maxPopulation = 50 + (countHousing * 20);
+
+        if (this.population > maxPopulation)
+            this.population = maxPopulation;
+
+    }
+
+    calculateIncome(countsOfBuildings) {
+
+        //income = village itself + (building * amount)
+        this.incomeFood = 20 + (countsOfBuildings.countFarm * 20);
+        this.incomeStone = 5 + (countsOfBuildings.countQuarry * 20);
+        this.incomeWood = 10 + (countsOfBuildings.countLumberMill * 20);
+
     }
 
 }

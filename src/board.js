@@ -165,6 +165,10 @@ export default class Board {
 
     }
 
+    /**
+     * gets an array of rows & cols of buildings connected to target village.
+     * @param {*} targetVillage data of
+     */
     getRelatedBuildings(targetVillage) {
 
         let row = targetVillage.row;
@@ -259,6 +263,21 @@ export default class Board {
         });
 
         return answer;
+    }
+
+    getBuildingsData(coordinates){
+
+        let buildingsData = [];
+
+        coordinates.forEach(coordinate => {
+            let row = coordinate.row;
+            let col = coordinate.col;
+
+            buildingsData.push(this.boardBuildings[row][col].data.get("data"));
+        });
+
+        return buildingsData;
+
     }
 
 }
