@@ -12,6 +12,12 @@ export default class Army {
         this.moveMax;
         this.moveAmount;
         this.units = [];
+
+        this.amoundWood = 0;
+        this.amountFood = 0;
+        this.amountStone = 0;
+
+        this.carryingCapcity;
     }
 
     addUnit(unit) {
@@ -31,7 +37,7 @@ export default class Army {
 
     }
 
-    calculateCost() {
+    calculateCostDay() {
 
         //TODO: complete this later
 

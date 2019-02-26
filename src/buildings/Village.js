@@ -26,6 +26,8 @@ export default class Village extends Building {
 
         //when people are starving, this is calculated only once and reused.
         this.starvationAmount = 0;
+
+        this.village = this;
     }
 
     /**
@@ -89,6 +91,9 @@ export default class Village extends Building {
 
         if (this.starvationAmount > 0)
             return this.starvationAmount * -1;
+
+        if(this.population == 0)
+            return 0;
 
         let populationGrowth = Math.floor(this.population * 0.01);
 

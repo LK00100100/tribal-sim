@@ -122,9 +122,13 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image('btnBuildLumberMill', 'assets/btn-build-lumber-mill.png');
         this.load.image('btnBuildHousing', 'assets/btn-build-housing.png');
 
+        //ui, army
+        this.load.image('btnArmyGetFood', 'assets/btn-army-get-food.png');
+
         //armies
         this.load.image('armyClubmen', 'assets/army-clubmen.png');
         this.load.image('armySpearmen', 'assets/army-spearmen.png');
+
     }
 
     create() {
@@ -267,6 +271,7 @@ export default class SceneGame extends Phaser.Scene {
         /**
          * UI - village
          */
+        //TODO: pull this out to a scene on top of another scene.
 
         y = -120;
 
@@ -345,30 +350,47 @@ export default class SceneGame extends Phaser.Scene {
         /**
          * UI - army
          */
+        //TODO: pull this out to a scene on top of another scene.
 
+        x = -375;
         y = -120;
 
-        this.txtArmySize = this.add.text(-375, y)
+        this.txtArmySize = this.add.text(x, y)
             .setScrollFactor(0)
             .setFontSize(50)
             .setDepth(100)
             .setShadow(3, 3, '#000000', 3);
 
-        this.txtArmyVillage = this.add.text(-375, y + 60)
+        this.txtArmyVillage = this.add.text(x, y + 60)
             .setScrollFactor(0)
             .setFontSize(50)
             .setDepth(100)
             .setShadow(3, 3, '#000000', 3);
 
-        this.txtArmyMoves = this.add.text(-375, y + 120)
+        this.txtArmyMoves = this.add.text(x, y + 120)
             .setScrollFactor(0)
             .setFontSize(50)
             .setDepth(100)
             .setShadow(3, 3, '#000000', 3);
+
+        this.txtArmyFood = this.add.text(x, y + 180)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setShadow(3, 3, '#000000', 3);
+
+        this.btnArmyGetFood = this.add.sprite(x, y + 300, 'btnArmyGetFood')
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .setOrigin(0)
+            .on('pointerdown', this.armyGetFood);
 
         this.uiArmy.push(this.txtArmySize);
         this.uiArmy.push(this.txtArmyVillage);
         this.uiArmy.push(this.txtArmyMoves);
+        this.uiArmy.push(this.txtArmyFood);
+        this.uiArmy.push(this.btnArmyGetFood);
 
         //hide some ui elements
         this.deselectEverything();
@@ -467,7 +489,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //now player 1's turn
         scene.turnOfPlayer = 1;
-        scene.replenishPhase(scene.turnOfPlayer);
+        scene.preTurnPhase(scene.turnOfPlayer);
 
         if (scene.selectedArmy != null)
             scene.showPossibleArmyMoves(scene.selectedArmy.data.get("data"));
@@ -486,7 +508,7 @@ export default class SceneGame extends Phaser.Scene {
 
         console.log("calculating turn: player: " + player);
 
-        this.replenishPhase(player);
+        this.preTurnPhase(player);
 
         //do something for player
 
@@ -497,7 +519,7 @@ export default class SceneGame extends Phaser.Scene {
         console.log("ending turn: player2...");
     }
 
-    replenishPhase(playerNumber) {
+    preTurnPhase(playerNumber) {
 
         /**
          * army stuff
@@ -507,6 +529,7 @@ export default class SceneGame extends Phaser.Scene {
         if (armies != null) {
             armies.forEach(army => {
                 army.moveAmount = army.moveMax;
+                army.calculateCostDay();
             });
         }
 
@@ -602,6 +625,8 @@ export default class SceneGame extends Phaser.Scene {
         scene.selectedVillage.setTint("0xffff00");
 
         scene.updateUI();
+
+        //show village buttons
         GameUtils.showGameObjects(scene.uiVillage);
         GameUtils.clearTintArray(scene.uiVillage);
     }
@@ -625,19 +650,19 @@ export default class SceneGame extends Phaser.Scene {
         }
 
         //TODO: actual resource calculation
-        if (village.amountWood < 10) {
-            console.log("not enough wood");
+        if (village.amountFood < 10) {
+            console.log("not enough food. need 10");
             return;
         }
 
         //TODO: make more precise
         if (village.population < 10) {
-            console.log("not enough people");
+            console.log("not enough people. need 10");
             return;
         }
 
         //subtract cost
-        village.amountWood -= 10;
+        village.amountFood -= 10;
         village.population -= 10;
 
         let armySprite = scene.add.sprite(village.x, village.y, 'armyClubmen')
@@ -647,8 +672,8 @@ export default class SceneGame extends Phaser.Scene {
             .on('pointerdown', scene.clickedArmy);
 
         let army = new Army(row, col, 1, village);
-        army.moveAmount = 2;
-        army.moveMax = 2;
+        army.moveAmount = 3;
+        army.moveMax = 3;
 
         //TODO: change this later
         for (let i = 0; i < 10; i++) {
@@ -700,6 +725,8 @@ export default class SceneGame extends Phaser.Scene {
 
         scene.updateUI();
 
+        scene.armyShowReplenishButtons(army);
+
     }
 
     showPossibleArmyMoves(army) {
@@ -712,6 +739,7 @@ export default class SceneGame extends Phaser.Scene {
         this.txtArmySize.setText("Units: " + army.units.length);
         this.txtArmyVillage.setText("Village: " + army.village.name);
         this.txtArmyMoves.setText("Moves: " + army.moveAmount + "/" + army.moveMax);
+        this.txtArmyFood.setText("Food: " + army.amountFood);
     }
 
     deselectEverything() {
@@ -866,6 +894,8 @@ export default class SceneGame extends Phaser.Scene {
         this.highlightTiles(this.selectedArmyPossibleMoves);
         this.board.addArmy(targetRow, targetCol, army);
 
+        this.armyShowReplenishButtons(army);
+
     }
 
     //TODO: move to some sort of armyManager
@@ -972,6 +1002,7 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
+    //TODO: move a lot of stuff out
     /**
      * 
      * @param {*} tiles an array of row/col
@@ -1072,6 +1103,53 @@ export default class SceneGame extends Phaser.Scene {
 
             scene.moveArmy(scene.selectedArmy, this);
             return;
+        }
+
+    }
+
+
+    /**
+     * assumed that the army is on a friendly village.
+     * @param {*} pointer 
+     */
+    armyGetFood(pointer) {
+
+        let scene = this.scene;
+
+        let army = scene.selectedArmy.data.get("data");
+        let row = army.row;
+        let col = army.col;
+
+        let building = scene.board.boardBuildings[row][col].data.get("data");
+
+        //transfer
+        if (building.village.amountFood < 10) {
+            console.log("not enough food. need 10");
+            return;
+        }
+
+        building.village.amountFood -= 10;
+        army.amountFood += 10;
+
+        scene.updateUI();
+    }
+
+    armyShowReplenishButtons(army) {
+
+        let row = army.row;
+        let col = army.col;
+
+        let buildingSprite = this.board.boardBuildings[row][col];
+
+        //food button
+        this.btnArmyGetFood.visible = false;
+        if (buildingSprite != null) {
+            let buildingData = buildingSprite.data.get("data");
+
+            if (buildingData.player == army.player) {
+                this.btnArmyGetFood.visible = true;
+            }
+
         }
 
     }
