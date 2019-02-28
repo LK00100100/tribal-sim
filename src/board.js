@@ -82,8 +82,8 @@ export default class Board {
 
     }
 
-    addArmy(row, col, army) {
-        this.boardUnits[row][col] = army;
+    addArmy(row, col, armySprite) {
+        this.boardUnits[row][col] = armySprite;
     }
 
     removeArmy(row, col) {
@@ -265,7 +265,7 @@ export default class Board {
         return answer;
     }
 
-    getBuildingsData(coordinates){
+    getBuildingsData(coordinates) {
 
         let buildingsData = [];
 

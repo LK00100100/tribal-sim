@@ -18,6 +18,9 @@ export default class Army {
         this.amountStone = 0;
 
         this.carryingCapcity;
+
+        //for each attrition period, this is calculated only once
+        this.attritionAmount = 0;
     }
 
     addUnit(unit) {
@@ -37,17 +40,51 @@ export default class Army {
 
     }
 
+    getCostDay() {
+        return this.size();
+    }
+
     calculateCostDay() {
 
-        //TODO: complete this later
+        this.calculateAttrition();
 
-        return this.units.length;
+        this.amountFood -= this.getCostDay();
+
+        if (this.amountFood < 0)
+            this.amountFood = 0;
 
     }
 
     calculateAttrition() {
 
-        return;
+        //no attrition
+        if (this.amountFood > 0) {
+            this.attritionAmount = 0;
+            return;
+        }
+
+        //some attrition
+        if (this.attritionAmount == 0) {
+            this.attritionAmount = Math.floor(this.size() / 10);
+        }
+
+        this.removeUnits(this.attritionAmount);
+
+    }
+
+    /**
+     * remove the last units up to numberToRemove
+     * @param {*} numberToRemove 
+     */
+    removeUnits(numberToRemove) {
+
+        if (numberToRemove > this.size())
+            numberToRemove = this.size();
+
+        for (let i = 0; i < numberToRemove; i++) {
+            this.units.pop();
+        }
+
     }
 
 }

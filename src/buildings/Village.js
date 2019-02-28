@@ -110,6 +110,13 @@ export default class Village extends Building {
 
     calculateIncome(countsOfBuildings) {
 
+        if(this.population == 0){
+            this.incomeFood = 0;
+            this.incomeStone = 0;
+            this.incomeWood = 0;
+            return;
+        }
+
         //income = village itself + (building * amount)
         this.incomeFood = 20 + (countsOfBuildings.countFarm * 30);
         this.incomeFood -= this.population;
