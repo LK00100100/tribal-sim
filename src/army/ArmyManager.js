@@ -1,10 +1,13 @@
 
+import Army from './Army.js';
+import Spearman from './unit/Caveman.js';
+
 /**
  * Manages army data on the board.
  */
-export default class ArmyManager{
+export default class ArmyManager {
 
-    constructor(scene){
+    constructor(scene) {
         this.scene = scene;
     }
 
@@ -30,7 +33,7 @@ export default class ArmyManager{
 
         //remove army
         this.scene.board.removeArmy(army.row, army.col);
-        this.scene.board.unhighlightTiles(this.selectedArmyPossibleMoves);
+        this.scene.board.unhighlightTiles(this.scene.selectedArmyPossibleMoves);
 
         army.moveAmount -= cost;
         army.row = targetRow;
@@ -41,7 +44,7 @@ export default class ArmyManager{
         //place army
         //TODO: dont make it a direct move.
         this.scene.tweens.add({
-            targets: this.selectedArmy,
+            targets: this.scene.selectedArmy,
             x: squareTerrain.x,
             y: squareTerrain.y,
             ease: 'Linear',
@@ -49,7 +52,7 @@ export default class ArmyManager{
         });
 
         this.getPossibleArmyMoves(army);
-        this.scene.board.highlightTiles(this.selectedArmyPossibleMoves);
+        this.scene.board.highlightTiles(this.scene.selectedArmyPossibleMoves);
         this.scene.board.addArmy(targetRow, targetCol, spriteArmy);
 
         this.scene.armyShowReplenishButtons(army);
@@ -68,7 +71,7 @@ export default class ArmyManager{
                 target = move;
                 break;
             }
-        };
+        }
 
         if (target == null) {
             console.log("not a possible move");
@@ -160,6 +163,96 @@ export default class ArmyManager{
         }
 
         this.scene.selectedArmyPossibleMoves = possibleMoves;
+    }
+
+    createArmy(pointer) {
+
+        if (pointer.rightButtonDown())
+            return;
+
+        let scene = this.scene;
+        let village = scene.selectedVillage.data.get("data");
+        let row = village.row;
+        let col = village.col;
+
+        scene.board.unhighlightTiles(scene.possibleMoves);
+
+        //space already occupied
+        if (scene.board.boardUnits[row][col] != null) {
+            console.log("already occupied");
+            return;
+        }
+
+        //TODO: actual resource calculation
+        if (village.amountFood < 10) {
+            console.log("not enough food. need 10");
+            return;
+        }
+
+        //TODO: make more precise
+        if (village.population < 10) {
+            console.log("not enough people. need 10");
+            return;
+        }
+
+        //subtract cost
+        village.amountFood -= 10;
+        village.population -= 10;
+
+        let armySprite = scene.add.sprite(village.x, village.y, 'armyClubmen')
+            .setInteractive()
+            .setDataEnabled()
+            .setDepth(2)
+            .on('pointerdown', scene.clickedArmy);
+
+        let army = new Army(row, col, 1, village);
+        army.moveAmount = 3;
+        army.moveMax = 3;
+
+        //TODO: change this later
+        for (let i = 0; i < 10; i++) {
+            let spearman = new Spearman();
+            army.addUnit(spearman);
+        }
+
+        armySprite.data.set("data", army);
+
+        //TODO: change later?
+        if (scene.armyPlayers[1] == null)
+            scene.armyPlayers[1] = [];
+
+        scene.armyPlayers[1].push(army);
+
+        scene.board.addArmy(row, col, armySprite);
+
+        scene.updateUI();
+
+    }
+
+    /**
+     * assumed that the army is on a friendly village.
+     * @param {*} pointer 
+     */
+    armyGetFood(pointer) {
+
+        let scene = this.scene;
+
+        let army = scene.selectedArmy.data.get("data");
+        let row = army.row;
+        let col = army.col;
+
+        let building = scene.board.boardBuildings[row][col].data.get("data");
+
+        //transfer
+        if (building.village.amountFood < 10) {
+            console.log("not enough food. need 10");
+            return;
+        }
+
+        building.village.amountFood -= 10;
+        army.amountFood += 10;
+
+        scene.updateUI();
     }
 
 }

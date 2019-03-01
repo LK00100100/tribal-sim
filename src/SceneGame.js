@@ -1,16 +1,8 @@
 
 import GameUtils from './utils/GameUtils.js';
-
 import Board from './board/Board.js';
-
 import Village from './buildings/village_buildings/Village.js';
-import Farm from "./buildings/village_buildings/Farm.js";
-import LumberMill from "./buildings/village_buildings/LumberMill.js";
-import Quarry from "./buildings/village_buildings/Quarry.js";
-import Housing from "./buildings/village_buildings/Housing.js";
 
-import Army from './army/Army.js';
-import Spearman from './army/unit/Caveman.js';
 import ArmyManager from './army/ArmyManager.js';
 
 export default class SceneGame extends Phaser.Scene {
@@ -138,7 +130,6 @@ export default class SceneGame extends Phaser.Scene {
     create() {
 
         this.armyManager = new ArmyManager(this);
-        this.uiManager;
 
         let x, y;
         let tempImage, tempSprite, tempText;
@@ -310,14 +301,14 @@ export default class SceneGame extends Phaser.Scene {
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
-            .on('pointerdown', this.createArmy);
+            .on('pointerdown', this.armyManager.createArmy);
 
         this.btnBuildFarm = this.add.sprite(-200, y + 440, 'btnBuildFarm')
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.buyBuilding(pointer, this, "Farm");
+                this.scene.board.buyBuilding(pointer, this, "Farm");
             });
 
         this.btnBuildLumberMill = this.add.sprite(-200, y + 580, 'btnBuildLumberMill')
@@ -325,7 +316,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.buyBuilding(pointer, this, "LumberMill");
+                this.scene.board.buyBuilding(pointer, this, "LumberMill");
             });
 
         this.btnBuildQuarry = this.add.sprite(-200, y + 720, 'btnBuildQuarry')
@@ -333,7 +324,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.buyBuilding(pointer, this, "Quarry");
+                this.scene.board.buyBuilding(pointer, this, "Quarry");
             });
 
         this.btnBuildHousing = this.add.sprite(-200, y + 860, 'btnBuildHousing')
@@ -341,7 +332,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.buyBuilding(pointer, this, "Housing");
+                this.scene.board.buyBuilding(pointer, this, "Housing");
             });
 
         this.uiVillage.push(this.txtVillagePopulation);
@@ -391,7 +382,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .setOrigin(0)
-            .on('pointerdown', this.armyGetFood);
+            .on('pointerdown', this.armyManager.armyGetFood);
 
         this.uiArmy.push(this.txtArmySize);
         this.uiArmy.push(this.txtArmyVillage);
@@ -460,7 +451,7 @@ export default class SceneGame extends Phaser.Scene {
             //TODO: put this in some sort of village manager. updateUi should do no calcs
             let coordinates = this.board.getRelatedBuildings(village);
             let buildingsData = this.board.getBuildingsData(coordinates);
-            let countsOfBuildings = this.countBuildings(buildingsData);
+            let countsOfBuildings = this.board.countBuildings(buildingsData);
             village.calculateIncome(countsOfBuildings);
 
             let populationGrowth = village.getPopulationGrowthDay(countsOfBuildings.countHousing);
@@ -562,7 +553,7 @@ export default class SceneGame extends Phaser.Scene {
             if (data instanceof Village) {
                 let coordinates = this.board.getRelatedBuildings(data);
                 let buildingsData = this.board.getBuildingsData(coordinates);
-                let countsOfBuildings = this.countBuildings(buildingsData);
+                let countsOfBuildings = this.board.countBuildings(buildingsData);
 
                 data.calculateIncome(countsOfBuildings);
                 data.calculateDay(countsOfBuildings);
@@ -602,48 +593,6 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    countBuildings(connectedBuildings) {
-
-        let countsOfBuildings = {
-            countFarm: 0,
-            countLumberMill: 0,
-            countQuarry: 0,
-            countHousing: 0,
-        }
-
-        connectedBuildings.forEach(building => {
-
-            if (building instanceof Village) {
-                //do nothing    
-            }
-            else if (building instanceof Farm) {
-                countsOfBuildings.countFarm++;
-
-            }
-            else if (building instanceof LumberMill) {
-                countsOfBuildings.countLumberMill++;
-
-            }
-            else if (building instanceof Quarry) {
-                countsOfBuildings.countQuarry++;
-
-            }
-            else if (building instanceof Housing) {
-
-                countsOfBuildings.countHousing++;
-            }
-            else
-                console.log("cannot count this building");
-        });
-
-        return countsOfBuildings;
-
-    }
-
-    logicRats() {
-
-    }
-
     clickedVillage(pointer) {
 
         let scene = this.scene;
@@ -658,7 +607,7 @@ export default class SceneGame extends Phaser.Scene {
             if (scene.selectedArmy == null)
                 return;
 
-            scene.moveArmy(scene.selectedArmy, this);
+            scene.armyManager.moveArmy(scene.selectedArmy, this);
             return;
         }
 
@@ -675,70 +624,6 @@ export default class SceneGame extends Phaser.Scene {
         //show village buttons
         GameUtils.clearTintArray(scene.uiVillage);
         GameUtils.showGameObjects(scene.uiVillage);
-
-        scene.updateUI();
-
-    }
-
-    createArmy(pointer) {
-
-        if (pointer.rightButtonDown())
-            return;
-
-        let scene = this.scene;
-        let village = scene.selectedVillage.data.get("data");
-        let row = village.row;
-        let col = village.col;
-
-        scene.board.unhighlightTiles(scene.possibleMoves);
-
-        //space already occupied
-        if (scene.board.boardUnits[row][col] != null) {
-            console.log("already occupied");
-            return;
-        }
-
-        //TODO: actual resource calculation
-        if (village.amountFood < 10) {
-            console.log("not enough food. need 10");
-            return;
-        }
-
-        //TODO: make more precise
-        if (village.population < 10) {
-            console.log("not enough people. need 10");
-            return;
-        }
-
-        //subtract cost
-        village.amountFood -= 10;
-        village.population -= 10;
-
-        let armySprite = scene.add.sprite(village.x, village.y, 'armyClubmen')
-            .setInteractive()
-            .setDataEnabled()
-            .setDepth(2)
-            .on('pointerdown', scene.clickedArmy);
-
-        let army = new Army(row, col, 1, village);
-        army.moveAmount = 3;
-        army.moveMax = 3;
-
-        //TODO: change this later
-        for (let i = 0; i < 10; i++) {
-            let spearman = new Spearman();
-            army.addUnit(spearman);
-        }
-
-        armySprite.data.set("data", army);
-
-        //TODO: change later?
-        if (scene.armyPlayers[1] == null)
-            scene.armyPlayers[1] = [];
-
-        scene.armyPlayers[1].push(army);
-
-        scene.board.addArmy(row, col, armySprite);
 
         scene.updateUI();
 
@@ -845,51 +730,6 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    buyBuilding(pointer, gameObject, buildingType) {
-
-        if (pointer.rightButtonDown())
-            return;
-
-        if (gameObject.isTinted) {
-            gameObject.clearTint();
-            this.board.unhighlightTiles(this.possibleMoves);
-            this.possibleMoves = null;
-            this.selectedBuyBuilding = null;
-            return;
-        }
-
-        console.log("before: build a " + buildingType);
-
-        let village = this.selectedVillage.data.get("data");
-
-        //TODO: ensure enough resources from this specific village
-        if (village.amountWood < 100) {
-            console.log("not enough wood. need 100");
-            return;
-        }
-
-        this.selectedBuyBuilding = buildingType;
-        GameUtils.clearTintArray(this.uiVillage);
-        gameObject.setTint("0x00ff00");
-
-        this.possibleMoves = this.board.getRelatedBuildings(village);
-        this.possibleMoves = this.board.getNeighbors(this.possibleMoves);
-
-        //filter out impossible moves
-        for (let i = this.possibleMoves.length - 1; i >= 0; i--) {
-            let row = this.possibleMoves[i].row;
-            let col = this.possibleMoves[i].col;
-
-            if (!this.board.isBuildable(row, col)) {
-                this.possibleMoves.splice(i, 1);
-            }
-
-        }
-
-        this.board.highlightTiles(this.possibleMoves);
-
-    }
-
     clickedBuilding(pointer) {
         console.log("building clicked");
 
@@ -903,32 +743,6 @@ export default class SceneGame extends Phaser.Scene {
             return;
         }
 
-    }
-
-    /**
-     * assumed that the army is on a friendly village.
-     * @param {*} pointer 
-     */
-    armyGetFood(pointer) {
-
-        let scene = this.scene;
-
-        let army = scene.selectedArmy.data.get("data");
-        let row = army.row;
-        let col = army.col;
-
-        let building = scene.board.boardBuildings[row][col].data.get("data");
-
-        //transfer
-        if (building.village.amountFood < 10) {
-            console.log("not enough food. need 10");
-            return;
-        }
-
-        building.village.amountFood -= 10;
-        army.amountFood += 10;
-
-        scene.updateUI();
     }
 
     armyShowReplenishButtons(army) {

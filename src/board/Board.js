@@ -1,5 +1,10 @@
 
 import Village from "../buildings/village_buildings/Village.js";
+import Farm from "../buildings/village_buildings/Farm.js";
+import LumberMill from "../buildings/village_buildings/LumberMill.js";
+import Quarry from "../buildings/village_buildings/Quarry.js";
+import Housing from "../buildings/village_buildings/Housing.js";
+
 import GameUtils from '../utils/GameUtils.js';
 
 import BuildingFactory from '../buildings/BuildingFactory.js';
@@ -379,6 +384,91 @@ export default class Board {
         this.unhighlightTiles(scene.possibleMoves);
         scene.possibleMoves = null;
         scene.selectedBuyBuilding = null;
+    }
+
+    buyBuilding(pointer, gameSprite, buildingType) {
+
+        let scene = gameSprite.scene;
+
+        if (pointer.rightButtonDown())
+            return;
+
+        if (gameSprite.isTinted) {
+            gameSprite.clearTint();
+            scene.board.unhighlightTiles(scene.possibleMoves);
+            scene.possibleMoves = null;
+            scene.selectedBuyBuilding = null;
+            return;
+        }
+
+        console.log("before: build a " + buildingType);
+
+        let village = scene.selectedVillage.data.get("data");
+
+        //TODO: ensure enough resources from this specific village
+        if (village.amountWood < 100) {
+            console.log("not enough wood. need 100");
+            return;
+        }
+
+        scene.selectedBuyBuilding = buildingType;
+        GameUtils.clearTintArray(scene.uiVillage);
+        gameSprite.setTint("0x00ff00");
+
+        scene.possibleMoves = scene.board.getRelatedBuildings(village);
+        scene.possibleMoves = scene.board.getNeighbors(scene.possibleMoves);
+
+        //filter out impossible moves
+        for (let i = scene.possibleMoves.length - 1; i >= 0; i--) {
+            let row = scene.possibleMoves[i].row;
+            let col = scene.possibleMoves[i].col;
+
+            if (!scene.board.isBuildable(row, col)) {
+                scene.possibleMoves.splice(i, 1);
+            }
+
+        }
+
+        scene.board.highlightTiles(scene.possibleMoves);
+
+    }
+
+    countBuildings(connectedBuildings) {
+
+        let countsOfBuildings = {
+            countFarm: 0,
+            countLumberMill: 0,
+            countQuarry: 0,
+            countHousing: 0,
+        }
+
+        connectedBuildings.forEach(building => {
+
+            if (building instanceof Village) {
+                //do nothing    
+            }
+            else if (building instanceof Farm) {
+                countsOfBuildings.countFarm++;
+
+            }
+            else if (building instanceof LumberMill) {
+                countsOfBuildings.countLumberMill++;
+
+            }
+            else if (building instanceof Quarry) {
+                countsOfBuildings.countQuarry++;
+
+            }
+            else if (building instanceof Housing) {
+
+                countsOfBuildings.countHousing++;
+            }
+            else
+                console.log("cannot count this building");
+        });
+
+        return countsOfBuildings;
+
     }
 
 }
