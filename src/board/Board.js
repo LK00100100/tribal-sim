@@ -1,5 +1,5 @@
 
-import Village from "./buildings/Village.js";
+import Village from "../buildings/village_buildings/Village.js";
 
 export default class Board {
 
@@ -278,6 +278,15 @@ export default class Board {
 
         return buildingsData;
 
+    }
+
+    unhighlightTiles(tiles) {
+        if (tiles == null)
+            return;
+
+        tiles.forEach(tile => {
+            this.boardTerrainSprites[tile.row][tile.col].clearTint();
+        });
     }
 
 }

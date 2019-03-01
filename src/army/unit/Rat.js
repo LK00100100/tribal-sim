@@ -1,10 +1,9 @@
-
 import Unit from "./Unit.js"
 
-export default class Caveman extends Unit {
+export default class Rat extends Unit {
 
     constructor(){
-        super();
+        super(100);
     }
     
 }

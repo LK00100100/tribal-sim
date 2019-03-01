@@ -1,7 +1,7 @@
-import Building from "./Building.js";
-import Races from "../Races.js";
+import VillageBuilding from "./VillageBuilding.js";
+import Races from "../../Races.js";
 
-export default class Village extends Building {
+export default class Village extends VillageBuilding {
 
     constructor(row, col, x, y, player, name, ) {
         super(row, col, x, y, player);
@@ -73,8 +73,9 @@ export default class Village extends Building {
 
             this.population += populationGrowth;
 
+            //TODO: dont hard code
             //village itself + housing
-            let maxPopulation = 50 + (countHousing * 20);
+            let maxPopulation = 20 + (countHousing * 20);
 
             if (this.population > maxPopulation)
                 this.population = maxPopulation;
@@ -100,9 +101,11 @@ export default class Village extends Building {
         if (populationGrowth < 1)
             populationGrowth = 1;
 
-        let maxPopulation = 50 + (countHousing * 20);
+        //TODO: dont hard code
+        //village itself + housing
+        let maxPopulation = 20 + (countHousing * 20);
 
-        if (this.population == maxPopulation)
+        if (this.population >= maxPopulation)
             return 0;
 
         return populationGrowth;
@@ -118,11 +121,11 @@ export default class Village extends Building {
         }
 
         //income = village itself + (building * amount)
-        this.incomeFood = 20 + (countsOfBuildings.countFarm * 30);
+        this.incomeFood = 20 + (countsOfBuildings.countFarm * 15);
         this.incomeFood -= this.population;
 
-        this.incomeStone = 5 + (countsOfBuildings.countQuarry * 10);
-        this.incomeWood = 10 + (countsOfBuildings.countLumberMill * 20);
+        this.incomeStone = 5 + (countsOfBuildings.countQuarry * 5);
+        this.incomeWood = 10 + (countsOfBuildings.countLumberMill * 10);
 
     }
 

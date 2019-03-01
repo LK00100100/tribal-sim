@@ -1,16 +1,18 @@
 
-import GameUtils from './GameUtils.js';
+import GameUtils from './utils/GameUtils.js';
 import BuildingFactory from './buildings/BuildingFactory.js';
 
-import Board from './Board.js';
-import Village from './buildings/Village.js';
-import Farm from "./buildings/Farm.js";
-import LumberMill from "./buildings/LumberMill.js";
-import Quarry from "./buildings/Quarry.js";
-import Housing from "./buildings/Housing.js";
+import Board from './board/Board.js';
 
-import Army from './Army.js';
-import Spearman from './army/Caveman.js';
+import Village from './buildings/village_buildings/Village.js';
+import Farm from "./buildings/village_buildings/Farm.js";
+import LumberMill from "./buildings/village_buildings/LumberMill.js";
+import Quarry from "./buildings/village_buildings/Quarry.js";
+import Housing from "./buildings/village_buildings/Housing.js";
+
+import Army from './army/Army.js';
+import Spearman from './army/unit/Caveman.js';
+import ArmyManager from './army/ArmyManager.js';
 
 export default class SceneGame extends Phaser.Scene {
 
@@ -30,7 +32,7 @@ export default class SceneGame extends Phaser.Scene {
                 name: "mad katz",
                 type: "village",
                 player: 1,
-                population: 25,
+                population: 20,
                 amountFood: 100,
                 amountStone: 25,
                 amountWood: 50
@@ -90,6 +92,9 @@ export default class SceneGame extends Phaser.Scene {
 
         this.uiArmy = [];
         this.textsVillageName = [];
+
+        this.armyManager;
+        this.boardManager;
     }
 
     preload() {
@@ -132,6 +137,8 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     create() {
+
+        this.armyManager = new ArmyManager(this);
 
         let x, y;
         let tempImage, tempSprite, tempText;
@@ -683,7 +690,7 @@ export default class SceneGame extends Phaser.Scene {
         let row = village.row;
         let col = village.col;
 
-        scene.unhighlightTiles(scene.possibleMoves);
+        scene.board.unhighlightTiles(scene.possibleMoves);
 
         //space already occupied
         if (scene.board.boardUnits[row][col] != null) {
@@ -796,12 +803,12 @@ export default class SceneGame extends Phaser.Scene {
 
         if (this.selectedArmy != null) {
             this.selectedArmy.clearTint();
-            this.unhighlightTiles(this.selectedArmyPossibleMoves);
+            this.board.unhighlightTiles(this.selectedArmyPossibleMoves);
             this.selectedArmy = null;
         }
 
         if (this.possibleMoves != null) {
-            this.unhighlightTiles(this.possibleMoves);
+            this.board.unhighlightTiles(this.possibleMoves);
             this.possibleMoves = null;
         }
     }
@@ -886,7 +893,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //we're done here
         GameUtils.clearTintArray(this.uiVillage);
-        this.unhighlightTiles(this.possibleMoves);
+        this.board.unhighlightTiles(this.possibleMoves);
         this.possibleMoves = null;
         this.selectedBuyBuilding = null;
     }
@@ -914,7 +921,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //remove army
         this.board.removeArmy(army.row, army.col);
-        this.unhighlightTiles(this.selectedArmyPossibleMoves);
+        this.board.unhighlightTiles(this.selectedArmyPossibleMoves);
 
         army.moveAmount -= cost;
         army.row = targetRow;
@@ -1077,15 +1084,6 @@ export default class SceneGame extends Phaser.Scene {
         });
     }
 
-    unhighlightTiles(tiles) {
-        if (tiles == null)
-            return;
-
-        tiles.forEach(tile => {
-            this.board.boardTerrainSprites[tile.row][tile.col].clearTint();
-        });
-    }
-
     clickedRatCave(pointer) {
 
         let scene = this.scene;
@@ -1099,7 +1097,7 @@ export default class SceneGame extends Phaser.Scene {
 
         if (gameObject.isTinted) {
             gameObject.clearTint();
-            this.unhighlightTiles(this.possibleMoves);
+            this.board.unhighlightTiles(this.possibleMoves);
             this.possibleMoves = null;
             this.selectedBuyBuilding = null;
             return;

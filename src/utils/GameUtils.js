@@ -13,4 +13,5 @@ export default class GameUtils {
     static clearTintArray(array) {
         array.forEach(gameObject => gameObject.clearTint());
     }
+    
 }

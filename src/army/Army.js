@@ -65,7 +65,7 @@ export default class Army {
 
         //some attrition
         if (this.attritionAmount == 0) {
-            this.attritionAmount = Math.floor(this.size() / 10);
+            this.attritionAmount = Math.ceil(this.size() / 10);
         }
 
         this.removeUnits(this.attritionAmount);
