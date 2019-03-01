@@ -1,5 +1,8 @@
 
 import Village from "../buildings/village_buildings/Village.js";
+import GameUtils from '../utils/GameUtils.js';
+
+import BuildingFactory from '../buildings/BuildingFactory.js';
 
 export default class Board {
 
@@ -287,6 +290,95 @@ export default class Board {
         tiles.forEach(tile => {
             this.boardTerrainSprites[tile.row][tile.col].clearTint();
         });
+    }
+
+
+    /**
+     * @param {*} tiles an array of row/col
+     */
+    highlightTiles(tiles) {
+        if (tiles == null)
+            return;
+
+        tiles.forEach(tile => {
+            let row = tile.row;
+            let col = tile.col;
+
+            //village
+            if (this.boardBuildings[row][col] != null) {
+                let village = this.boardBuildings[row][col];
+
+                if (village.data.get("data").player == 1)
+                    this.boardTerrainSprites[row][col].setTint("0x00aaff");
+                else
+                    this.boardTerrainSprites[row][col].setTint("0xaa0000");
+            }
+            //plain terrain
+            else {
+                this.boardTerrainSprites[row][col].setTint("0x00aaff");
+            }
+
+        });
+    }
+
+    placeBuilding(pointer, terrainSprite) {
+
+        let scene = terrainSprite.scene;
+
+        let row = terrainSprite.data.get("row");
+        let col = terrainSprite.data.get("col");
+
+        let x = terrainSprite.x;
+        let y = terrainSprite.y;
+
+        if (scene.selectedBuyBuilding == null)
+            return;
+
+        if (scene.possibleMoves == null)
+            return;
+
+        if (scene.selectedVillage == null)
+            return;
+
+        //not in possible moves
+        let isIn = false;
+        for (let i = 0; i < scene.possibleMoves.length; i++) {
+            if (scene.possibleMoves[i].row == row && scene.possibleMoves[i].col == col)
+                isIn = true;
+        }
+
+        if (!isIn)
+            return false;
+
+        let village = scene.selectedVillage.data.get("data");
+
+        let building = BuildingFactory
+            .getVillageBuilding(scene.selectedBuyBuilding, row, col, x, y, village);
+
+        let tempSprite = scene.add.sprite(x, y, "build" + scene.selectedBuyBuilding)
+            .setInteractive()
+            .setDataEnabled()
+            .setDepth(1)
+            .on("pointerdown", scene.clickedBuilding);
+
+        tempSprite.data.set("row", row);
+        tempSprite.data.set("col", col);
+        tempSprite.data.set("data", building);
+
+        this.boardBuildings[row][col] = tempSprite;
+        scene.playersBuilding[village.player].push(tempSprite);
+
+        //TODO: change this later to reflect "final" building costs
+        village.amountWood -= 100;
+
+        //re-calculate income
+        scene.updateUI();
+
+        //we're done here
+        GameUtils.clearTintArray(scene.uiVillage);
+        this.unhighlightTiles(scene.possibleMoves);
+        scene.possibleMoves = null;
+        scene.selectedBuyBuilding = null;
     }
 
 }

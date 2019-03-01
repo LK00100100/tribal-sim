@@ -1,6 +1,5 @@
 
 import GameUtils from './utils/GameUtils.js';
-import BuildingFactory from './buildings/BuildingFactory.js';
 
 import Board from './board/Board.js';
 
@@ -94,7 +93,7 @@ export default class SceneGame extends Phaser.Scene {
         this.textsVillageName = [];
 
         this.armyManager;
-        this.boardManager;
+        this.uiManager;
     }
 
     preload() {
@@ -139,6 +138,7 @@ export default class SceneGame extends Phaser.Scene {
     create() {
 
         this.armyManager = new ArmyManager(this);
+        this.uiManager;
 
         let x, y;
         let tempImage, tempSprite, tempText;
@@ -779,8 +779,8 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     showPossibleArmyMoves(army) {
-        this.getPossibleArmyMoves(army);
-        this.highlightTiles(this.selectedArmyPossibleMoves);
+        this.armyManager.getPossibleArmyMoves(army);
+        this.board.highlightTiles(this.selectedArmyPossibleMoves);
     }
 
     updateTextArmy(army) {
@@ -827,261 +827,16 @@ export default class SceneGame extends Phaser.Scene {
 
         //place building
         if (scene.selectedBuyBuilding != null) {
-            scene.placeBuilding(pointer, this);
+            scene.board.placeBuilding(pointer, this);
             return
         }
 
         //move army
         if (scene.selectedArmy != null) {
-            scene.moveArmy(scene.selectedArmy, this);
+            scene.armyManager.moveArmy(scene.selectedArmy, this);
             return;
         }
 
-    }
-
-    //TODO: place in some sort of building manager?
-    placeBuilding(pointer, terrainSprite) {
-
-        let row = terrainSprite.data.get("row");
-        let col = terrainSprite.data.get("col");
-
-        let x = terrainSprite.x;
-        let y = terrainSprite.y;
-
-        if (this.selectedBuyBuilding == null)
-            return;
-
-        if (this.possibleMoves == null)
-            return;
-
-        if (this.selectedVillage == null)
-            return;
-
-        //not in possible moves
-        let isIn = false;
-        for (let i = 0; i < this.possibleMoves.length; i++) {
-            if (this.possibleMoves[i].row == row && this.possibleMoves[i].col == col)
-                isIn = true;
-        }
-
-        if (!isIn)
-            return false;
-
-        let village = this.selectedVillage.data.get("data");
-
-        let building = BuildingFactory
-            .getVillageBuilding(this.selectedBuyBuilding, row, col, x, y, village);
-
-        let tempSprite = this.add.sprite(x, y, "build" + this.selectedBuyBuilding)
-            .setInteractive()
-            .setDataEnabled()
-            .setDepth(1)
-            .on("pointerdown", this.clickedBuilding);
-
-        tempSprite.data.set("row", row);
-        tempSprite.data.set("col", col);
-        tempSprite.data.set("data", building);
-
-        this.board.boardBuildings[row][col] = tempSprite;
-        this.playersBuilding[village.player].push(tempSprite);
-
-        //TODO: change this later to reflect "final" building costs
-        village.amountWood -= 100;
-
-        //re-calculate income
-        this.updateUI();
-
-        //we're done here
-        GameUtils.clearTintArray(this.uiVillage);
-        this.board.unhighlightTiles(this.possibleMoves);
-        this.possibleMoves = null;
-        this.selectedBuyBuilding = null;
-    }
-
-    //TODO: probably move to some army manager
-    moveArmy(spriteArmy, squareTerrain) {
-
-        let army = spriteArmy.data.get("data");
-
-        let targetRow = squareTerrain.data.get("row");
-        let targetCol = squareTerrain.data.get("col");
-
-        console.log("terrain right clicked with army");
-
-        //highlight allowed movement
-        console.log("squareTerrain.x: " + squareTerrain.x);
-        console.log("squareTerrain.y: " + squareTerrain.y);
-
-        //move visually and internally (row, col);
-
-        let cost = this.getMovementCost(targetRow, targetCol);
-
-        if (cost > army.moveAmount)
-            return;
-
-        //remove army
-        this.board.removeArmy(army.row, army.col);
-        this.board.unhighlightTiles(this.selectedArmyPossibleMoves);
-
-        army.moveAmount -= cost;
-        army.row = targetRow;
-        army.col = targetCol;
-
-        this.updateTextArmy(army);
-
-        //place army
-        //TODO: dont make it a direct move.
-        this.tweens.add({
-            targets: this.selectedArmy,
-            x: squareTerrain.x,
-            y: squareTerrain.y,
-            ease: 'Linear',
-            duration: 500
-        });
-
-        this.getPossibleArmyMoves(army);
-        this.highlightTiles(this.selectedArmyPossibleMoves);
-        this.board.addArmy(targetRow, targetCol, spriteArmy);
-
-        this.armyShowReplenishButtons(army);
-
-    }
-
-    //TODO: move to some sort of armyManager
-    getPossibleArmyMoves(army) {
-
-        let possibleMoves = [];
-
-        let startPoint = {
-            row: army.row,
-            col: army.col,
-            cost: 0
-        }
-
-        let coordinate = army.row + "," + army.col;
-
-        let visited = new Set();
-        visited.add(coordinate);
-
-        //up, down, left, right
-        let directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-
-        let armyMoveAmount = army.moveAmount;
-
-        let tempSquare;
-
-        let queue = [];
-        queue.push(startPoint);
-
-        while (queue.length > 0) {
-
-            let queueLength = queue.length;
-            queue.sort();
-
-            let smallestMove = queue[0].cost;
-
-            //check around this level
-            for (let x = 0; x < queueLength; x++) {
-                tempSquare = queue.shift();
-
-                let row = tempSquare.row;
-                let col = tempSquare.col;
-                let cost = tempSquare.cost;
-
-                //too costly for now.
-                if (cost > smallestMove) {
-                    queue.push(tempSquare);
-                    continue;
-                }
-
-                //check up, down, left, right
-                for (let d = 0; d < directions.length; d++) {
-                    let i = directions[d][0];
-                    let j = directions[d][1];
-
-                    coordinate = (row + i) + "," + (col + j);
-
-                    if (visited.has(coordinate))
-                        continue;
-
-                    visited.add(coordinate);
-
-                    if (this.board.isWalkable(row + i, col + j)) {
-                        let terrainCost = this.board.movementCost(row + i, col + j);
-
-                        if (armyMoveAmount >= cost + terrainCost) {
-
-                            tempSquare = {
-                                row: row + i,
-                                col: col + j,
-                                cost: cost + terrainCost
-                            };
-
-                            possibleMoves.push(tempSquare);
-                            queue.push(tempSquare);
-                        }
-                    }
-
-                }
-
-            }
-
-        }
-
-        this.selectedArmyPossibleMoves = possibleMoves;
-    }
-
-    //call getPossibleArmyMoves first
-    getMovementCost(row, col) {
-
-        let target = null;
-
-        for (let i = 0; i < this.selectedArmyPossibleMoves.length; i++) {
-            let move = this.selectedArmyPossibleMoves[i];
-
-            if (move.row == row && move.col == col) {
-                target = move;
-                break;
-            }
-        };
-
-        if (target == null) {
-            console.log("not a possible move");
-            return 9999;
-        }
-
-        return target.cost;
-
-    }
-
-    //TODO: move a lot of stuff out
-    /**
-     * 
-     * @param {*} tiles an array of row/col
-     */
-    highlightTiles(tiles) {
-        if (tiles == null)
-            return;
-
-        tiles.forEach(tile => {
-            let row = tile.row;
-            let col = tile.col;
-
-            //village
-            if (this.board.boardBuildings[row][col] != null) {
-                let village = this.board.boardBuildings[row][col];
-
-                if (village.data.get("data").player == 1)
-                    this.board.boardTerrainSprites[row][col].setTint("0x00aaff");
-                else
-                    this.board.boardTerrainSprites[row][col].setTint("0xaa0000");
-            }
-            //plain terrain
-            else {
-                this.board.boardTerrainSprites[row][col].setTint("0x00aaff");
-            }
-
-        });
     }
 
     clickedRatCave(pointer) {
@@ -1131,7 +886,7 @@ export default class SceneGame extends Phaser.Scene {
 
         }
 
-        this.highlightTiles(this.possibleMoves);
+        this.board.highlightTiles(this.possibleMoves);
 
     }
 
@@ -1149,7 +904,6 @@ export default class SceneGame extends Phaser.Scene {
         }
 
     }
-
 
     /**
      * assumed that the army is on a friendly village.
