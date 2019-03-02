@@ -119,6 +119,7 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image('btnBuildHousing', 'assets/btn-build-housing.png');
 
         //ui, army
+        this.load.image('btnArmyGetUnits', 'assets/btn-army-get-units.png');
         this.load.image('btnArmyGetFood', 'assets/btn-army-get-food.png');
 
         //armies
@@ -377,7 +378,14 @@ export default class SceneGame extends Phaser.Scene {
             .setDepth(100)
             .setShadow(3, 3, '#000000', 3);
 
-        this.btnArmyGetFood = this.add.sprite(x, y + 300, 'btnArmyGetFood')
+        this.btnArmyGetUnits = this.add.sprite(x, y + 280, 'btnArmyGetUnits')
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .setOrigin(0)
+            .on('pointerdown', this.armyManager.armyGetUnits);
+
+        this.btnArmyGetFood = this.add.sprite(x, y + 420, 'btnArmyGetFood')
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
@@ -388,6 +396,7 @@ export default class SceneGame extends Phaser.Scene {
         this.uiArmy.push(this.txtArmyVillage);
         this.uiArmy.push(this.txtArmyMoves);
         this.uiArmy.push(this.txtArmyFood);
+        this.uiArmy.push(this.btnArmyGetUnits);
         this.uiArmy.push(this.btnArmyGetFood);
 
         //hide some ui elements
@@ -467,8 +476,16 @@ export default class SceneGame extends Phaser.Scene {
                 this.btnCreateArmy.setTint("0xffff00");
         }
 
-        if (this.selectedArmy != null)
-            this.updateTextArmy(this.selectedArmy.data.get("data"));
+        if (this.selectedArmy != null) {
+            let army = this.selectedArmy.data.get("data");
+
+            this.updateTextArmy(army);
+
+            //display army texts
+            GameUtils.showGameObjects(this.uiArmy);
+
+            this.showArmyButtons(army);
+        }
 
     }
 
@@ -705,26 +722,44 @@ export default class SceneGame extends Phaser.Scene {
             if (scene.selectedArmy == null)
                 return;
 
-            scene.moveArmy(scene.selectedArmy, this);
+            scene.armyManager.moveArmy(scene.selectedArmy, this);
             return;
         }
 
     }
 
-    armyShowReplenishButtons(army) {
+    showArmyButtons(army) {
 
         let row = army.row;
         let col = army.col;
 
         let buildingSprite = this.board.boardBuildings[row][col];
 
-        //food button
+        //on-top-of-village buttons
+        //TODO: be able to replenish in friendly villages through trade.
         this.btnArmyGetFood.visible = false;
+        this.btnArmyGetUnits.visible = false;
         if (buildingSprite != null) {
             let buildingData = buildingSprite.data.get("data");
 
             if (buildingData.player == army.player) {
                 this.btnArmyGetFood.visible = true;
+                this.btnArmyGetUnits.visible = true;
+
+                /**
+                 * adequate resources check
+                 */
+                this.btnArmyGetFood.clearTint();
+                if (buildingData.village.amountFood < 10)
+                    this.btnArmyGetFood.setTint("0xff0000");
+                else if (buildingData.village.amountFood == 10)
+                    this.btnArmyGetFood.setTint("0xffff00");
+
+                this.btnArmyGetUnits.clearTint();
+                if (buildingData.village.population < 10)
+                    this.btnArmyGetUnits.setTint("0xff0000");
+                else if (buildingData.village.population == 10)
+                    this.btnArmyGetUnits.setTint("0xffff00");
             }
 
         }

@@ -1,8 +1,6 @@
 
 import Army from './Army.js';
-import Spearman from './unit/Caveman.js';
-
-import GameUtils from '../utils/GameUtils.js';
+import Caveman from './unit/Caveman.js';
 
 /**
  * Manages army data on the board.
@@ -57,7 +55,7 @@ export default class ArmyManager {
         this.scene.board.highlightTiles(this.scene.selectedArmyPossibleMoves);
         this.scene.board.addArmy(targetRow, targetCol, spriteArmy);
 
-        this.scene.armyShowReplenishButtons(army);
+        this.scene.updateUI(army);
 
     }
 
@@ -213,8 +211,8 @@ export default class ArmyManager {
 
         //TODO: change this later
         for (let i = 0; i < 10; i++) {
-            let spearman = new Spearman();
-            army.addUnit(spearman);
+            let caveman = new Caveman();
+            army.addUnit(caveman);
         }
 
         armySprite.data.set("data", army);
@@ -257,7 +255,6 @@ export default class ArmyManager {
         scene.updateUI();
     }
 
-    
     selectArmy(pointer) {
         let scene = this.scene;
 
@@ -274,12 +271,6 @@ export default class ArmyManager {
         scene.deselectEverything();
 
         scene.selectedArmy = this;
-
-        //display army texts
-        GameUtils.showGameObjects(scene.uiArmy);
-
-        GameUtils.showGameObjects(scene.uiArmy);
-
         console.log("selecting army");
 
         this.setTint(0xffff00);
@@ -287,9 +278,43 @@ export default class ArmyManager {
         scene.showPossibleArmyMoves(army);
 
         scene.updateUI();
+    }
 
-        scene.armyShowReplenishButtons(army);
+    /**
+     * get units from a village
+     */
+    armyGetUnits() {
+        console.log("get more units");
 
+        let scene = this.scene;
+        let army = scene.selectedArmy.data.get("data");
+
+        let row = army.row;
+        let col = army.col;
+
+        let buildingSprite = scene.board.boardBuildings[row][col];
+        let village;
+        if (buildingSprite != null) {
+            let buildingData = buildingSprite.data.get("data");
+
+            if (buildingData.player == army.player)
+                village = buildingData.village;
+            else
+                return;
+        }
+
+        if (village.population < 10)
+            return;
+
+        village.population -= 10;
+
+        //TODO: change later.
+        for (let i = 0; i < 10; i++) {
+            let caveman = new Caveman();
+            army.addUnit(caveman);
+        }
+
+        scene.updateUI();
     }
 
 
