@@ -2,6 +2,8 @@
 import Army from './Army.js';
 import Spearman from './unit/Caveman.js';
 
+import GameUtils from '../utils/GameUtils.js';
+
 /**
  * Manages army data on the board.
  */
@@ -203,7 +205,7 @@ export default class ArmyManager {
             .setInteractive()
             .setDataEnabled()
             .setDepth(2)
-            .on('pointerdown', scene.clickedArmy);
+            .on('pointerdown', scene.armyManager.selectArmy);
 
         let army = new Army(row, col, 1, village);
         army.moveAmount = 3;
@@ -254,5 +256,41 @@ export default class ArmyManager {
 
         scene.updateUI();
     }
+
+    
+    selectArmy(pointer) {
+        let scene = this.scene;
+
+        //double click panning
+        if (pointer.leftButtonDown() && scene.selectedArmy == this) {
+            scene.cam.pan(this.x, this.y, 500);
+        }
+
+        if (pointer.rightButtonDown())
+            return;
+
+        let army = this.data.get("data");
+
+        scene.deselectEverything();
+
+        scene.selectedArmy = this;
+
+        //display army texts
+        GameUtils.showGameObjects(scene.uiArmy);
+
+        GameUtils.showGameObjects(scene.uiArmy);
+
+        console.log("selecting army");
+
+        this.setTint(0xffff00);
+
+        scene.showPossibleArmyMoves(army);
+
+        scene.updateUI();
+
+        scene.armyShowReplenishButtons(army);
+
+    }
+
 
 }

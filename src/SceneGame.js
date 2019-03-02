@@ -629,40 +629,6 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    clickedArmy(pointer) {
-        let scene = this.scene;
-
-        //double click panning
-        if (pointer.leftButtonDown() && scene.selectedArmy == this) {
-            scene.cam.pan(this.x, this.y, 500);
-        }
-
-        if (pointer.rightButtonDown())
-            return;
-
-        let army = this.data.get("data");
-
-        scene.deselectEverything();
-
-        scene.selectedArmy = this;
-
-        //display army texts
-        GameUtils.showGameObjects(scene.uiArmy);
-
-        GameUtils.showGameObjects(scene.uiArmy);
-
-        console.log("selecting army");
-
-        this.setTint(0xffff00);
-
-        scene.showPossibleArmyMoves(army);
-
-        scene.updateUI();
-
-        scene.armyShowReplenishButtons(army);
-
-    }
-
     showPossibleArmyMoves(army) {
         this.armyManager.getPossibleArmyMoves(army);
         this.board.highlightTiles(this.selectedArmyPossibleMoves);
