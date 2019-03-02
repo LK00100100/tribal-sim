@@ -35,20 +35,27 @@ export default class Board {
         //TODO: make this more dynamic-y later
         //TODO: replace this hardcoded board
         this.boardTerrain = [
-            [1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 4, 4, 4, 1],
-            [1, 0, 0, 0, 4, 4, 4, 1],
-            [1, 0, 0, 0, 0, 2, 2, 1],
-            [1, 0, 0, 3, 1, 0, 0, 1],
-            [1, 0, 3, 3, 0, 0, 0, 1],
-            [1, 0, 0, 0, 0, 0, 0, 1],
-            [1, 1, 1, 1, 1, 1, 1, 1]];
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 4, 4, 4, 1, 1, 1, 1],
+            [1, 0, 0, 0, 4, 4, 0, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 2, 2, 1, 1, 1, 1],
+            [1, 0, 0, 3, 1, 0, 0, 1, 1, 1, 1],
+            [1, 0, 3, 3, 1, 0, 4, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 2, 1, 1, 1, 1],
+            [1, 0, 4, 4, 2, 2, 2, 1, 1, 1, 1],
+            [1, 0, 4, 4, 2, 2, 2, 1, 1, 1, 1],
+            [1, 0, 4, 4, 2, 2, 2, 0, 0, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
+
+        this.rows = this.boardTerrain.length;
+        this.cols = this.boardTerrain[0].length;
 
         //init board of isWalkable
         let answer;
-        for (let row = 0; row < 8; row++) {
+        for (let row = 0; row < this.rows; row++) {
             let theRow = [];
-            for (let col = 0; col < 8; col++) {
+            for (let col = 0; col < this.cols; col++) {
                 answer = true;
 
                 if (this.boardTerrain[row][col] == 1)
@@ -62,27 +69,27 @@ export default class Board {
         }
 
         //init board of terrain sprites
-        for (let row = 0; row < 8; row++) {
+        for (let row = 0; row < this.rows; row++) {
             let theRow = [];
-            for (let col = 0; col < 8; col++) {
+            for (let col = 0; col < this.cols; col++) {
                 theRow.push(null);
             }
             this.boardTerrainSprites.push(theRow);
         }
 
         //init board units
-        for (let row = 0; row < 8; row++) {
+        for (let row = 0; row < this.rows; row++) {
             let theRow = [];
-            for (let col = 0; col < 8; col++) {
+            for (let col = 0; col < this.cols; col++) {
                 theRow.push(null);
             }
             this.boardUnits.push(theRow);
         }
 
         //init board villages
-        for (let row = 0; row < 8; row++) {
+        for (let row = 0; row < this.rows; row++) {
             let theRow = [];
-            for (let col = 0; col < 8; col++) {
+            for (let col = 0; col < this.cols; col++) {
                 theRow.push(null);
             }
             this.boardBuildings.push(theRow);

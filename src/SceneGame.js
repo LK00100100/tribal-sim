@@ -29,7 +29,7 @@ export default class SceneGame extends Phaser.Scene {
                 amountWood: 50
             },
             {
-                row: 6, col: 6,
+                row: 10, col: 8,
                 name: "baddies",
                 type: "village",
                 player: 2,
@@ -85,7 +85,6 @@ export default class SceneGame extends Phaser.Scene {
         this.textsVillageName = [];
 
         this.armyManager;
-        this.uiManager;
     }
 
     preload() {
