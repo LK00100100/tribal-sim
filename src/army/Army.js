@@ -24,6 +24,8 @@ export default class Army {
     }
 
     addUnit(unit) {
+        //TODO: set max move amount according to slowest unit
+
         this.units.push(unit);
     }
 
@@ -41,7 +43,14 @@ export default class Army {
     }
 
     getCostDay() {
-        return this.size();
+
+        let cost = 0;
+
+        for(let i = 0; i < this.size(); i++){
+            cost += this.units[i].cost();
+        }
+
+        return cost;
     }
 
     calculateCostDay() {

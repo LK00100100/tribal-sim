@@ -165,7 +165,7 @@ export default class ArmyManager {
         this.scene.selectedArmyPossibleMoves = possibleMoves;
     }
 
-    createArmy(pointer) {
+    createArmyButton(pointer) {
 
         if (pointer.rightButtonDown())
             return;
@@ -206,6 +206,7 @@ export default class ArmyManager {
             .on('pointerdown', scene.armyManager.selectArmy);
 
         let army = new Army(row, col, 1, village);
+        //TODO: set army moveAmount dynamically
         army.moveAmount = 3;
         army.moveMax = 3;
 
@@ -216,16 +217,15 @@ export default class ArmyManager {
         }
 
         armySprite.data.set("data", army);
-
-        //TODO: change later?
-        if (scene.armyPlayers[1] == null)
-            scene.armyPlayers[1] = [];
-
-        scene.armyPlayers[1].push(army);
-
+        scene.playerArmies[1].push(armySprite);
         scene.board.addArmy(row, col, armySprite);
 
         scene.updateUI();
+
+    }
+
+    createArmy(player, village, ){
+
 
     }
 

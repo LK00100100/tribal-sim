@@ -5,6 +5,8 @@ import Village from './buildings/village_buildings/Village.js';
 
 import ArmyManager from './army/ArmyManager.js';
 
+import RatsAi from './ai/RatsAi.js';
+
 export default class SceneGame extends Phaser.Scene {
 
     constructor() {
@@ -60,8 +62,9 @@ export default class SceneGame extends Phaser.Scene {
         this.numPlayers;
 
         //[player #] = array of army pieces
-        this.armyPlayers = [];
-        this.playersBuilding = [];
+        //sprites
+        this.playerArmies = [];
+        this.playerBuildings = [];
 
         //ui
         this.uiVillage = [];
@@ -124,10 +127,26 @@ export default class SceneGame extends Phaser.Scene {
         //armies
         this.load.image('armyClubmen', 'assets/army-clubmen.png');
         this.load.image('armySpearmen', 'assets/army-spearmen.png');
+        this.load.image('armyRat', 'assets/army-rat.png');
 
     }
 
     create() {
+
+        /**
+         * pre init
+         */
+        //TODO: make this dynamic-y
+        this.numPlayers = 3;
+
+        this.playerBuildings = [];
+        this.playerArmies = [];
+        for (let playerNum = 0; playerNum <= this.numPlayers; playerNum++) {
+            this.playerBuildings[playerNum] = [];
+            this.playerArmies[playerNum] = [];
+        }
+
+        this.playersAi = [];
 
         this.armyManager = new ArmyManager(this);
 
@@ -223,10 +242,7 @@ export default class SceneGame extends Phaser.Scene {
 
             this.board.boardBuildings[building.row][building.col] = tempSprite;
 
-            if (this.playersBuilding[building.player] == null)
-                this.playersBuilding[building.player] = [];
-
-            this.playersBuilding[building.player].push(tempSprite);
+            this.playerBuildings[building.player].push(tempSprite);
 
             tempSprite.data.set("row", building.row);
             tempSprite.data.set("col", building.col);
@@ -301,7 +317,7 @@ export default class SceneGame extends Phaser.Scene {
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
-            .on('pointerdown', this.armyManager.createArmy);
+            .on('pointerdown', this.armyManager.createArmyButton);
 
         this.btnBuildFarm = this.add.sprite(-200, y + 440, 'btnBuildFarm')
             .setScrollFactor(0)
@@ -435,10 +451,14 @@ export default class SceneGame extends Phaser.Scene {
          */
 
         //init variables
-        this.numPlayers = 3;
-
         this.turnOfPlayer = 1;
         this.day = 1;
+
+        this.playerBuildings;
+
+        //TODO: make dynamic-y
+        this.playersAi[2] = null;
+        this.playersAi[3] = new RatsAi(this, 3);
 
         this.updateUI();
     }
@@ -502,7 +522,7 @@ export default class SceneGame extends Phaser.Scene {
         scene.postTurnPhase(scene.turnOfPlayer);
 
         //TODO: fix this later
-        for (let i = 2; i <= this.numPlayers; i++) {
+        for (let i = 2; i <= scene.numPlayers; i++) {
             scene.turnOfPlayer = i;
             scene.calculateTurnAiPlayer(scene.turnOfPlayer);
         }
@@ -519,6 +539,7 @@ export default class SceneGame extends Phaser.Scene {
 
         scene.btnEndTurn.clearTint();
 
+        console.log("\nstart of your turn: ");
         scene.updateUI();
     }
 
@@ -532,11 +553,14 @@ export default class SceneGame extends Phaser.Scene {
 
         this.preTurnPhase(player);
 
-        //do something for player
+        let ai = this.playersAi[player];
 
         //TODO: replace this function with more functions
-        if (this.turnOfPlayer == 3)
-            logicRats();
+        if (this.turnOfPlayer == 3) {
+            console.log("rats doing rat stuff...");
+
+            ai.calculateTurn();
+        }
 
         this.postTurnPhase(player);
 
@@ -549,10 +573,11 @@ export default class SceneGame extends Phaser.Scene {
         /**
          * army stuff
          */
-        let armies = this.armyPlayers[playerNumber];
+        let armies = this.playerArmies[playerNumber];
 
         if (armies != null) {
             armies.forEach(army => {
+                army = army.data.get("data");
                 army.moveAmount = army.moveMax;
             });
         }
@@ -561,7 +586,7 @@ export default class SceneGame extends Phaser.Scene {
          * village stuff
          */
 
-        let buildings = this.playersBuilding[playerNumber];
+        let buildings = this.playerBuildings[playerNumber];
 
         buildings.forEach(building => {
             let data = building.data.get("data");
@@ -582,10 +607,12 @@ export default class SceneGame extends Phaser.Scene {
         /**
          * army stuff
          */
-        let armies = this.armyPlayers[playerNumber];
+        let armies = this.playerArmies[playerNumber];
 
         if (armies != null) {
             armies.forEach((army, i) => {
+                army = army.data.get("data");
+
                 army.calculateCostDay();
 
                 let row = army.row;
@@ -596,7 +623,7 @@ export default class SceneGame extends Phaser.Scene {
                     let sprite = this.board.boardUnits[row][col];
                     sprite.destroy();
 
-                    this.armyPlayers[playerNumber].splice(i, 1);
+                    this.playerArmies[playerNumber].splice(i, 1);
                     this.board.removeArmy(row, col);
 
                     if (this.selectedArmy != null) {
