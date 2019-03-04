@@ -73,7 +73,7 @@ export default class Village extends VillageBuilding {
 
             this.population += populationGrowth;
 
-            //TODO: dont hard code
+            //TODO: dont hard code. pull this out to a function
             //village itself + housing
             let maxPopulation = 20 + (countHousing * 20);
 

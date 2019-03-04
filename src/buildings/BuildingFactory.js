@@ -22,7 +22,7 @@ export default class BuildingFactory {
             case "Village":
                 return new Village(row, col, x, y, player);
             default:
-                throw new Exception("no such building type: " + buildingType);
+                throw "no such building type: " + buildingType;
 
         }
     }

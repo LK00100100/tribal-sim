@@ -5,6 +5,8 @@ import Village from './buildings/village_buildings/Village.js';
 
 import ArmyManager from './army/ArmyManager.js';
 
+import Races from './Races.js';
+
 import RatsAi from './ai/RatsAi.js';
 
 export default class SceneGame extends Phaser.Scene {
@@ -15,7 +17,7 @@ export default class SceneGame extends Phaser.Scene {
         super('SceneGame');
 
         this.board = new Board();
-        this.playerType = ["", "cavemen", "cavemen", "rats"];
+        this.playerRace = ["", "cavemen", "cavemen", "rats"];
 
         //TODO: temporary fix
         //TODO: handle collisions?
@@ -125,8 +127,7 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image('btnArmyGetFood', 'assets/btn-army-get-food.png');
 
         //armies
-        this.load.image('armyClubmen', 'assets/army-clubmen.png');
-        this.load.image('armySpearmen', 'assets/army-spearmen.png');
+        this.load.image('armyClubman', 'assets/army-clubman.png');
         this.load.image('armyRat', 'assets/army-rat.png');
 
     }
@@ -208,19 +209,19 @@ export default class SceneGame extends Phaser.Scene {
             let player = building.player;
 
             let imageName, data;
-            let race = this.playerType[building.player];
+            let race = this.playerRace[building.player];
 
             switch (building.type) {
                 case "village":
                     switch (race) {
-                        case "cavemen":
+                        case Races.CAVEMEN:
                             imageName = "buildVillage";
                             break;
-                        case "rats":
+                        case Races.RATS:
                             imageName = "buildRatCave";
                             break;
                         default:
-                            throw "undefined building type for this race"
+                            throw "undefined building type for this race: " + race
                     }
 
                     data = new Village(building.row, building.col, x, y, player, name);

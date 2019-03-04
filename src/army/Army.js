@@ -1,10 +1,10 @@
 
 export default class Army {
 
-    constructor(row, col, player, village) {
+    constructor(player, village) {
 
-        this.row = row;
-        this.col = col;
+        this.row = village.row;
+        this.col = village.col;
         this.player = player;
         this.village = village;
         this.name;

@@ -4,4 +4,4 @@ const Races = {
     RATS: "rats"
 };
 
-export default {Races};
+export default Races;

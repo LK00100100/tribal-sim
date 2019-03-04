@@ -2,6 +2,8 @@
 import Army from './Army.js';
 import Caveman from './unit/Caveman.js';
 
+import UnitFactory from './unit/UnitFactory'
+
 /**
  * Manages army data on the board.
  */
@@ -172,10 +174,21 @@ export default class ArmyManager {
 
         let scene = this.scene;
         let village = scene.selectedVillage.data.get("data");
-        let row = village.row;
-        let col = village.col;
 
         scene.board.unhighlightTiles(scene.possibleMoves);
+
+        createArmy(1, village);
+
+        scene.updateUI();
+
+    }
+
+    createArmy(player, village){
+
+        let scene = this.scene;
+        let race = scene.playerRace[player];
+        let row = village.row;
+        let col = village.col;
 
         //space already occupied
         if (scene.board.boardUnits[row][col] != null) {
@@ -199,33 +212,23 @@ export default class ArmyManager {
         village.amountFood -= 10;
         village.population -= 10;
 
-        let armySprite = scene.add.sprite(village.x, village.y, 'armyClubmen')
-            .setInteractive()
-            .setDataEnabled()
-            .setDepth(2)
-            .on('pointerdown', scene.armyManager.selectArmy);
+        let armySprite = UnitFactory.getUnitSprite(scene, village, race);
 
-        let army = new Army(row, col, 1, village);
+        let army = new Army(1, village);
         //TODO: set army moveAmount dynamically
         army.moveAmount = 3;
         army.moveMax = 3;
+        army.amountFood += 10;
 
         //TODO: change this later
         for (let i = 0; i < 10; i++) {
-            let caveman = new Caveman();
-            army.addUnit(caveman);
+            let unit = UnitFactory.getUnit(race);
+            army.addUnit(unit);
         }
 
         armySprite.data.set("data", army);
-        scene.playerArmies[1].push(armySprite);
+        scene.playerArmies[player].push(armySprite);
         scene.board.addArmy(row, col, armySprite);
-
-        scene.updateUI();
-
-    }
-
-    createArmy(player, village, ){
-
 
     }
 

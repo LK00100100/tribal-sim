@@ -12,6 +12,8 @@ export default class RatsAi {
 
     calculateTurn() {
 
+        let scene = this.scene;
+
         this.buildings.forEach(building => {
             let buildingData = building.data.get("data");
 
@@ -23,7 +25,7 @@ export default class RatsAi {
 
                 //constantly produce rat armies when you can
                 if (buildingData.population >= 20) {
-                    //scene.armyManager.createArmy();
+                    scene.armyManager.createArmy(this.playerNumber, buildingData);
                 }
 
             }

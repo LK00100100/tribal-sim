@@ -1,0 +1,48 @@
+import Races from '../../Races.js';
+
+import Caveman from './Caveman.js';
+import Rat from './Rat.js';
+
+export default class UnitFactory {
+
+    static getUnit(race) {
+
+        switch (race) {
+            case Races.CAVEMEN:
+                return new Caveman();
+            case Races.RATS:
+                return new Rat();
+            default:
+                throw "no such race: " + race;
+        }
+
+    }
+
+    static getUnitSprite(scene, village, race) {
+
+        //TODO: remove card code stuff
+        let armySprite;
+        switch (race) {
+            case Races.CAVEMEN:
+                armySprite = scene.add.sprite(village.x, village.y, 'armyClubman')
+                    .setInteractive()
+                    .setDataEnabled()
+                    .setDepth(2)
+                    .on('pointerdown', scene.armyManager.selectArmy);
+                break;
+            case Races.RATS:
+                armySprite = scene.add.sprite(village.x, village.y, 'armyRat')
+                    .setInteractive()
+                    .setDataEnabled()
+                    .setDepth(2);
+                    //.on('pointerdown', scene.armyManager.selectArmy);
+                break;
+            default:
+                throw "no such race: " + race;
+        }
+
+        return armySprite;
+
+    }
+
+}
