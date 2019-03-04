@@ -13,7 +13,7 @@ export default class UnitFactory {
             case Races.RATS:
                 return new Rat();
             default:
-                throw "no such race: " + race;
+                throw 'no such race: ' + race;
         }
 
     }
@@ -24,22 +24,21 @@ export default class UnitFactory {
         let armySprite;
         switch (race) {
             case Races.CAVEMEN:
-                armySprite = scene.add.sprite(village.x, village.y, 'armyClubman')
+                armySprite = scene.add.sprite(village.x, village.y, 'armyCaveman')
                     .setInteractive()
-                    .setDataEnabled()
-                    .setDepth(2)
                     .on('pointerdown', scene.armyManager.selectArmy);
                 break;
             case Races.RATS:
                 armySprite = scene.add.sprite(village.x, village.y, 'armyRat')
                     .setInteractive()
-                    .setDataEnabled()
-                    .setDepth(2);
-                    //.on('pointerdown', scene.armyManager.selectArmy);
+                //.on('pointerdown', scene.armyManager.selectArmy);
                 break;
             default:
-                throw "no such race: " + race;
+                throw 'no such race: ' + race;
         }
+
+        armySprite.setDataEnabled()
+            .setDepth(2);
 
         return armySprite;
 

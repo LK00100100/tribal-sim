@@ -1,9 +1,9 @@
 
-import Village from "../buildings/village_buildings/Village.js";
-import Farm from "../buildings/village_buildings/Farm.js";
-import LumberMill from "../buildings/village_buildings/LumberMill.js";
-import Quarry from "../buildings/village_buildings/Quarry.js";
-import Housing from "../buildings/village_buildings/Housing.js";
+import Village from '../buildings/village_buildings/Village.js';
+import Farm from '../buildings/village_buildings/Farm.js';
+import LumberMill from '../buildings/village_buildings/LumberMill.js';
+import Quarry from '../buildings/village_buildings/Quarry.js';
+import Housing from '../buildings/village_buildings/Housing.js';
 
 import GameUtils from '../utils/GameUtils.js';
 
@@ -24,7 +24,7 @@ export default class Board {
         this.boardUnits = [];   //holds occupying units
 
         //TODO: make an enums for terrain
-        this.terrainType = ["tileGrass", "tileOcean", "tileHill", "tileDesert", "tileForest"];
+        this.terrainType = ['tileGrass', 'tileOcean', 'tileHill', 'tileDesert', 'tileForest'];
 
         //TODO: pull this out completely.
         this.directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
@@ -206,7 +206,7 @@ export default class Board {
         if (this.isWithinBounds(row, col) == false)
             return answer;
 
-        let key = row + "," + col;
+        let key = row + ',' + col;
 
         if (visited.has(key))
             return answer;
@@ -219,7 +219,7 @@ export default class Board {
         if (building == null)
             return answer;
 
-        building = building.data.get("data");
+        building = building.data.get('data');
 
         //if this village is not ours
         if (building instanceof Village) {
@@ -259,13 +259,13 @@ export default class Board {
             let row = tile.row;
             let col = tile.col;
 
-            visited.add(row + "," + col);
+            visited.add(row + ',' + col);
 
             for (let d = 0; d < this.directions.length; d++) {
                 let i = this.directions[d][0];
                 let j = this.directions[d][1];
 
-                let key = (row + i) + "," + (col + j);
+                let key = (row + i) + ',' + (col + j);
 
                 if (!this.isWithinBounds(row + i, col + j))
                     continue;
@@ -288,7 +288,7 @@ export default class Board {
             let row = coordinate.row;
             let col = coordinate.col;
 
-            buildingsData.push(this.boardBuildings[row][col].data.get("data"));
+            buildingsData.push(this.boardBuildings[row][col].data.get('data'));
         });
 
         return buildingsData;
@@ -320,14 +320,14 @@ export default class Board {
             if (this.boardBuildings[row][col] != null) {
                 let village = this.boardBuildings[row][col];
 
-                if (village.data.get("data").player == 1)
-                    this.boardTerrainSprites[row][col].setTint("0x00aaff");
+                if (village.data.get('data').player == 1)
+                    this.boardTerrainSprites[row][col].setTint('0x00aaff');
                 else
-                    this.boardTerrainSprites[row][col].setTint("0xaa0000");
+                    this.boardTerrainSprites[row][col].setTint('0xaa0000');
             }
             //plain terrain
             else {
-                this.boardTerrainSprites[row][col].setTint("0x00aaff");
+                this.boardTerrainSprites[row][col].setTint('0x00aaff');
             }
 
         });
@@ -337,8 +337,8 @@ export default class Board {
 
         let scene = terrainSprite.scene;
 
-        let row = terrainSprite.data.get("row");
-        let col = terrainSprite.data.get("col");
+        let row = terrainSprite.data.get('row');
+        let col = terrainSprite.data.get('col');
 
         let x = terrainSprite.x;
         let y = terrainSprite.y;
@@ -362,25 +362,25 @@ export default class Board {
         if (!isIn)
             return false;
 
-        let village = scene.selectedVillage.data.get("data");
+        let village = scene.selectedVillage.data.get('data');
 
         let building = BuildingFactory
             .getVillageBuilding(scene.selectedBuyBuilding, row, col, x, y, village);
 
-        let tempSprite = scene.add.sprite(x, y, "build" + scene.selectedBuyBuilding)
+        let tempSprite = scene.add.sprite(x, y, 'build' + scene.selectedBuyBuilding)
             .setInteractive()
             .setDataEnabled()
             .setDepth(1)
-            .on("pointerdown", scene.clickedBuilding);
+            .on('pointerdown', scene.clickedBuilding);
 
-        tempSprite.data.set("row", row);
-        tempSprite.data.set("col", col);
-        tempSprite.data.set("data", building);
+        tempSprite.data.set('row', row);
+        tempSprite.data.set('col', col);
+        tempSprite.data.set('data', building);
 
         this.boardBuildings[row][col] = tempSprite;
         scene.playerBuildings[village.player].push(tempSprite);
 
-        //TODO: change this later to reflect "final" building costs
+        //TODO: change this later to reflect 'final' building costs
         village.amountWood -= 100;
 
         //re-calculate income
@@ -408,19 +408,19 @@ export default class Board {
             return;
         }
 
-        console.log("before: build a " + buildingType);
+        console.log('before: build a ' + buildingType);
 
-        let village = scene.selectedVillage.data.get("data");
+        let village = scene.selectedVillage.data.get('data');
 
         //TODO: ensure enough resources from this specific village
         if (village.amountWood < 100) {
-            console.log("not enough wood. need 100");
+            console.log('not enough wood. need 100');
             return;
         }
 
         scene.selectedBuyBuilding = buildingType;
         GameUtils.clearTintArray(scene.uiVillage);
-        gameSprite.setTint("0x00ff00");
+        gameSprite.setTint('0x00ff00');
 
         scene.possibleMoves = scene.board.getRelatedBuildings(village);
         scene.possibleMoves = scene.board.getNeighbors(scene.possibleMoves);
@@ -471,7 +471,7 @@ export default class Board {
                 countsOfBuildings.countHousing++;
             }
             else
-                console.log("cannot count this building");
+                console.log('cannot count this building');
         });
 
         return countsOfBuildings;

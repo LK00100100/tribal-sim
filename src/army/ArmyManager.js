@@ -15,16 +15,16 @@ export default class ArmyManager {
 
     moveArmy(spriteArmy, squareTerrain) {
 
-        let army = spriteArmy.data.get("data");
+        let army = spriteArmy.data.get('data');
 
-        let targetRow = squareTerrain.data.get("row");
-        let targetCol = squareTerrain.data.get("col");
+        let targetRow = squareTerrain.data.get('row');
+        let targetCol = squareTerrain.data.get('col');
 
-        console.log("terrain right clicked with army");
+        console.log('terrain right clicked with army');
 
         //highlight allowed movement
-        console.log("squareTerrain.x: " + squareTerrain.x);
-        console.log("squareTerrain.y: " + squareTerrain.y);
+        console.log('squareTerrain.x: ' + squareTerrain.x);
+        console.log('squareTerrain.y: ' + squareTerrain.y);
 
         //move visually and internally (row, col);
 
@@ -76,7 +76,7 @@ export default class ArmyManager {
         }
 
         if (target == null) {
-            console.log("not a possible move");
+            console.log('not a possible move');
             return 9999;
         }
 
@@ -94,7 +94,7 @@ export default class ArmyManager {
             cost: 0
         }
 
-        let coordinate = army.row + "," + army.col;
+        let coordinate = army.row + ',' + army.col;
 
         let visited = new Set();
         visited.add(coordinate);
@@ -135,7 +135,7 @@ export default class ArmyManager {
                     let i = directions[d][0];
                     let j = directions[d][1];
 
-                    coordinate = (row + i) + "," + (col + j);
+                    coordinate = (row + i) + ',' + (col + j);
 
                     if (visited.has(coordinate))
                         continue;
@@ -173,11 +173,11 @@ export default class ArmyManager {
             return;
 
         let scene = this.scene;
-        let village = scene.selectedVillage.data.get("data");
+        let village = scene.selectedVillage.data.get('data');
 
         scene.board.unhighlightTiles(scene.possibleMoves);
 
-        createArmy(1, village);
+        scene.armyManager.createArmy(1, village);
 
         scene.updateUI();
 
@@ -192,19 +192,19 @@ export default class ArmyManager {
 
         //space already occupied
         if (scene.board.boardUnits[row][col] != null) {
-            console.log("already occupied");
+            console.log('already occupied');
             return;
         }
 
         //TODO: actual resource calculation
         if (village.amountFood < 10) {
-            console.log("not enough food. need 10");
+            console.log('not enough food. need 10');
             return;
         }
 
         //TODO: make more precise
         if (village.population < 10) {
-            console.log("not enough people. need 10");
+            console.log('not enough people. need 10');
             return;
         }
 
@@ -226,7 +226,7 @@ export default class ArmyManager {
             army.addUnit(unit);
         }
 
-        armySprite.data.set("data", army);
+        armySprite.data.set('data', army);
         scene.playerArmies[player].push(armySprite);
         scene.board.addArmy(row, col, armySprite);
 
@@ -240,15 +240,15 @@ export default class ArmyManager {
 
         let scene = this.scene;
 
-        let army = scene.selectedArmy.data.get("data");
+        let army = scene.selectedArmy.data.get('data');
         let row = army.row;
         let col = army.col;
 
-        let building = scene.board.boardBuildings[row][col].data.get("data");
+        let building = scene.board.boardBuildings[row][col].data.get('data');
 
         //transfer
         if (building.village.amountFood < 10) {
-            console.log("not enough food. need 10");
+            console.log('not enough food. need 10');
             return;
         }
 
@@ -269,12 +269,12 @@ export default class ArmyManager {
         if (pointer.rightButtonDown())
             return;
 
-        let army = this.data.get("data");
+        let army = this.data.get('data');
 
         scene.deselectEverything();
 
         scene.selectedArmy = this;
-        console.log("selecting army");
+        console.log('selecting army');
 
         this.setTint(0xffff00);
 
@@ -287,10 +287,10 @@ export default class ArmyManager {
      * get units from a village
      */
     armyGetUnits() {
-        console.log("get more units");
+        console.log('get more units');
 
         let scene = this.scene;
-        let army = scene.selectedArmy.data.get("data");
+        let army = scene.selectedArmy.data.get('data');
 
         let row = army.row;
         let col = army.col;
@@ -298,7 +298,7 @@ export default class ArmyManager {
         let buildingSprite = scene.board.boardBuildings[row][col];
         let village;
         if (buildingSprite != null) {
-            let buildingData = buildingSprite.data.get("data");
+            let buildingData = buildingSprite.data.get('data');
 
             if (buildingData.player == army.player)
                 village = buildingData.village;

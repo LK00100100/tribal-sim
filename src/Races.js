@@ -1,7 +1,7 @@
 
 const Races = {
-    CAVEMEN: "cavemen",
-    RATS: "rats"
+    CAVEMEN: 'cavemen',
+    RATS: 'rats'
 };
 
 export default Races;

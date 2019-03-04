@@ -1,4 +1,4 @@
-import Building from "../Building.js";
+import Building from '../Building.js';
 
 /**
  * A building connected to a village

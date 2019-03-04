@@ -17,15 +17,15 @@ export default class SceneGame extends Phaser.Scene {
         super('SceneGame');
 
         this.board = new Board();
-        this.playerRace = ["", "cavemen", "cavemen", "rats"];
+        this.playerRace = ['', 'cavemen', 'cavemen', 'rats'];
 
         //TODO: temporary fix
         //TODO: handle collisions?
         this.buildings = [
             {
                 row: 2, col: 2,
-                name: "mad katz",
-                type: "village",
+                name: 'mad katz',
+                type: 'village',
                 player: 1,
                 population: 20,
                 amountFood: 100,
@@ -34,8 +34,8 @@ export default class SceneGame extends Phaser.Scene {
             },
             {
                 row: 10, col: 8,
-                name: "baddies",
-                type: "village",
+                name: 'baddies',
+                type: 'village',
                 player: 2,
                 population: 10,
                 amountFood: 100,
@@ -44,8 +44,8 @@ export default class SceneGame extends Phaser.Scene {
             },
             {
                 row: 2, col: 6,
-                name: "rabid rats",
-                type: "village",
+                name: 'rabid rats',
+                type: 'village',
                 player: 3,
                 population: 10,
                 amountFood: 200,
@@ -127,7 +127,7 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image('btnArmyGetFood', 'assets/btn-army-get-food.png');
 
         //armies
-        this.load.image('armyClubman', 'assets/army-clubman.png');
+        this.load.image('armyCaveman', 'assets/army-caveman.png');
         this.load.image('armyRat', 'assets/army-rat.png');
 
     }
@@ -171,7 +171,7 @@ export default class SceneGame extends Phaser.Scene {
                 x = 256 + (col * 256);
 
                 if (this.board.terrainType[theBoard[row][col]] == undefined) {
-                    throw "terrain type does not exist at: " + row + "," + col;
+                    throw 'terrain type does not exist at: ' + row + ',' + col;
                 }
 
                 let currentTerrainName = this.board.terrainType[theBoard[row][col]];
@@ -183,8 +183,8 @@ export default class SceneGame extends Phaser.Scene {
                     .setDataEnabled()
                     .on('pointerdown', this.clickedTerrain);
 
-                tempSprite.data.set("row", row);
-                tempSprite.data.set("col", col);
+                tempSprite.data.set('row', row);
+                tempSprite.data.set('col', col);
 
                 this.groupTerrain.add(tempSprite);
                 this.board.boardTerrainSprites[row][col] = tempSprite;
@@ -200,8 +200,6 @@ export default class SceneGame extends Phaser.Scene {
         * draw buildings
         */
 
-        console.log("in create, 'this' is:" + typeof (this));
-
         this.buildings.forEach(building => {
             x = 256 + (building.col * 256);
             y = 256 + (building.row * 256);
@@ -212,16 +210,16 @@ export default class SceneGame extends Phaser.Scene {
             let race = this.playerRace[building.player];
 
             switch (building.type) {
-                case "village":
+                case 'village':
                     switch (race) {
                         case Races.CAVEMEN:
-                            imageName = "buildVillage";
+                            imageName = 'buildVillage';
                             break;
                         case Races.RATS:
-                            imageName = "buildRatCave";
+                            imageName = 'buildRatCave';
                             break;
                         default:
-                            throw "undefined building type for this race: " + race
+                            throw 'undefined building type for this race: ' + race
                     }
 
                     data = new Village(building.row, building.col, x, y, player, name);
@@ -233,30 +231,30 @@ export default class SceneGame extends Phaser.Scene {
 
                     break;
                 default:
-                    throw "undefined building type loaded";
+                    throw 'undefined building type loaded';
             }
 
             tempSprite = this.add.sprite(x, y, imageName)
                 .setInteractive()
                 .setDataEnabled()
-                .on("pointerdown", this.clickedVillage);
+                .on('pointerdown', this.clickedVillage);
 
             this.board.boardBuildings[building.row][building.col] = tempSprite;
 
             this.playerBuildings[building.player].push(tempSprite);
 
-            tempSprite.data.set("row", building.row);
-            tempSprite.data.set("col", building.col);
-            tempSprite.data.set("data", data);
+            tempSprite.data.set('row', building.row);
+            tempSprite.data.set('col', building.col);
+            tempSprite.data.set('data', data);
 
             tempText = this.add.text(x, y + 100)
                 .setText(building.name)
                 .setFontSize(38)
-                .setAlign("center")
+                .setAlign('center')
                 .setOrigin(0.5)
 
                 .setDepth(1)
-                .setBackgroundColor("#000000");
+                .setBackgroundColor('#000000');
 
             this.textsVillageName.push(tempText);
 
@@ -325,7 +323,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.board.buyBuilding(pointer, this, "Farm");
+                this.scene.board.buyBuilding(pointer, this, 'Farm');
             });
 
         this.btnBuildLumberMill = this.add.sprite(-200, y + 580, 'btnBuildLumberMill')
@@ -333,7 +331,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.board.buyBuilding(pointer, this, "LumberMill");
+                this.scene.board.buyBuilding(pointer, this, 'LumberMill');
             });
 
         this.btnBuildQuarry = this.add.sprite(-200, y + 720, 'btnBuildQuarry')
@@ -341,7 +339,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.board.buyBuilding(pointer, this, "Quarry");
+                this.scene.board.buyBuilding(pointer, this, 'Quarry');
             });
 
         this.btnBuildHousing = this.add.sprite(-200, y + 860, 'btnBuildHousing')
@@ -349,7 +347,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.board.buyBuilding(pointer, this, "Housing");
+                this.scene.board.buyBuilding(pointer, this, 'Housing');
             });
 
         this.uiVillage.push(this.txtVillagePopulation);
@@ -471,11 +469,11 @@ export default class SceneGame extends Phaser.Scene {
     updateUI() {
 
         //TODO: replace with icons later
-        this.txtDay.setText("day: " + this.day);
+        this.txtDay.setText('day: ' + this.day);
 
         //village UI
         if (this.selectedVillage != null) {
-            let village = this.selectedVillage.data.get("data");
+            let village = this.selectedVillage.data.get('data');
 
             //TODO: put this in some sort of village manager. updateUi should do no calcs
             let coordinates = this.board.getRelatedBuildings(village);
@@ -485,19 +483,19 @@ export default class SceneGame extends Phaser.Scene {
 
             let populationGrowth = village.getPopulationGrowthDay(countsOfBuildings.countHousing);
 
-            this.txtVillagePopulation.setText("Population: " + village.population + " (" + populationGrowth + ")");
-            this.txtVillageFood.setText("Food: " + village.amountFood + " (" + village.incomeFood + ")");
-            this.txtVillageStone.setText("Stone: " + village.amountStone + " (" + village.incomeStone + ")");
-            this.txtVillageWood.setText("Wood: " + village.amountWood + " (" + village.incomeWood + ")");
+            this.txtVillagePopulation.setText('Population: ' + village.population + ' (' + populationGrowth + ')');
+            this.txtVillageFood.setText('Food: ' + village.amountFood + ' (' + village.incomeFood + ')');
+            this.txtVillageStone.setText('Stone: ' + village.amountStone + ' (' + village.incomeStone + ')');
+            this.txtVillageWood.setText('Wood: ' + village.amountWood + ' (' + village.incomeWood + ')');
 
             //depopulation warning 
             this.btnCreateArmy.clearTint();
             if (village.population == 10)
-                this.btnCreateArmy.setTint("0xffff00");
+                this.btnCreateArmy.setTint('0xffff00');
         }
 
         if (this.selectedArmy != null) {
-            let army = this.selectedArmy.data.get("data");
+            let army = this.selectedArmy.data.get('data');
 
             this.updateTextArmy(army);
 
@@ -536,11 +534,11 @@ export default class SceneGame extends Phaser.Scene {
         scene.preTurnPhase(scene.turnOfPlayer);
 
         if (scene.selectedArmy != null)
-            scene.showPossibleArmyMoves(scene.selectedArmy.data.get("data"));
+            scene.showPossibleArmyMoves(scene.selectedArmy.data.get('data'));
 
         scene.btnEndTurn.clearTint();
 
-        console.log("\nstart of your turn: ");
+        console.log('\nstart of your turn: ');
         scene.updateUI();
     }
 
@@ -550,7 +548,7 @@ export default class SceneGame extends Phaser.Scene {
      */
     calculateTurnAiPlayer(player) {
 
-        console.log("calculating turn: player: " + player);
+        console.log('calculating turn: player: ' + player);
 
         this.preTurnPhase(player);
 
@@ -558,14 +556,14 @@ export default class SceneGame extends Phaser.Scene {
 
         //TODO: replace this function with more functions
         if (this.turnOfPlayer == 3) {
-            console.log("rats doing rat stuff...");
+            console.log('rats doing rat stuff...');
 
             ai.calculateTurn();
         }
 
         this.postTurnPhase(player);
 
-        console.log("ending turn: player2...");
+        console.log('ending turn: player2...');
     }
 
     //replenishment
@@ -578,7 +576,7 @@ export default class SceneGame extends Phaser.Scene {
 
         if (armies != null) {
             armies.forEach(army => {
-                army = army.data.get("data");
+                army = army.data.get('data');
                 army.moveAmount = army.moveMax;
             });
         }
@@ -590,7 +588,7 @@ export default class SceneGame extends Phaser.Scene {
         let buildings = this.playerBuildings[playerNumber];
 
         buildings.forEach(building => {
-            let data = building.data.get("data");
+            let data = building.data.get('data');
 
             if (data instanceof Village) {
                 let coordinates = this.board.getRelatedBuildings(data);
@@ -612,7 +610,7 @@ export default class SceneGame extends Phaser.Scene {
 
         if (armies != null) {
             armies.forEach((army, i) => {
-                army = army.data.get("data");
+                army = army.data.get('data');
 
                 army.calculateCostDay();
 
@@ -645,7 +643,7 @@ export default class SceneGame extends Phaser.Scene {
             scene.cam.pan(this.x, this.y, 500); //(x, y, duration) 
         }
 
-        console.log("village clicked");
+        console.log('village clicked');
 
         if (pointer.rightButtonDown()) {
             if (scene.selectedArmy == null)
@@ -655,7 +653,7 @@ export default class SceneGame extends Phaser.Scene {
             return;
         }
 
-        let village = this.data.get("data");
+        let village = this.data.get('data');
 
         scene.deselectEverything();
 
@@ -663,7 +661,7 @@ export default class SceneGame extends Phaser.Scene {
             return;
 
         scene.selectedVillage = this;
-        scene.selectedVillage.setTint("0xffff00");
+        scene.selectedVillage.setTint('0xffff00');
 
         //show village buttons
         GameUtils.clearTintArray(scene.uiVillage);
@@ -680,10 +678,10 @@ export default class SceneGame extends Phaser.Scene {
 
     updateTextArmy(army) {
         //TODO: refactor and move
-        this.txtArmySize.setText("Units: " + army.units.length);
-        this.txtArmyVillage.setText("Village: " + army.village.name);
-        this.txtArmyMoves.setText("Moves: " + army.moveAmount + "/" + army.moveMax);
-        this.txtArmyFood.setText("Food: " + army.amountFood);
+        this.txtArmySize.setText('Units: ' + army.units.length);
+        this.txtArmyVillage.setText('Village: ' + army.village.name);
+        this.txtArmyMoves.setText('Moves: ' + army.moveAmount + '/' + army.moveMax);
+        this.txtArmyFood.setText('Food: ' + army.amountFood);
     }
 
     deselectEverything() {
@@ -711,7 +709,7 @@ export default class SceneGame extends Phaser.Scene {
     //only used for moving armies.
     clickedTerrain(pointer) {
 
-        console.log("terrain clicked...");
+        console.log('terrain clicked...');
 
         let scene = this.scene;
 
@@ -741,7 +739,7 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     clickedBuilding(pointer) {
-        console.log("building clicked");
+        console.log('building clicked');
 
         let scene = this.scene;
 
@@ -767,7 +765,7 @@ export default class SceneGame extends Phaser.Scene {
         this.btnArmyGetFood.visible = false;
         this.btnArmyGetUnits.visible = false;
         if (buildingSprite != null) {
-            let buildingData = buildingSprite.data.get("data");
+            let buildingData = buildingSprite.data.get('data');
 
             if (buildingData.player == army.player) {
                 this.btnArmyGetFood.visible = true;
@@ -778,15 +776,15 @@ export default class SceneGame extends Phaser.Scene {
                  */
                 this.btnArmyGetFood.clearTint();
                 if (buildingData.village.amountFood < 10)
-                    this.btnArmyGetFood.setTint("0xff0000");
+                    this.btnArmyGetFood.setTint('0xff0000');
                 else if (buildingData.village.amountFood == 10)
-                    this.btnArmyGetFood.setTint("0xffff00");
+                    this.btnArmyGetFood.setTint('0xffff00');
 
                 this.btnArmyGetUnits.clearTint();
                 if (buildingData.village.population < 10)
-                    this.btnArmyGetUnits.setTint("0xff0000");
+                    this.btnArmyGetUnits.setTint('0xff0000');
                 else if (buildingData.village.population == 10)
-                    this.btnArmyGetUnits.setTint("0xffff00");
+                    this.btnArmyGetUnits.setTint('0xffff00');
             }
 
         }

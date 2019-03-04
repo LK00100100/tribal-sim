@@ -1,4 +1,4 @@
-import Village from "../buildings/village_buildings/Village";
+import Village from '../buildings/village_buildings/Village';
 
 export default class RatsAi {
 
@@ -15,13 +15,13 @@ export default class RatsAi {
         let scene = this.scene;
 
         this.buildings.forEach(building => {
-            let buildingData = building.data.get("data");
+            let buildingData = building.data.get('data');
 
             if (buildingData instanceof Village) {
-                console.log("rat village:");
-                console.log("   rat village food:" + buildingData.amountFood);
-                console.log("   rat village pop:" + buildingData.population);
-                console.log("   rat village starvation pop:" + buildingData.starvationAmount);
+                console.log('rat village:');
+                console.log('   rat village food:' + buildingData.amountFood);
+                console.log('   rat village pop:' + buildingData.population);
+                console.log('   rat village starvation pop:' + buildingData.starvationAmount);
 
                 //constantly produce rat armies when you can
                 if (buildingData.population >= 20) {
