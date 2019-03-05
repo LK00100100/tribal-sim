@@ -477,5 +477,89 @@ export default class Board {
         return countsOfBuildings;
 
     }
+        
+    getPossibleMoves(row, col, moveAmount) {
+
+        let scene = this.scene;
+
+        let possibleMoves = [];
+
+        let startPoint = {
+            row: row,
+            col: col,
+            cost: 0
+        }
+
+        let coordinate = row + ',' + col;
+
+        let visited = new Set();
+        visited.add(coordinate);
+
+        //up, down, left, right
+        let directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
+
+        let tempSquare;
+
+        let queue = [];
+        queue.push(startPoint);
+
+        while (queue.length > 0) {
+
+            let queueLength = queue.length;
+            queue.sort();
+
+            let smallestMove = queue[0].cost;
+
+            //check around this level
+            for (let x = 0; x < queueLength; x++) {
+                tempSquare = queue.shift();
+
+                let row = tempSquare.row;
+                let col = tempSquare.col;
+                let cost = tempSquare.cost;
+
+                //too costly for now.
+                if (cost > smallestMove) {
+                    queue.push(tempSquare);
+                    continue;
+                }
+
+                //check up, down, left, right
+                for (let d = 0; d < directions.length; d++) {
+                    let i = directions[d][0];
+                    let j = directions[d][1];
+
+                    coordinate = (row + i) + ',' + (col + j);
+
+                    if (visited.has(coordinate))
+                        continue;
+
+                    visited.add(coordinate);
+
+                    if (scene.board.isWalkable(row + i, col + j)) {
+                        let terrainCost = scene.board.movementCost(row + i, col + j);
+
+                        if (moveAmount >= cost + terrainCost) {
+
+                            tempSquare = {
+                                row: row + i,
+                                col: col + j,
+                                cost: cost + terrainCost
+                            };
+
+                            possibleMoves.push(tempSquare);
+                            queue.push(tempSquare);
+                        }
+                    }
+
+                }
+
+            }
+
+        }
+
+        return possibleMoves;
+    }
+
 
 }

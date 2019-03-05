@@ -673,7 +673,7 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     showPossibleArmyMoves(army) {
-        let possibleMoves = this.armyManager.getPossibleMoves(army.row, army.col, army.moveAmount);
+        let possibleMoves = this.board.getPossibleMoves(army.row, army.col, army.moveAmount);
 
         this.selectedArmyPossibleMoves = possibleMoves;
 
