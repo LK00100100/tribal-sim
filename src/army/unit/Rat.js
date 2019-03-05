@@ -3,7 +3,7 @@ import Unit from './Unit.js'
 export default class Rat extends Unit {
 
     constructor(){
-        super(100);
+        super(20);
     }
 
     cost(){

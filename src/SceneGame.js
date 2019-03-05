@@ -441,9 +441,16 @@ export default class SceneGame extends Phaser.Scene {
         this.cam.setBounds(0, 0, 4096, 4096).setZoom(zoomLevel);
 
         /**
+         * keyboard
+         */
+        this.input.keyboard.on('keydown_ESC', function (event) {
+            console.log("esc!");
+            this.scene.deselectEverything();
+        });
+
+        /**
         * mouse
         */
-
         this.input.mouse.disableContextMenu();
 
         /**
