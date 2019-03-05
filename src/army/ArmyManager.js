@@ -13,7 +13,20 @@ export default class ArmyManager {
         this.scene = scene;
     }
 
-    moveArmy(spriteArmy, squareTerrain) {
+    moveArmyPlayer(armySprite, squareTerrain) {
+        let scene = this.scene;
+        let army = armySprite.data.get("data");
+
+        scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves);
+
+        this.moveArmy(armySprite, squareTerrain, scene.selectedArmyPossibleMoves)
+
+        scene.selectedArmyPossibleMoves = scene.board.getPossibleMovesArmy(armySprite);
+        scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
+    }
+
+    //TODO: refactor squareTerrain
+    moveArmy(spriteArmy, squareTerrain, possibleMoves) {
 
         let scene = this.scene;
 
@@ -30,48 +43,41 @@ export default class ArmyManager {
 
         //move visually and internally (row, col);
 
-        let cost = this.getMovementCost(targetRow, targetCol);
+        let cost = this.getMovementCost(possibleMoves, targetRow, targetCol);
 
         if (cost > army.moveAmount)
             return;
 
         //remove army
         scene.board.removeArmy(army.row, army.col);
-        scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves);
 
         army.moveAmount -= cost;
         army.row = targetRow;
         army.col = targetCol;
 
-        scene.updateTextArmy(army);
-
         //place army
         //TODO: dont make it a direct move.
         scene.tweens.add({
-            targets: scene.selectedArmy,
+            targets: spriteArmy,
             x: squareTerrain.x,
             y: squareTerrain.y,
             ease: 'Linear',
             duration: 500
         });
 
-        let possibleMoves = scene.board.getPossibleMoves(army.row, army.col, army.moveAmount);
-        scene.selectedArmyPossibleMoves = possibleMoves;
-
-        scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
         scene.board.addArmy(targetRow, targetCol, spriteArmy);
 
-        scene.updateUI(army);
+        scene.updateUI();
 
     }
 
     //call getPossibleArmyMoves first
-    getMovementCost(row, col) {
+    getMovementCost(possibleMoves, row, col) {
 
         let target = null;
 
-        for (let i = 0; i < this.scene.selectedArmyPossibleMoves.length; i++) {
-            let move = this.scene.selectedArmyPossibleMoves[i];
+        for (let i = 0; i < possibleMoves.length; i++) {
+            let move = possibleMoves[i];
 
             if (move.row == row && move.col == col) {
                 target = move;

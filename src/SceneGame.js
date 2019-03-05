@@ -76,7 +76,7 @@ export default class SceneGame extends Phaser.Scene {
 
         this.cam;
 
-        //gameObjects
+        //sprites
         this.selectedVillage;
         this.selectedArmy;
         this.selectedBuyBuilding;
@@ -650,7 +650,7 @@ export default class SceneGame extends Phaser.Scene {
             if (scene.selectedArmy == null)
                 return;
 
-            scene.armyManager.moveArmy(scene.selectedArmy, this);
+            scene.armyManager.moveArmyPlayer(scene.selectedArmy, this);
             return;
         }
 
@@ -672,6 +672,7 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
+    //TODO: remove? refactor?
     showPossibleArmyMoves(army) {
         let possibleMoves = this.board.getPossibleMoves(army.row, army.col, army.moveAmount);
 
@@ -728,9 +729,9 @@ export default class SceneGame extends Phaser.Scene {
             return
         }
 
-        //move army
+        //move army of player 1
         if (scene.selectedArmy != null) {
-            scene.armyManager.moveArmy(scene.selectedArmy, this);
+            scene.armyManager.moveArmyPlayer(scene.selectedArmy, this);
             return;
         }
 
@@ -751,7 +752,7 @@ export default class SceneGame extends Phaser.Scene {
             if (scene.selectedArmy == null)
                 return;
 
-            scene.armyManager.moveArmy(scene.selectedArmy, this);
+            scene.armyManager.moveArmyPlayer(scene.selectedArmy, this);
             return;
         }
 

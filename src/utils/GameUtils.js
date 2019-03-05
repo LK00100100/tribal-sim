@@ -22,14 +22,37 @@ export default class GameUtils {
         return Math.floor(Math.random() * Math.floor(max));
     }
 
-    static getRandomBoolean() {
+    /**
+     * 
+     * @param {*} coordinates1 an array of {row, col}
+     * @param {*} coordinates2 an array of {row, col}
+     */
+    static getIntersectionCoordinates(coordinates1, coordinates2) {
 
-        let n = this.getRandomInt(2);
+        let set1 = new Set();
+        let answer = [];
 
-        if (n == 0)
-            return true;
+        coordinates1.forEach(coordinate => {
+            let row = coordinate.row;
+            let col = coordinate.col;
 
-        return false;
+            let key = row + "," + col;
+            set1.add(key);
+        });
+
+        coordinates2.forEach(coordinate => {
+            let row = coordinate.row;
+            let col = coordinate.col;
+
+            let key = row + "," + col;
+
+            if (set1.has(key)) {
+                answer.push(coordinate);
+            }
+
+        });
+
+        return answer;
 
     }
 }

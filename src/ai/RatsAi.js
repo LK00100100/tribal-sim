@@ -1,4 +1,5 @@
 import Village from '../buildings/village_buildings/Village';
+import GameUtils from '../utils/GameUtils';
 
 export default class RatsAi {
 
@@ -8,6 +9,8 @@ export default class RatsAi {
 
         this.armies = scene.playerArmies[playerNumber];
         this.buildings = scene.playerBuildings[playerNumber];
+
+        this.territorySize = 3;
     }
 
     calculateTurn() {
@@ -37,15 +40,32 @@ export default class RatsAi {
          * rats should wander their "territory"
          * rats attack & persue anything within their movement range and within their territory.
          */
-        let territorySize = 3;
 
-        this.armies.forEach(army => {
-            army = army.data.get("data");
-            let village = army.village;
+        this.armies.forEach(armySprite => {
+            let armyData = armySprite.data.get("data");
+            let village = armyData.village;
 
-            let territory = scene.board.getPossibleMoves(village.row, village.col, territorySize);
+            //TODO: fix this. ignore units on board
+            let territory = scene.board.getTerritory(village.row, village.col, this.territorySize);
+            let possibleMovesArmy = scene.board.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
 
-            
+            //move in territory
+            let territoryMoves = GameUtils.getIntersectionCoordinates(territory, possibleMovesArmy);
+
+            //add itself (no movement)
+            let startArmy = { row: armyData.row, col: armyData.col };
+            territoryMoves.push(startArmy);
+
+            //TODO: if there's something to attack, then attack
+
+            //otherwise, pick a random square to move to
+            let pickedIndex = GameUtils.getRandomInt(territoryMoves.length);
+            let pickedCoordinate = territoryMoves[pickedIndex];
+
+            let squareSprite = scene.board.boardTerrainSprites[pickedCoordinate.row][pickedCoordinate.col];
+
+            scene.armyManager.moveArmy(armySprite, squareSprite, territoryMoves);
+
         });
 
     }

@@ -14,6 +14,7 @@ export default class Board {
     constructor() {
 
         //TODO: redo this?
+        //TODO: probably call terrain sprites just terrain. refactor
         this.boardTerrain = [];
         this.boardWalkable = [];
         this.boardSailable = [];
@@ -477,10 +478,14 @@ export default class Board {
         return countsOfBuildings;
 
     }
-        
-    getPossibleMoves(row, col, moveAmount) {
 
-        let scene = this.scene;
+    getPossibleMovesArmy(armySprite) {
+        let army = armySprite.data.get("data");
+
+        return this.getPossibleMoves(army.row, army.col, army.moveAmount);
+    }
+
+    getPossibleMoves(row, col, moveAmount) {
 
         let possibleMoves = [];
 
@@ -494,9 +499,6 @@ export default class Board {
 
         let visited = new Set();
         visited.add(coordinate);
-
-        //up, down, left, right
-        let directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
 
         let tempSquare;
 
@@ -525,9 +527,9 @@ export default class Board {
                 }
 
                 //check up, down, left, right
-                for (let d = 0; d < directions.length; d++) {
-                    let i = directions[d][0];
-                    let j = directions[d][1];
+                for (let d = 0; d < this.directions.length; d++) {
+                    let i = this.directions[d][0];
+                    let j = this.directions[d][1];
 
                     coordinate = (row + i) + ',' + (col + j);
 
@@ -536,8 +538,8 @@ export default class Board {
 
                     visited.add(coordinate);
 
-                    if (scene.board.isWalkable(row + i, col + j)) {
-                        let terrainCost = scene.board.movementCost(row + i, col + j);
+                    if (this.isWalkable(row + i, col + j)) {
+                        let terrainCost = this.movementCost(row + i, col + j);
 
                         if (moveAmount >= cost + terrainCost) {
 
@@ -561,5 +563,70 @@ export default class Board {
         return possibleMoves;
     }
 
+    /**
+     * get the surrounding area (water and impassable land included)
+     * @param {*} row 
+     * @param {*} col 
+     * @param {*} distance 
+     */
+    getTerritory(row, col, distance) {
+
+        let answer = [];
+        this.getTerritoryHelper(row, col, distance, new Set(), answer);
+
+        return answer;
+    }
+
+    getTerritoryHelper(row, col, movesLeft, visited, answer) {
+
+        let currentSquare = {
+            row: row,
+            col: col
+        }
+
+        let queue = [];
+        queue.push(currentSquare);
+
+        while (queue.length > 0 && movesLeft >= 0) {
+
+            let levelSize = queue.length;
+
+            //process 1 level
+            for (let levelAmount = 0; levelAmount < levelSize; levelAmount++) {
+
+                currentSquare = queue.shift();
+
+                let coordinate = currentSquare.row + ',' + currentSquare.col;
+
+                if (visited.has(coordinate))
+                    continue;
+
+                visited.add(coordinate);
+
+                if (this.isWithinBounds(row, col) == false)
+                    continue;
+
+                answer.push(currentSquare);
+
+                //check up, down, left, right
+                for (let d = 0; d < this.directions.length; d++) {
+                    let i = this.directions[d][0];
+                    let j = this.directions[d][1];
+
+                    let nextSquare = {
+                        row: currentSquare.row + i,
+                        col: currentSquare.col + j
+                    }
+
+                    queue.push(nextSquare);
+                }
+
+            }
+
+            movesLeft--;
+
+        }
+
+    }
 
 }
