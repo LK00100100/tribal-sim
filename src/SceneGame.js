@@ -521,6 +521,9 @@ export default class SceneGame extends Phaser.Scene {
 
         scene.postTurnPhase(scene.turnOfPlayer);
 
+        if (scene.selectedArmy != null)
+            scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves)
+
         //TODO: fix this later
         for (let i = 2; i <= scene.numPlayers; i++) {
             scene.turnOfPlayer = i;

@@ -321,8 +321,10 @@ export default class Board {
             if (this.boardBuildings[row][col] != null) {
                 let village = this.boardBuildings[row][col];
 
+                //TODO: probably redo for friendlies
                 if (village.data.get('data').player == 1)
                     this.boardTerrainSprites[row][col].setTint('0x00aaff');
+                //enemy village
                 else
                     this.boardTerrainSprites[row][col].setTint('0xaa0000');
             }
