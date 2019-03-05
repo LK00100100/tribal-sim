@@ -280,7 +280,7 @@ export default class SceneGame extends Phaser.Scene {
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
-            .on('pointerdown', this.endTurn);
+            .on('pointerdown', this.clickedEndTurn);
 
         /**
          * UI - village
@@ -448,6 +448,11 @@ export default class SceneGame extends Phaser.Scene {
             this.scene.deselectEverything();
         });
 
+        this.input.keyboard.on('keydown_ENTER', function (event) {
+            console.log("enter key!");
+            this.scene.endTurn(this.scene);
+        });
+
         /**
         * mouse
         */
@@ -515,14 +520,18 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    //TODO: make it for every player
-    endTurn(pointer) {
+    clickedEndTurn(pointer){
 
-        let scene = this.scene;
-
-        if (pointer.rightButtonDown())
+        if (pointer != null && pointer.rightButtonDown())
             return;
 
+        this.scene.endTurn(this.scene);
+
+    }
+
+    //TODO: make it for every player
+    endTurn(scene) {
+        
         //disable all game controls
         scene.btnEndTurn.setTint(0xff0000);
 
