@@ -15,6 +15,8 @@ export default class ArmyManager {
 
     moveArmy(spriteArmy, squareTerrain) {
 
+        let scene = this.scene;
+
         let army = spriteArmy.data.get('data');
 
         let targetRow = squareTerrain.data.get('row');
@@ -34,30 +36,32 @@ export default class ArmyManager {
             return;
 
         //remove army
-        this.scene.board.removeArmy(army.row, army.col);
-        this.scene.board.unhighlightTiles(this.scene.selectedArmyPossibleMoves);
+        scene.board.removeArmy(army.row, army.col);
+        scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves);
 
         army.moveAmount -= cost;
         army.row = targetRow;
         army.col = targetCol;
 
-        this.scene.updateTextArmy(army);
+        scene.updateTextArmy(army);
 
         //place army
         //TODO: dont make it a direct move.
-        this.scene.tweens.add({
-            targets: this.scene.selectedArmy,
+        scene.tweens.add({
+            targets: scene.selectedArmy,
             x: squareTerrain.x,
             y: squareTerrain.y,
             ease: 'Linear',
             duration: 500
         });
 
-        this.getPossibleArmyMoves(army);
-        this.scene.board.highlightTiles(this.scene.selectedArmyPossibleMoves);
-        this.scene.board.addArmy(targetRow, targetCol, spriteArmy);
+        let possibleMoves = this.getPossibleMoves(army.row, army.col, army.moveAmount);
+        scene.selectedArmyPossibleMoves = possibleMoves;
 
-        this.scene.updateUI(army);
+        scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
+        scene.board.addArmy(targetRow, targetCol, spriteArmy);
+
+        scene.updateUI(army);
 
     }
 
@@ -84,25 +88,25 @@ export default class ArmyManager {
 
     }
 
-    getPossibleArmyMoves(army) {
+    getPossibleMoves(row, col, moveAmount) {
+
+        let scene = this.scene;
 
         let possibleMoves = [];
 
         let startPoint = {
-            row: army.row,
-            col: army.col,
+            row: row,
+            col: col,
             cost: 0
         }
 
-        let coordinate = army.row + ',' + army.col;
+        let coordinate = row + ',' + col;
 
         let visited = new Set();
         visited.add(coordinate);
 
         //up, down, left, right
         let directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
-
-        let armyMoveAmount = army.moveAmount;
 
         let tempSquare;
 
@@ -142,10 +146,10 @@ export default class ArmyManager {
 
                     visited.add(coordinate);
 
-                    if (this.scene.board.isWalkable(row + i, col + j)) {
-                        let terrainCost = this.scene.board.movementCost(row + i, col + j);
+                    if (scene.board.isWalkable(row + i, col + j)) {
+                        let terrainCost = scene.board.movementCost(row + i, col + j);
 
-                        if (armyMoveAmount >= cost + terrainCost) {
+                        if (moveAmount >= cost + terrainCost) {
 
                             tempSquare = {
                                 row: row + i,
@@ -164,7 +168,7 @@ export default class ArmyManager {
 
         }
 
-        this.scene.selectedArmyPossibleMoves = possibleMoves;
+        return possibleMoves;
     }
 
     createArmyButton(pointer) {
@@ -183,7 +187,7 @@ export default class ArmyManager {
 
     }
 
-    createArmy(player, village){
+    createArmy(player, village) {
 
         let scene = this.scene;
         let race = scene.playerRace[player];
@@ -234,6 +238,7 @@ export default class ArmyManager {
 
     /**
      * assumed that the army is on a friendly village.
+     * restocks the arny with one day's worth of food
      * @param {*} pointer 
      */
     armyGetFood(pointer) {
@@ -243,17 +248,18 @@ export default class ArmyManager {
         let army = scene.selectedArmy.data.get('data');
         let row = army.row;
         let col = army.col;
+        let cost = army.getCostDay();
 
         let building = scene.board.boardBuildings[row][col].data.get('data');
 
         //transfer
-        if (building.village.amountFood < 10) {
+        if (building.village.amountFood < cost) {
             console.log('not enough food. need 10');
             return;
         }
 
-        building.village.amountFood -= 10;
-        army.amountFood += 10;
+        building.village.amountFood -= cost;
+        army.amountFood += cost;
 
         scene.updateUI();
     }

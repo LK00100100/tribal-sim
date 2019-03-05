@@ -209,6 +209,7 @@ export default class SceneGame extends Phaser.Scene {
             let imageName, data;
             let race = this.playerRace[building.player];
 
+            //TODO: pull this out to a building factory
             switch (building.type) {
                 case 'village':
                     switch (race) {
@@ -672,7 +673,10 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     showPossibleArmyMoves(army) {
-        this.armyManager.getPossibleArmyMoves(army);
+        let possibleMoves = this.armyManager.getPossibleMoves(army.row, army.col, army.moveAmount);
+
+        this.selectedArmyPossibleMoves = possibleMoves;
+
         this.board.highlightTiles(this.selectedArmyPossibleMoves);
     }
 

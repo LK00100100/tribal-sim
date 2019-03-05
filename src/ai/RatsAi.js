@@ -32,7 +32,13 @@ export default class RatsAi {
 
         });
 
+        /**
+         * the territory is 3 movement points from the rat cave
+         * rats should wander their "territory"
+         * rats attack persue anything within their movement range and within their territory.
+         */
         this.armies.forEach(army => {
+            
         });
 
     }
