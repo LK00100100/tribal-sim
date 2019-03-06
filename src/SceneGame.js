@@ -43,7 +43,7 @@ export default class SceneGame extends Phaser.Scene {
                 amountWood: 50
             },
             {
-                row: 2, col: 6,
+                row: 3, col: 7,
                 name: 'rabid rats',
                 type: 'village',
                 player: 3,

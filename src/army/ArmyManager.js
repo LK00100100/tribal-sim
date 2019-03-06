@@ -35,14 +35,7 @@ export default class ArmyManager {
         let targetRow = squareTerrain.data.get('row');
         let targetCol = squareTerrain.data.get('col');
 
-        console.log('terrain right clicked with army');
-
-        //highlight allowed movement
-        console.log('squareTerrain.x: ' + squareTerrain.x);
-        console.log('squareTerrain.y: ' + squareTerrain.y);
-
         //move visually and internally (row, col);
-
         let cost = this.getMovementCost(possibleMoves, targetRow, targetCol);
 
         if (cost > army.moveAmount)
