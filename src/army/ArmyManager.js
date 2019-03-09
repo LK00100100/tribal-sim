@@ -41,6 +41,10 @@ export default class ArmyManager {
         if (cost > army.moveAmount)
             return;
 
+        if (scene.board.boardUnits[targetRow][targetCol] != null) {
+            return;
+        }
+
         //remove army
         scene.board.removeArmy(army.row, army.col);
 
@@ -228,7 +232,6 @@ export default class ArmyManager {
         scene.showPossibleArmyMoves(army);
 
         scene.updateUI();
-
     }
 
     attackArmy(armySprite) {

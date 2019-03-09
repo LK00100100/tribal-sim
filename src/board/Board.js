@@ -572,12 +572,12 @@ export default class Board {
                             queue.push(tempSquare);
                         }
                     }
-                    //you can't walk here since there is an enemy unit
-                    //but you may attack it (shown as possible move)
+                    //you can't walk here since there is a unit
+                    //but you may interact with it (shown as possible move)
                     else if (this.boardUnits[row + i][col + j] != null) {
                         let unit = this.boardUnits[row + i][col + j].data.get("data");
 
-                        if (unit.player != 1 && moveAmount >= cost + terrainCost) {
+                        if (moveAmount >= cost + terrainCost) {
                             possibleMoves.push(tempSquare);
                         }
 
