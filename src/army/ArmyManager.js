@@ -134,7 +134,7 @@ export default class ArmyManager {
 
         let armySprite = UnitFactory.getUnitSprite(scene, village, race);
 
-        let army = new Army(1, village);
+        let army = new Army(player, village);
         //TODO: set army moveAmount dynamically
         army.moveAmount = 3;
         army.moveMax = 3;
@@ -180,27 +180,64 @@ export default class ArmyManager {
         scene.updateUI();
     }
 
-    selectArmy(pointer) {
+    //TODO: separate select and attack
+    clickedArmy(pointer) {
+        let scene = this.scene;
+        let army = this.data.get('data');
+
+        //clicked your own army
+        if (army.player == 1) {
+            scene.armyManager.selectArmy(pointer, this);
+        }
+        //clicked another player's army
+        else {
+            if (pointer.leftButtonDown()) {
+                //show basic information
+            }
+            //attack army
+            else if (pointer.rightButtonDown()) {
+
+                if (scene.selectedArmy == null)
+                    return;
+
+                scene.armyManager.attackArmy(this);
+            }
+        }
+    }
+
+    selectArmy(pointer, armySprite) {
         let scene = this.scene;
 
         //double click panning
-        if (pointer.leftButtonDown() && scene.selectedArmy == this) {
-            scene.cam.pan(this.x, this.y, 500);
+        if (pointer.leftButtonDown() && scene.selectedArmy == armySprite) {
+            scene.cam.pan(armySprite.x, armySprite.y, 500);
         }
 
         if (pointer.rightButtonDown())
             return;
 
-        let army = this.data.get('data');
+        let army = armySprite.data.get('data');
 
         scene.deselectEverything();
 
-        scene.selectedArmy = this;
+        scene.selectedArmy = armySprite;
         console.log('selecting army');
 
-        this.setTint(0xffff00);
+        armySprite.setTint(0xffff00);
 
         scene.showPossibleArmyMoves(army);
+
+        scene.updateUI();
+
+    }
+
+    attackArmy(armySprite) {
+        let scene = this.scene;
+        let army = armySprite.data.get("data");
+
+        console.log("attacking army");
+
+        //TODO: fill out
 
         scene.updateUI();
     }

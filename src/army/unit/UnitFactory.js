@@ -26,12 +26,12 @@ export default class UnitFactory {
             case Races.CAVEMEN:
                 armySprite = scene.add.sprite(village.x, village.y, 'armyCaveman')
                     .setInteractive()
-                    .on('pointerdown', scene.armyManager.selectArmy);
+                    .on('pointerdown', scene.armyManager.clickedArmy);
                 break;
             case Races.RATS:
                 armySprite = scene.add.sprite(village.x, village.y, 'armyRat')
                     .setInteractive()
-                //.on('pointerdown', scene.armyManager.selectArmy);
+                    .on('pointerdown', scene.armyManager.clickedArmy);
                 break;
             default:
                 throw 'no such race: ' + race;

@@ -44,8 +44,8 @@ export default class Board {
             [1, 1, 3, 1, 1, 1, 0, 0, 1, 1, 1],
             [1, 1, 3, 3, 1, 1, 0, 0, 1, 1, 1],
             [1, 3, 3, 3, 3, 2, 2, 0, 1, 1, 1],
-            [1, 3, 3, 3, 3, 3, 2, 0, 1, 1, 1],
-            [1, 3, 3, 3, 3, 3, 2, 0, 0, 1, 1],
+            [1, 3, 3, 3, 3, 2, 0, 0, 0, 1, 1],
+            [1, 3, 3, 3, 3, 3, 0, 0, 0, 1, 1],
             [1, 1, 1, 1, 3, 3, 0, 0, 0, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]];
 
@@ -124,7 +124,6 @@ export default class Board {
 
         if (this.boardUnits[row][col] != null)
             return false;
-
 
         //TODO: probably remove this board in the future for more features
         return this.boardWalkable[row][col];
@@ -333,6 +332,15 @@ export default class Board {
                 this.boardTerrainSprites[row][col].setTint('0x00aaff');
             }
 
+            //enemy units
+            if (this.boardUnits[row][col] != null) {
+                let unit = this.boardUnits[row][col].data.get("data");
+
+                if (unit.player != 1) {
+                    this.boardTerrainSprites[row][col].setTint('0xaa0000');
+                }
+            }
+
         });
     }
 
@@ -481,12 +489,23 @@ export default class Board {
 
     }
 
+    /**
+     * does the same thing as possible moves
+     * @param {*} armySprite 
+     */
     getPossibleMovesArmy(armySprite) {
         let army = armySprite.data.get("data");
 
         return this.getPossibleMoves(army.row, army.col, army.moveAmount);
     }
 
+    /**
+     * gets squares that you can move to.
+     * also returns squares with enemy units.
+     * @param {*} row 
+     * @param {*} col 
+     * @param {*} moveAmount 
+     */
     getPossibleMoves(row, col, moveAmount) {
 
         let possibleMoves = [];
@@ -540,20 +559,28 @@ export default class Board {
 
                     visited.add(coordinate);
 
+                    let terrainCost = this.movementCost(row + i, col + j);
+                    tempSquare = {
+                        row: row + i,
+                        col: col + j,
+                        cost: cost + terrainCost
+                    };
+
                     if (this.isWalkable(row + i, col + j)) {
-                        let terrainCost = this.movementCost(row + i, col + j);
-
                         if (moveAmount >= cost + terrainCost) {
-
-                            tempSquare = {
-                                row: row + i,
-                                col: col + j,
-                                cost: cost + terrainCost
-                            };
-
                             possibleMoves.push(tempSquare);
                             queue.push(tempSquare);
                         }
+                    }
+                    //you can't walk here since there is an enemy unit
+                    //but you may attack it (shown as possible move)
+                    else if (this.boardUnits[row + i][col + j] != null) {
+                        let unit = this.boardUnits[row + i][col + j].data.get("data");
+
+                        if (unit.player != 1 && moveAmount >= cost + terrainCost) {
+                            possibleMoves.push(tempSquare);
+                        }
+
                     }
 
                 }
