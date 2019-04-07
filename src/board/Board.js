@@ -106,6 +106,11 @@ export default class Board {
         this.boardUnits[row][col] = null;
     }
 
+    /**
+     * is this within the board?
+     * @param {*} row 
+     * @param {*} col 
+     */
     isWithinBounds(row, col) {
 
         if (row < 0 || row > this.boardTerrain.length)
@@ -129,6 +134,11 @@ export default class Board {
         return this.boardWalkable[row][col];
     }
 
+    /**
+     * can we place one building in row, col
+     * @param {*} row 
+     * @param {*} col 
+     */
     isBuildable(row, col) {
 
         if (this.isWithinBounds(row, col) == false)
@@ -295,6 +305,48 @@ export default class Board {
 
     }
 
+    /**
+     * returns player number of owner. 0 if nobody
+     * @param {*} row 
+     * @param {*} col 
+     */
+    getTileOwnership(row, col) {
+
+        let unitSprite = this.boardUnits[row][col];
+        let buildingSprite = this.boardBuildings[row][col];
+
+        if (unitSprite == null && buildingSprite == null)
+            return 0;
+
+        if (unitSprite != null)
+            return unitSprite.data.get("data").player;
+
+        return buildingSprite.data.get("data").player;
+
+    }
+
+    /**
+     * gets the neighbors of one tile
+     * @param {*} row 
+     * @param {*} col 
+     */
+    getNeighboringTiles(row, col) {
+        tiles = [];
+
+        for (let d = 0; d < this.directions.length; d++) {
+            let i = this.directions[d][0];
+            let j = this.directions[d][1];
+
+            if (this.isWithinBounds(row + i, col + j))
+                tiles.push({
+                    row: row + i,
+                    col: col + j
+                });
+        }
+
+        return tiles;
+    }
+
     unhighlightTiles(tiles) {
         if (tiles == null)
             return;
@@ -303,7 +355,6 @@ export default class Board {
             this.boardTerrainSprites[tile.row][tile.col].clearTint();
         });
     }
-
 
     /**
      * @param {*} tiles an array of row/col
@@ -594,6 +645,7 @@ export default class Board {
 
     /**
      * get the surrounding area (water and impassable land included)
+     * breadth-first search of distance
      * @param {*} row 
      * @param {*} col 
      * @param {*} distance 
@@ -657,5 +709,6 @@ export default class Board {
         }
 
     }
+
 
 }

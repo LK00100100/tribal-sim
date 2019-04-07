@@ -520,7 +520,7 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    clickedEndTurn(pointer){
+    clickedEndTurn(pointer) {
 
         if (pointer != null && pointer.rightButtonDown())
             return;
@@ -531,7 +531,7 @@ export default class SceneGame extends Phaser.Scene {
 
     //TODO: make it for every player
     endTurn(scene) {
-        
+
         //disable all game controls
         scene.btnEndTurn.setTint(0xff0000);
 
@@ -736,6 +736,8 @@ export default class SceneGame extends Phaser.Scene {
         console.log('terrain clicked...');
 
         let scene = this.scene;
+        let row = this.data.get("row");
+        let col = this.data.get("col");
 
         if (pointer.leftButtonDown()) {
             this.scene.deselectEverything();
@@ -750,7 +752,26 @@ export default class SceneGame extends Phaser.Scene {
 
         //move army of player 1
         if (scene.selectedArmy != null) {
-            scene.armyManager.moveArmyPlayer(scene.selectedArmy, this);
+
+            let playerOwner = scene.board.getTileOwnership(row, col);
+            let selectedArmyRow = scene.selectedArmy.data.get("data").row;
+            let selectedArmyCol = scene.selectedArmy.data.get("data").col;
+
+            //empty terrain
+            if (playerOwner == 0) {
+                scene.armyManager.moveArmyPlayer(scene.selectedArmy, this);
+            }
+            //enemy terrain
+            else {
+                //if adjacent, attack
+                if (GameUtils.areAdjacent(selectedArmyRow, selectedArmyCol, row, col)) {
+                    console.log("attack!");
+                }
+
+                //if far away, move closer & attack
+                //scene.armyManager.moveArmyPlayerCloser(scene.selectedArmy, this);
+            }
+
             return;
         }
 

@@ -3,6 +3,7 @@ import Army from './Army.js';
 import Caveman from './unit/Caveman.js';
 
 import UnitFactory from './unit/UnitFactory'
+import GameUtils from '../utils/GameUtils.js';
 
 /**
  * Manages army data on the board.
@@ -13,27 +14,32 @@ export default class ArmyManager {
         this.scene = scene;
     }
 
-    moveArmyPlayer(armySprite, squareTerrain) {
+    /**
+     * moves army to the terrainSprite (if possible)
+     * for the human-player
+     * @param {*} armySprite army to move 
+     * @param {*} terrainSprite target square
+     */
+    moveArmyPlayer(armySprite, terrainSprite) {
         let scene = this.scene;
         let army = armySprite.data.get("data");
 
         scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves);
 
-        this.moveArmy(armySprite, squareTerrain, scene.selectedArmyPossibleMoves)
+        this.moveArmy(armySprite, terrainSprite, scene.selectedArmyPossibleMoves)
 
         scene.selectedArmyPossibleMoves = scene.board.getPossibleMovesArmy(armySprite);
         scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
     }
 
-    //TODO: refactor squareTerrain
-    moveArmy(spriteArmy, squareTerrain, possibleMoves) {
+    moveArmy(spriteArmy, terrainSprite, possibleMoves) {
 
         let scene = this.scene;
 
         let army = spriteArmy.data.get('data');
 
-        let targetRow = squareTerrain.data.get('row');
-        let targetCol = squareTerrain.data.get('col');
+        let targetRow = terrainSprite.data.get('row');
+        let targetCol = terrainSprite.data.get('col');
 
         //move visually and internally (row, col);
         let cost = this.getMovementCost(possibleMoves, targetRow, targetCol);
@@ -56,8 +62,8 @@ export default class ArmyManager {
         //TODO: dont make it a direct move.
         scene.tweens.add({
             targets: spriteArmy,
-            x: squareTerrain.x,
-            y: squareTerrain.y,
+            x: terrainSprite.x,
+            y: terrainSprite.y,
             ease: 'Linear',
             duration: 500
         });
@@ -68,7 +74,51 @@ export default class ArmyManager {
 
     }
 
-    //call getPossibleArmyMoves first
+    /**
+    * moves army next to the squareTerrain (if possible) with as few moves as possible
+    * if there are ties, it picks top, bottom, left, then right.
+    * @param {*} armySprite army to move 
+    * @param {*} terrainSprite target square
+    */
+    moveArmyCloser(armySprite, terrainSprite) {
+        let scene = this.scene;
+        let row = terrainSprite.data("row");
+        let col = terrainSprite.data("col");
+        let army = armySprite.data.get("data");
+
+        scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves);
+
+        let neighbors = scene.board.getNeighboringTiles(row, col);
+
+        //remove unwalkable neighbors
+        for (let i = neighbors.length - 1; i >= 0; i--) {
+            let neighborRow = neighbors[i].row;
+            let neighborCol = neighbors[i].col;
+
+            if (!scene.board.isWalkable(neighborRow, neighborCol)) {
+                neighbors.splice(i, 1);
+            }
+        }
+
+        //remove bad moves
+        //GameUtils.getIntersectionCoordinates
+        //TODO: complete this
+        //pick the cheapest move
+        let targetSprite = null;
+
+
+        this.moveArmyHelper(armySprite, targetSprite, scene.selectedArmyPossibleMoves)
+
+        scene.selectedArmyPossibleMoves = scene.board.getPossibleMovesArmy(armySprite);
+        scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
+    }
+
+    /**
+     * gets the cost of moving to row/col according to what is in possibleMoves
+     * @param {*} possibleMoves 
+     * @param {*} row 
+     * @param {*} col 
+     */
     getMovementCost(possibleMoves, row, col) {
 
         let target = null;
@@ -189,6 +239,8 @@ export default class ArmyManager {
         let scene = this.scene;
         let army = this.data.get('data');
 
+        console.log("clicked army")
+
         //clicked your own army
         if (army.player == 1) {
             scene.armyManager.selectArmy(pointer, this);
@@ -238,7 +290,7 @@ export default class ArmyManager {
         let scene = this.scene;
         let army = armySprite.data.get("data");
 
-        console.log("attacking army");
+        console.log("right clicked hostile army w/ selected");
 
         //TODO: fill out
 
@@ -281,6 +333,5 @@ export default class ArmyManager {
 
         scene.updateUI();
     }
-
 
 }

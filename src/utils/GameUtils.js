@@ -55,4 +55,29 @@ export default class GameUtils {
         return answer;
 
     }
+
+    /**
+     * is exactly one vertical/horizontal space away?
+     * @param {*} rowA 
+     * @param {*} colA 
+     * @param {*} rowB 
+     * @param {*} colB 
+     */
+    static areAdjacent(rowA, colA, rowB, colB) {
+
+        //horizontally adjacent
+        if (Math.abs(rowA - rowB) == 0) {
+            if (Math.abs(colA - colB) == 1)
+                return true;
+        }
+
+        //vertically adjacent
+        if (Math.abs(colA - colB) == 0) {
+            if (Math.abs(rowA - rowB) == 1)
+                return true;
+        }
+
+        return false;
+
+    }
 }

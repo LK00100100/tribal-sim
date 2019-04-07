@@ -10,7 +10,7 @@
     "start:dev": "webpack-dev-server --mode=development --port=8888",
     "start": "npm run start:dev"
   },
-  "author": "",
+  "author": "L. Keh: LK00100100@gmail.com",
   "license": "ISC",
   "devDependencies": {
     "webpack": "^4.29.0",

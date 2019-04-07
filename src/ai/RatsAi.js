@@ -62,9 +62,9 @@ export default class RatsAi {
             let pickedIndex = GameUtils.getRandomInt(territoryMoves.length);
             let pickedCoordinate = territoryMoves[pickedIndex];
 
-            let squareSprite = scene.board.boardTerrainSprites[pickedCoordinate.row][pickedCoordinate.col];
+            let terrainSprite = scene.board.boardTerrainSprites[pickedCoordinate.row][pickedCoordinate.col];
 
-            scene.armyManager.moveArmy(armySprite, squareSprite, territoryMoves);
+            scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
 
         });
 
