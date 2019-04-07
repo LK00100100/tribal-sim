@@ -240,12 +240,14 @@ export default class ArmyManager {
     //TODO: separate select and attack
     clickedArmy(pointer) {
         let scene = this.scene;
-        let army = this.data.get('data');
-
+        let otherArmy = this.data.get('data');
+        let row = otherArmy.row;
+        let col = otherArmy.col;
+        
         console.log("clicked army")
 
         //clicked your own army
-        if (army.player == 1) {
+        if (otherArmy.player == 1) {
             scene.armyManager.selectArmy(pointer, this);
         }
         //clicked another player's army
@@ -253,13 +255,14 @@ export default class ArmyManager {
             if (pointer.leftButtonDown()) {
                 //show basic information
             }
-            //attack army
+            //show "attack screen"
             else if (pointer.rightButtonDown()) {
 
                 if (scene.selectedArmy == null)
                     return;
 
-                scene.armyManager.attackArmy(this);
+                scene.cam.pan(scene.selectedArmy.x, scene.selectedArmy.y, 500);
+                scene.showUiArmyEnemy(row, col);
             }
         }
     }
@@ -285,17 +288,6 @@ export default class ArmyManager {
         armySprite.setTint(0xffff00);
 
         scene.showPossibleArmyMoves(army);
-
-        scene.updateUI();
-    }
-
-    attackArmy(armySprite) {
-        let scene = this.scene;
-        let army = armySprite.data.get("data");
-
-        console.log("right clicked hostile army w/ selected");
-
-        //TODO: fill out
 
         scene.updateUI();
     }
