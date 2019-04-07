@@ -452,6 +452,7 @@ export default class SceneGame extends Phaser.Scene {
             .setDepth(100)
             .on('pointerdown', this.armyManager.armyAttackCancel);
 
+        this.uiArmyEnemy.push(this.txtArmyEnemyName);
         this.uiArmyEnemy.push(this.txtArmyEnemyUnits);
         this.uiArmyEnemy.push(this.btnArmyEnemyAttack);
         this.uiArmyEnemy.push(this.btnArmyEnemyCancel);
