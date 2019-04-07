@@ -306,23 +306,20 @@ export default class Board {
     }
 
     /**
-     * returns player number of owner. 0 if nobody
+     * returns player number of who is occupying it with a unit
+     * 
+     * a building by itself is not occupying
      * @param {*} row 
      * @param {*} col 
      */
     getTileOwnership(row, col) {
 
         let unitSprite = this.boardUnits[row][col];
-        let buildingSprite = this.boardBuildings[row][col];
 
-        if (unitSprite == null && buildingSprite == null)
+        if (unitSprite == null)
             return 0;
 
-        if (unitSprite != null)
-            return unitSprite.data.get("data").player;
-
-        return buildingSprite.data.get("data").player;
-
+        return unitSprite.data.get("data").player;
     }
 
     /**

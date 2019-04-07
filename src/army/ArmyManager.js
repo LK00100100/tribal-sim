@@ -22,7 +22,6 @@ export default class ArmyManager {
      */
     moveArmyPlayer(armySprite, terrainSprite) {
         let scene = this.scene;
-        let army = armySprite.data.get("data");
 
         scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves);
 
@@ -44,14 +43,15 @@ export default class ArmyManager {
         //move visually and internally (row, col);
         let cost = this.getMovementCost(possibleMoves, targetRow, targetCol);
 
+        //too expensive to move
         if (cost > army.moveAmount)
             return;
 
+        //occupied by a unit already
         if (scene.board.boardUnits[targetRow][targetCol] != null) {
             return;
         }
 
-        //remove army
         scene.board.removeArmy(army.row, army.col);
 
         army.moveAmount -= cost;
@@ -59,7 +59,7 @@ export default class ArmyManager {
         army.col = targetCol;
 
         //place army
-        //TODO: dont make it a direct move.
+        //TODO: dont make it a direct move. move square to square
         scene.tweens.add({
             targets: spriteArmy,
             x: terrainSprite.x,
@@ -194,6 +194,8 @@ export default class ArmyManager {
         army.moveMax = 3;
         army.amountFood += 10;
 
+        //TODO: generate random name
+
         //TODO: change this later
         for (let i = 0; i < 10; i++) {
             let unit = UnitFactory.getUnit(race);
@@ -204,6 +206,7 @@ export default class ArmyManager {
         scene.playerArmies[player].push(armySprite);
         scene.board.addArmy(row, col, armySprite);
 
+        return armySprite;
     }
 
     /**
@@ -332,6 +335,17 @@ export default class ArmyManager {
         }
 
         scene.updateUI();
+    }
+
+    armyAttack(pointer){
+        let scene = this.scene;
+
+        console.log("ATTACKING");
+    }
+
+    armyAttackCancel(){
+        let scene = this.scene;
+        GameUtils.hideGameObjects(scene.uiArmyEnemy);
     }
 
 }

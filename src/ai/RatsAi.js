@@ -28,7 +28,8 @@ export default class RatsAi {
 
                 //constantly produce rat armies when you can
                 if (buildingData.population >= 20) {
-                    scene.armyManager.createArmy(this.playerNumber, buildingData);
+                    let armySprite = scene.armyManager.createArmy(this.playerNumber, buildingData);
+                    armySprite.getData("data").name = "Wild Rats";
                 }
 
             }
@@ -45,7 +46,7 @@ export default class RatsAi {
             let armyData = armySprite.data.get("data");
             let village = armyData.village;
 
-            //TODO: fix this. ignore units on board
+            //TODO: fix this. ignore units on board and "move through" them
             let territory = scene.board.getTerritory(village.row, village.col, this.territorySize);
             let possibleMovesArmy = scene.board.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
 

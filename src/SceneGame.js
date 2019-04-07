@@ -87,6 +87,7 @@ export default class SceneGame extends Phaser.Scene {
         this.possibleMoves;
 
         this.uiArmy = [];
+        this.uiArmyEnemy = [];
         this.textsVillageName = [];
 
         this.armyManager;
@@ -125,6 +126,8 @@ export default class SceneGame extends Phaser.Scene {
         //ui, army
         this.load.image('btnArmyGetUnits', 'assets/btn-army-get-units.png');
         this.load.image('btnArmyGetFood', 'assets/btn-army-get-food.png');
+        this.load.image('btnArmyAttack', 'assets/btn-army-attack.png');
+        this.load.image('btnArmyCancel', 'assets/btn-army-cancel.png');
 
         //armies
         this.load.image('armyCaveman', 'assets/army-caveman.png');
@@ -414,6 +417,45 @@ export default class SceneGame extends Phaser.Scene {
         this.uiArmy.push(this.btnArmyGetUnits);
         this.uiArmy.push(this.btnArmyGetFood);
 
+        /**
+         * ui enemy elements
+         */
+
+        x = 1150;
+        y = -160;
+
+        this.txtArmyEnemyName = this.add.text(x, y + 120)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setOrigin(1, 0) //right-to-left text
+            .setShadow(3, 3, '#000000', 3);
+
+        this.txtArmyEnemyUnits = this.add.text(x, y + 180)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setOrigin(1, 0) //right-to-left text
+            .setShadow(3, 3, '#000000', 3);
+
+        this.btnArmyEnemyAttack = this.add.sprite(x, y + 300, 'btnArmyAttack')
+            .setScrollFactor(0)
+            .setInteractive()
+            .setOrigin(1, 0) //right-to-left text
+            .setDepth(100)
+            .on('pointerdown', this.armyManager.armyAttack);
+
+        this.btnArmyEnemyCancel = this.add.sprite(x, y + 440, 'btnArmyCancel')
+            .setScrollFactor(0)
+            .setInteractive()
+            .setOrigin(1, 0) //right-to-left text
+            .setDepth(100)
+            .on('pointerdown', this.armyManager.armyAttackCancel);
+
+        this.uiArmyEnemy.push(this.txtArmyEnemyUnits);
+        this.uiArmyEnemy.push(this.btnArmyEnemyAttack);
+        this.uiArmyEnemy.push(this.btnArmyEnemyCancel);
+
         //hide some ui elements
         this.deselectEverything();
 
@@ -652,7 +694,6 @@ export default class SceneGame extends Phaser.Scene {
             });
         }
 
-
     }
 
     clickedVillage(pointer) {
@@ -669,7 +710,7 @@ export default class SceneGame extends Phaser.Scene {
             if (scene.selectedArmy == null)
                 return;
 
-            scene.armyManager.moveArmyPlayer(scene.selectedArmy, this);
+            scene.processArmyAction(this);
             return;
         }
 
@@ -700,6 +741,19 @@ export default class SceneGame extends Phaser.Scene {
         this.board.highlightTiles(this.selectedArmyPossibleMoves);
     }
 
+    /**
+     * populates and shows enemy army data
+     */
+    showUiArmyEnemy(row, col) {
+
+        let enemyArmy = this.board.boardUnits[row][col].getData("data");
+
+        this.txtArmyEnemyUnits.setText(enemyArmy.units.length + " :Enemy Units");
+        this.txtArmyEnemyName.setText(enemyArmy.name);
+
+        GameUtils.showGameObjects(this.uiArmyEnemy);
+    }
+
     updateTextArmy(army) {
         //TODO: refactor and move
         this.txtArmySize.setText('Units: ' + army.units.length);
@@ -708,10 +762,14 @@ export default class SceneGame extends Phaser.Scene {
         this.txtArmyFood.setText('Food: ' + army.amountFood);
     }
 
+    /**
+     * deselects: army, enemy army and/or the selected building
+     */
     deselectEverything() {
 
         GameUtils.hideGameObjects(this.uiVillage);
         GameUtils.hideGameObjects(this.uiArmy);
+        GameUtils.hideGameObjects(this.uiArmyEnemy);
 
         if (this.selectedVillage != null) {
             this.selectedVillage.clearTint();
@@ -736,8 +794,6 @@ export default class SceneGame extends Phaser.Scene {
         console.log('terrain clicked...');
 
         let scene = this.scene;
-        let row = this.data.get("row");
-        let col = this.data.get("col");
 
         if (pointer.leftButtonDown()) {
             this.scene.deselectEverything();
@@ -750,29 +806,9 @@ export default class SceneGame extends Phaser.Scene {
             return
         }
 
-        //move army of player 1
+        //process action of army of player 1
         if (scene.selectedArmy != null) {
-
-            let playerOwner = scene.board.getTileOwnership(row, col);
-            let selectedArmyRow = scene.selectedArmy.data.get("data").row;
-            let selectedArmyCol = scene.selectedArmy.data.get("data").col;
-
-            //empty terrain
-            if (playerOwner == 0) {
-                scene.armyManager.moveArmyPlayer(scene.selectedArmy, this);
-            }
-            //enemy terrain
-            else {
-                //if adjacent, attack
-                if (GameUtils.areAdjacent(selectedArmyRow, selectedArmyCol, row, col)) {
-                    console.log("attack!");
-                }
-
-                //if far away, move closer & attack
-                //scene.armyManager.moveArmyPlayerCloser(scene.selectedArmy, this);
-            }
-
-            return;
+            scene.processArmyAction(this);
         }
 
     }
@@ -780,6 +816,7 @@ export default class SceneGame extends Phaser.Scene {
     clickedRatCave(pointer) {
 
         let scene = this.scene;
+        console.log("clicked rat cave");
 
     }
 
@@ -792,9 +829,54 @@ export default class SceneGame extends Phaser.Scene {
             if (scene.selectedArmy == null)
                 return;
 
-            scene.armyManager.moveArmyPlayer(scene.selectedArmy, this);
+            scene.processArmyAction(this);
             return;
         }
+
+    }
+
+    /**
+     * process army action such as move to targetSprite
+     * @param {*} targetSprite building or terrain sprite
+     */
+    processArmyAction(targetSprite) {
+
+        let scene = this;
+        let row = targetSprite.data.get("row");
+        let col = targetSprite.data.get("col");
+
+        if (scene.selectedArmy == null)
+            return;
+
+        let army = scene.selectedArmy;
+
+        let playerOwner = scene.board.getTileOwnership(row, col);
+        let selectedArmyRow = army.data.get("data").row;
+        let selectedArmyCol = army.data.get("data").col;
+
+        //empty terrain
+        if (playerOwner == 0) {
+            scene.armyManager.moveArmyPlayer(army, targetSprite);
+        }
+        //enemy terrain
+        else {
+            //if adjacent, show attack info screen
+            if (GameUtils.areAdjacent(selectedArmyRow, selectedArmyCol, row, col)) {
+                console.log("attack!");
+
+                scene.showUiArmyEnemy(row, col);
+
+                scene.cam.pan(army.x, army.y, 500);
+            }
+            else {
+                console.log("too far to attack! moving closer!");
+                //if far away, move closer & attack
+                //scene.armyManager.moveArmyPlayerCloser(army, this);
+            }
+
+        }
+
+        return;
 
     }
 
