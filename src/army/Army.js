@@ -96,4 +96,18 @@ export default class Army {
 
     }
 
+    calculateAttackBase(){
+        
+        let total = 0;
+        this.units.forEach(unit => total += unit.attackBase);
+        return total;
+    }
+
+    calculateDefenseBase(){
+        
+        let total = 0;
+        this.units.forEach(unit => total += unit.defenseBase);
+        return total;
+    }
+
 }

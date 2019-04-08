@@ -438,14 +438,28 @@ export default class SceneGame extends Phaser.Scene {
             .setOrigin(1, 0) //right-to-left text
             .setShadow(3, 3, '#000000', 3);
 
-        this.btnArmyEnemyAttack = this.add.sprite(x, y + 300, 'btnArmyAttack')
+        this.txtArmyEnemyAttackBase = this.add.text(x, y + 240)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setOrigin(1, 0) //right-to-left text
+            .setShadow(3, 3, '#000000', 3);
+
+        this.txtArmyEnemyDefenseBase = this.add.text(x, y + 300)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setOrigin(1, 0) //right-to-left text
+            .setShadow(3, 3, '#000000', 3);
+
+        this.btnArmyEnemyAttack = this.add.sprite(x, y + 360, 'btnArmyAttack')
             .setScrollFactor(0)
             .setInteractive()
             .setOrigin(1, 0) //right-to-left text
             .setDepth(100)
             .on('pointerdown', this.armyManager.armyAttack);
 
-        this.btnArmyEnemyCancel = this.add.sprite(x, y + 440, 'btnArmyCancel')
+        this.btnArmyEnemyCancel = this.add.sprite(x, y + 500, 'btnArmyCancel')
             .setScrollFactor(0)
             .setInteractive()
             .setOrigin(1, 0) //right-to-left text
@@ -454,6 +468,8 @@ export default class SceneGame extends Phaser.Scene {
 
         this.uiArmyEnemy.push(this.txtArmyEnemyName);
         this.uiArmyEnemy.push(this.txtArmyEnemyUnits);
+        this.uiArmyEnemy.push(this.txtArmyEnemyAttackBase);
+        this.uiArmyEnemy.push(this.txtArmyEnemyDefenseBase);
         this.uiArmyEnemy.push(this.btnArmyEnemyAttack);
         this.uiArmyEnemy.push(this.btnArmyEnemyCancel);
 
@@ -499,6 +515,7 @@ export default class SceneGame extends Phaser.Scene {
         /**
         * mouse
         */
+        //so we can right click without that box appearing
         this.input.mouse.disableContextMenu();
 
         /**
@@ -751,6 +768,8 @@ export default class SceneGame extends Phaser.Scene {
 
         this.txtArmyEnemyUnits.setText(enemyArmy.units.length + " :Enemy Units");
         this.txtArmyEnemyName.setText(enemyArmy.name);
+        this.txtArmyEnemyAttackBase.setText(enemyArmy.calculateAttackBase() + " :Attack Base");
+        this.txtArmyEnemyDefenseBase.setText(enemyArmy.calculateDefenseBase() + " :Defense Base");
 
         GameUtils.showGameObjects(this.uiArmyEnemy);
     }
