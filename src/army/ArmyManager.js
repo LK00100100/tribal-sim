@@ -255,6 +255,7 @@ export default class ArmyManager {
         else {
             if (pointer.leftButtonDown()) {
                 //show basic information
+                console.log("units health: " + otherArmy.getUnitsHealthStatus());
             }
             //show "attack screen"
             else if (pointer.rightButtonDown()) {
@@ -352,12 +353,17 @@ export default class ArmyManager {
         //then calculate casualties
         //TODO: clean away casualties after confirming deaths
 
-        scene.showPossibleArmyMoves(yourArmy);
-        scene.updateUI();
+        //update your ui
+        if(yourArmy.size() > 0){
+            scene.showPossibleArmyMoves(yourArmy);
+            scene.updateUI();
+        }
 
+        //update enemy ui
         if (enemyArmy.size() > 0)
             scene.showUiArmyEnemy(targetRow, targetCol);
-        else {
+        
+        if(yourArmy.size() == 0 || enemyArmy.size() == 0){
             GameUtils.hideGameObjects(scene.uiArmyEnemy);
             scene.selectedEnemyArmyCoordinates = null;
         }
@@ -450,13 +456,14 @@ export default class ArmyManager {
             }
         }
 
-        sprite.destroy();
-
         scene.board.removeArmy(row, col);
 
         //TODO: probably just sprites
-        if (scene.selectedArmy != null && scene.selectedArmy.getData("data") == armyData)
-            scene.selectArmy = null;
+        if (scene.selectedArmy != null && scene.selectedArmy.getData("data") == armyData){
+            scene.deselectEverything();
+        }
+
+        sprite.destroy();
 
         //TODO: deselect dead enemy
 
