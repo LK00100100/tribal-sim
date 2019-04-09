@@ -81,6 +81,7 @@ export default class SceneGame extends Phaser.Scene {
         this.selectedArmy;
         this.selectedBuyBuilding;
 
+        this.selectedEnemyArmyCoordinates;     //{row, col}
         this.selectedArmyPossibleMoves;
         this.selectedVillageBuildings;
         //TODO: considate army and village moves
@@ -689,27 +690,20 @@ export default class SceneGame extends Phaser.Scene {
         let armies = this.playerArmies[playerNumber];
 
         if (armies != null) {
-            armies.forEach((army, i) => {
+            armies.forEach((army) => {
                 army = army.data.get('data');
 
                 army.calculateCostDay();
 
-                let row = army.row;
-                let col = army.col;
-
                 //killed through attrition
                 if (army.size() == 0) {
-                    let sprite = this.board.boardUnits[row][col];
-                    sprite.destroy();
-
-                    this.playerArmies[playerNumber].splice(i, 1);
-                    this.board.removeArmy(row, col);
-
-                    if (this.selectedArmy != null) {
-                        this.deselectEverything();
-                    }
+                    this.armyManager.removeArmy(army);
                 }
             });
+        }
+
+        if (this.selectedArmy == null && this.selectedVillage == null) {
+            this.deselectEverything();
         }
 
     }
@@ -751,8 +745,8 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     //TODO: remove? refactor?
-    showPossibleArmyMoves(army) {
-        let possibleMoves = this.board.getPossibleMoves(army.row, army.col, army.moveAmount);
+    showPossibleArmyMoves(armyData) {
+        let possibleMoves = this.board.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
 
         this.selectedArmyPossibleMoves = possibleMoves;
 
@@ -772,6 +766,8 @@ export default class SceneGame extends Phaser.Scene {
         this.txtArmyEnemyDefenseBase.setText(enemyArmy.calculateDefenseBase() + " :Defense Base");
 
         GameUtils.showGameObjects(this.uiArmyEnemy);
+
+        //TODO: if not enough moves left, highlight attack red
     }
 
     updateTextArmy(army) {
@@ -862,15 +858,15 @@ export default class SceneGame extends Phaser.Scene {
     processArmyAction(targetSprite) {
 
         let scene = this;
-        let row = targetSprite.data.get("row");
-        let col = targetSprite.data.get("col");
+        let targetRow = targetSprite.data.get("row");
+        let targetCol = targetSprite.data.get("col");
 
         if (scene.selectedArmy == null)
             return;
 
         let army = scene.selectedArmy;
 
-        let playerOwner = scene.board.getTileOwnership(row, col);
+        let playerOwner = scene.board.getTileOwnership(targetRow, targetCol);
         let selectedArmyRow = army.data.get("data").row;
         let selectedArmyCol = army.data.get("data").col;
 
@@ -881,11 +877,11 @@ export default class SceneGame extends Phaser.Scene {
         //enemy terrain
         else {
             //if adjacent, show attack info screen
-            if (GameUtils.areAdjacent(selectedArmyRow, selectedArmyCol, row, col)) {
+            if (GameUtils.areAdjacent(selectedArmyRow, selectedArmyCol, targetRow, targetCol)) {
                 console.log("attack!");
 
-                scene.showUiArmyEnemy(row, col);
-
+                scene.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
+                scene.showUiArmyEnemy(targetRow, targetCol);
                 scene.cam.pan(army.x, army.y, 500);
             }
             else {

@@ -238,12 +238,13 @@ export default class ArmyManager {
     }
 
     //TODO: separate select and attack
+    //TODO: replace inner code with scene.processArmyAction()
     clickedArmy(pointer) {
         let scene = this.scene;
         let otherArmy = this.data.get('data');
-        let row = otherArmy.row;
-        let col = otherArmy.col;
-        
+        let targetRow = otherArmy.row;
+        let targetCol = otherArmy.col;
+
         console.log("clicked army")
 
         //clicked your own army
@@ -261,8 +262,9 @@ export default class ArmyManager {
                 if (scene.selectedArmy == null)
                     return;
 
+                scene.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
                 scene.cam.pan(scene.selectedArmy.x, scene.selectedArmy.y, 500);
-                scene.showUiArmyEnemy(row, col);
+                scene.showUiArmyEnemy(targetRow, targetCol);
             }
         }
     }
@@ -291,6 +293,8 @@ export default class ArmyManager {
 
         scene.updateUI();
     }
+
+
 
     /**
      * get units from a village
@@ -329,13 +333,136 @@ export default class ArmyManager {
         scene.updateUI();
     }
 
-    armyAttack(pointer){
+    armyAttack(pointer) {
         let scene = this.scene;
 
         console.log("ATTACKING");
+        let targetRow = scene.selectedEnemyArmyCoordinates.row;
+        let targetCol = scene.selectedEnemyArmyCoordinates.col;
+
+        let yourArmy = scene.selectedArmy.getData("data");
+        let enemyArmy = scene.board.boardUnits[targetRow][targetCol].getData("data");
+
+        //TODO: remove this later. let player decide how they want to sort (formation)
+        yourArmy.sortUnitsByHealth();
+        enemyArmy.sortUnitsByHealth();
+
+        scene.armyManager.simulateArmiesAttacking(yourArmy, enemyArmy);
+
+        //then calculate casualties
+        //TODO: clean away casualties after confirming deaths
+
+        scene.showPossibleArmyMoves(yourArmy);
+        scene.updateUI();
+
+        if (enemyArmy.size() > 0)
+            scene.showUiArmyEnemy(targetRow, targetCol);
+        else {
+            GameUtils.hideGameObjects(scene.uiArmyEnemy);
+            scene.selectedEnemyArmyCoordinates = null;
+        }
     }
 
-    armyAttackCancel(){
+    /**
+     * simulates an army attacking the other army. and vice versa
+     * @param {*} units 
+     * @param {*} otherUnits 
+     */
+    simulateArmiesAttacking(yourArmy, enemyArmy) {
+        this.simulateArmyAttackArmyOneWay(yourArmy, enemyArmy);
+        this.simulateArmyAttackArmyOneWay(enemyArmy, yourArmy);
+
+        console.log("army health: " + yourArmy.getUnitsHealthStatus());
+        console.log("enemy army health: " + enemyArmy.getUnitsHealthStatus());
+        console.log("purge dead");
+
+        //TODO: probably remove
+        this.purgeDeadUnits(yourArmy);
+        this.purgeDeadUnits(enemyArmy);
+
+        console.log("purge dead...");
+        console.log("army health: " + yourArmy.getUnitsHealthStatus());
+        console.log("enemy army health: " + enemyArmy.getUnitsHealthStatus());
+
+        //TODO: probably remove
+        //remove dead armies and deselect
+        if (yourArmy.size() == 0)
+            this.removeArmy(yourArmy);
+
+        if (enemyArmy.size() == 0)
+            this.removeArmy(enemyArmy);
+
+    }
+
+    simulateArmyAttackArmyOneWay(yourArmy, enemyArmy) {
+
+        let yourUnits = yourArmy.units;
+        let enemyUnits = enemyArmy.units;
+
+        let currentTarget = 0;
+        let defenseRolls = enemyArmy.rollDefenses();
+
+        yourUnits.forEach(unit => {
+            //your attack
+            let attack = unit.rollAttack();
+
+            //enemy defense
+            let defense = 0;
+            if (defenseRolls.length > 0)
+                defense = defenseRolls.shift();
+
+            let damage = attack - defense;
+            damage = damage > 0 ? damage : 0;
+
+            let enemyUnit = enemyUnits[currentTarget];
+            enemyUnit.health -= damage;
+
+            currentTarget++;
+            if (currentTarget >= enemyUnits.length)
+                currentTarget = 0;
+        });
+
+    }
+
+    purgeDeadUnits(armyData) {
+        for (let i = armyData.units.length - 1; i >= 0; i--) {
+            let unit = armyData.units[i];
+            if (unit.health <= 0)
+                armyData.units.splice(i, 1);
+        }
+    }
+
+    //TODO: probably just sprites argument
+    removeArmy(armyData) {
+        let scene = this.scene;
+        let row = armyData.row;
+        let col = armyData.col;
+        let playerNumber = armyData.player;
+
+        let sprite = scene.board.boardUnits[row][col];
+
+        let playersArmies = scene.playerArmies[playerNumber];
+        for (let i = 0; i < playersArmies.length; i++) {
+
+            if (playersArmies[i] == sprite) {
+                playersArmies.splice(i, 1);
+                break;
+            }
+        }
+
+        sprite.destroy();
+
+        scene.board.removeArmy(row, col);
+
+        //TODO: probably just sprites
+        if (scene.selectedArmy != null && scene.selectedArmy.getData("data") == armyData)
+            scene.selectArmy = null;
+
+        //TODO: deselect dead enemy
+
+    }
+
+    armyAttackCancel() {
         let scene = this.scene;
         GameUtils.hideGameObjects(scene.uiArmyEnemy);
     }

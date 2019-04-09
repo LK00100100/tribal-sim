@@ -1,5 +1,6 @@
 import Village from '../buildings/village_buildings/Village';
 import GameUtils from '../utils/GameUtils';
+import Rat from '../army/unit/Rat';
 
 export default class RatsAi {
 
@@ -29,8 +30,8 @@ export default class RatsAi {
                 //constantly produce rat armies when you can
                 if (buildingData.population >= 20) {
                     let armySprite = scene.armyManager.createArmy(this.playerNumber, buildingData);
-                    
-                    if(armySprite != null)
+
+                    if (armySprite != null)
                         armySprite.getData("data").name = "Wild Rats";
                 }
 
@@ -59,7 +60,7 @@ export default class RatsAi {
             let startArmy = { row: armyData.row, col: armyData.col };
             territoryMoves.push(startArmy);
 
-            //TODO: if there's something to attack, then attack
+            //TODO: if there's something in its territory, then move closer and attack
 
             //otherwise, pick a random square to move to
             let pickedIndex = GameUtils.getRandomInt(territoryMoves.length);
@@ -67,7 +68,25 @@ export default class RatsAi {
 
             let terrainSprite = scene.board.boardTerrainSprites[pickedCoordinate.row][pickedCoordinate.col];
 
-            scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
+
+            //if it didn't move, reproduce
+            if (pickedCoordinate.row == armyData.row && pickedCoordinate.col == armyData.col) {
+                console.log("reproducing at: " + armyData.row + "," + armyData.col);
+
+                //TODO: make own rat army extend & use a reproduce method
+
+                if (armyData.size() < 50) {
+                    let reproduceAmount = 1;
+                    for (let i = 0; i < reproduceAmount; i++) {
+                        let rat = new Rat();
+                        armyData.addUnit(rat);
+                    }
+                }
+
+            }
+            else {
+                scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
+            }
 
         });
 

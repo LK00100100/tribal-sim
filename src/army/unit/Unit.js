@@ -1,3 +1,4 @@
+import GameUtils from "../../utils/GameUtils";
 
 export default class Unit {
 
@@ -14,12 +15,22 @@ export default class Unit {
     }
 
     //food cost
-    cost(){
+    cost() {
         return 1;
     }
 
-    getMovementMax(){
+    getMovementMax() {
         return 1;
+    }
+
+    rollAttack() {
+        let bonus = GameUtils.getRandomIntFromRange(this.attackBonusMin, this.attackBonusMax);
+        return this.attackBase + bonus;
+    }
+
+    rollDefense() {
+        let bonus = GameUtils.getRandomIntFromRange(this.defenseBonusMin, this.defenseBonusMax);
+        return this.defenseBase + bonus;
     }
 
 }

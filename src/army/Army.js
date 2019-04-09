@@ -46,7 +46,7 @@ export default class Army {
 
         let cost = 0;
 
-        for(let i = 0; i < this.size(); i++){
+        for (let i = 0; i < this.size(); i++) {
             cost += this.units[i].cost();
         }
 
@@ -96,18 +96,53 @@ export default class Army {
 
     }
 
-    calculateAttackBase(){
-        
+    calculateAttackBase() {
+
         let total = 0;
         this.units.forEach(unit => total += unit.attackBase);
         return total;
     }
 
-    calculateDefenseBase(){
-        
+    calculateDefenseBase() {
+
         let total = 0;
         this.units.forEach(unit => total += unit.defenseBase);
         return total;
+    }
+
+    sortUnitsByHealth() {
+        this.units.sort(function (x, y) {
+            if (x.health < y.health) return -1;
+            if (x.health > y.health) return 1;
+            return 0;
+        });
+    }
+
+    /**
+     * @returns an array of units health
+     */
+    getUnitsHealthStatus() {
+        let healths = [];
+        this.units.forEach(unit => healths.push(unit.health));
+        return healths;
+    }
+
+    /**
+     * returns an array of attacks rolls for all units
+     */
+    rollAttack() {
+        let attacks = [];
+        this.units.forEach(unit => attacks.push(unit.rollAttack()));
+        return attacks;
+    }
+
+    /**
+     * returns an array of defense rolls for all units
+     */
+    rollDefenses() {
+        let defenses = [];
+        this.units.forEach(unit => defenses.push(unit.rollDefense()));
+        return defenses;
     }
 
 }

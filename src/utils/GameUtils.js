@@ -15,11 +15,18 @@ export default class GameUtils {
     }
 
     /**
-     * generates a number from 0 to max (excluding max)
+     * generates a number from 0 (inclusive) to max (excluding max)
      * @param {*} max 
      */
     static getRandomInt(max) {
         return Math.floor(Math.random() * Math.floor(max));
+    }
+
+    /**
+     * generates a number from min (inclusive) to max (inclusive)
+     */
+    static getRandomIntFromRange(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
     }
 
     /**
