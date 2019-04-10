@@ -710,6 +710,8 @@ export default class SceneGame extends Phaser.Scene {
 
     clickedVillage(pointer) {
 
+        //TODO: add unit attacking
+
         let scene = this.scene;
 
         if (scene.selectedVillage == this) {
@@ -816,15 +818,17 @@ export default class SceneGame extends Phaser.Scene {
             return;
         }
 
-        //place building
-        if (scene.selectedBuyBuilding != null) {
-            scene.board.placeBuilding(pointer, this);
-            return
-        }
+        if (pointer.rightButtonDown()) {
+            //place building
+            if (scene.selectedBuyBuilding != null) {
+                scene.board.placeBuilding(pointer, this);
+                return
+            }
 
-        //process action of army of player 1
-        if (scene.selectedArmy != null) {
-            scene.processArmyAction(this);
+            //process action of army of player 1
+            if (scene.selectedArmy != null) {
+                scene.processArmyAction(this);
+            }
         }
 
     }
@@ -840,6 +844,7 @@ export default class SceneGame extends Phaser.Scene {
         console.log('building clicked');
 
         let scene = this.scene;
+        scene.deselectEverything();
 
         if (pointer.rightButtonDown()) {
             if (scene.selectedArmy == null)

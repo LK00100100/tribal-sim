@@ -263,9 +263,10 @@ export default class ArmyManager {
                 if (scene.selectedArmy == null)
                     return;
 
+                //TODO: refactor this to be sprite
                 scene.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
-                scene.cam.pan(scene.selectedArmy.x, scene.selectedArmy.y, 500);
-                scene.showUiArmyEnemy(targetRow, targetCol);
+                let terrainSprite = scene.board.boardTerrainSprites[targetRow][targetCol];
+                scene.processArmyAction(terrainSprite);
             }
         }
     }
@@ -294,8 +295,6 @@ export default class ArmyManager {
 
         scene.updateUI();
     }
-
-
 
     /**
      * get units from a village
@@ -354,7 +353,7 @@ export default class ArmyManager {
         //TODO: clean away casualties after confirming deaths
 
         //update your ui
-        if(yourArmy.size() > 0){
+        if (yourArmy.size() > 0) {
             scene.showPossibleArmyMoves(yourArmy);
             scene.updateUI();
         }
@@ -362,8 +361,8 @@ export default class ArmyManager {
         //update enemy ui
         if (enemyArmy.size() > 0)
             scene.showUiArmyEnemy(targetRow, targetCol);
-        
-        if(yourArmy.size() == 0 || enemyArmy.size() == 0){
+
+        if (yourArmy.size() == 0 || enemyArmy.size() == 0) {
             GameUtils.hideGameObjects(scene.uiArmyEnemy);
             scene.selectedEnemyArmyCoordinates = null;
         }
@@ -459,7 +458,7 @@ export default class ArmyManager {
         scene.board.removeArmy(row, col);
 
         //TODO: probably just sprites
-        if (scene.selectedArmy != null && scene.selectedArmy.getData("data") == armyData){
+        if (scene.selectedArmy != null && scene.selectedArmy.getData("data") == armyData) {
             scene.deselectEverything();
         }
 

@@ -555,6 +555,7 @@ export default class Board {
      * @param {*} moveAmount 
      */
     getPossibleMoves(row, col, moveAmount) {
+        //TODO: redo this whole thing to be correct. BFS from 1 to moveAmount
 
         let possibleMoves = [];
 
