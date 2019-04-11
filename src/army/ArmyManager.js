@@ -84,10 +84,6 @@ export default class ArmyManager {
         let scene = this.scene;
         let row = terrainSprite.getData("row");
         let col = terrainSprite.getData("col");
-        let army = armySprite.getData("data");
-
-        //TODO: probably pull this
-        scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves);
 
         let neighbors = scene.board.getNeighboringTiles(row, col);
 
@@ -120,10 +116,6 @@ export default class ArmyManager {
 
         let targetSprite = scene.board.boardTerrainSprites[targetRow][targetCol];
         this.moveArmyPlayer(armySprite, targetSprite);
-
-        //TODO: perhaps move this
-        scene.selectedArmyPossibleMoves = scene.board.getPossibleMovesArmy(armySprite);
-        scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
     }
 
     /**

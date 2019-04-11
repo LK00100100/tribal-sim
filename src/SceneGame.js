@@ -872,15 +872,15 @@ export default class SceneGame extends Phaser.Scene {
         if (scene.selectedArmy == null)
             return;
 
-        let army = scene.selectedArmy;
+        let armySprite = scene.selectedArmy;
 
         let playerOwner = scene.board.getTileOwnership(targetRow, targetCol);
-        let selectedArmyRow = army.data.get("data").row;
-        let selectedArmyCol = army.data.get("data").col;
+        let selectedArmyRow = armySprite.data.get("data").row;
+        let selectedArmyCol = armySprite.data.get("data").col;
 
         //empty terrain
         if (playerOwner == 0) {
-            scene.armyManager.moveArmyPlayer(army, targetSprite);
+            scene.armyManager.moveArmyPlayer(armySprite, targetSprite);
         }
         //enemy terrain
         else {
@@ -890,11 +890,17 @@ export default class SceneGame extends Phaser.Scene {
 
                 scene.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
                 scene.showUiArmyEnemy(targetRow, targetCol);
-                scene.cam.pan(army.x, army.y, 500);
+                scene.cam.pan(armySprite.x, armySprite.y, 500);
             }
+            //move closer
             else {
                 console.log("too far to attack! moving closer!");
-                scene.armyManager.moveArmyCloser(army, targetSprite);
+                scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves);
+
+                scene.armyManager.moveArmyCloser(armySprite, targetSprite);
+
+                scene.selectedArmyPossibleMoves = scene.board.getPossibleMovesArmy(armySprite);
+                scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
             }
 
         }
