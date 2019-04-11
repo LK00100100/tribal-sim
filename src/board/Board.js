@@ -570,28 +570,27 @@ export default class Board {
         let visited = new Set();
         visited.add(coordinate);
 
-        let tempSquare;
-
         let queue = [];
         queue.push(startPoint);
+
+        let currentAllowableCost = -1;
 
         while (queue.length > 0) {
 
             let queueLength = queue.length;
-            queue.sort();
 
-            let smallestMove = queue[0].cost;
+            currentAllowableCost++;
 
             //check around this level
             for (let x = 0; x < queueLength; x++) {
-                tempSquare = queue.shift();
+                let tempSquare = queue.shift();
 
                 let row = tempSquare.row;
                 let col = tempSquare.col;
                 let cost = tempSquare.cost;
 
                 //too costly for now.
-                if (cost > smallestMove) {
+                if (cost > currentAllowableCost) {
                     queue.push(tempSquare);
                     continue;
                 }
@@ -649,14 +648,15 @@ export default class Board {
      * @param {*} distance 
      */
     getTerritory(row, col, distance) {
-
-        let answer = [];
-        this.getTerritoryHelper(row, col, distance, new Set(), answer);
+        let answer = this.getTerritoryHelper(row, col, distance);
 
         return answer;
     }
 
-    getTerritoryHelper(row, col, movesLeft, visited, answer) {
+    getTerritoryHelper(row, col, movesLeft) {
+
+        let answer = [];
+        let visited = new Set();
 
         let currentSquare = {
             row: row,
@@ -670,7 +670,7 @@ export default class Board {
 
             let levelSize = queue.length;
 
-            //process 1 level
+            //process a level
             for (let levelAmount = 0; levelAmount < levelSize; levelAmount++) {
 
                 currentSquare = queue.shift();
@@ -706,7 +706,7 @@ export default class Board {
 
         }
 
+        return answer;
     }
-
 
 }

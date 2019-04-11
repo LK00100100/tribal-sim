@@ -844,7 +844,10 @@ export default class SceneGame extends Phaser.Scene {
         console.log('building clicked');
 
         let scene = this.scene;
-        scene.deselectEverything();
+
+        if (pointer.leftButtonDown()) {
+            scene.deselectEverything();
+        }
 
         if (pointer.rightButtonDown()) {
             if (scene.selectedArmy == null)
