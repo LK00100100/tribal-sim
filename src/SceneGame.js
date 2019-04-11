@@ -894,8 +894,7 @@ export default class SceneGame extends Phaser.Scene {
             }
             else {
                 console.log("too far to attack! moving closer!");
-                //if far away, move closer & attack
-                //scene.armyManager.moveArmyPlayerCloser(army, this);
+                scene.armyManager.moveArmyCloser(army, targetSprite);
             }
 
         }

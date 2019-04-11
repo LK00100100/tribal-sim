@@ -82,10 +82,11 @@ export default class ArmyManager {
     */
     moveArmyCloser(armySprite, terrainSprite) {
         let scene = this.scene;
-        let row = terrainSprite.data("row");
-        let col = terrainSprite.data("col");
-        let army = armySprite.data.get("data");
+        let row = terrainSprite.getData("row");
+        let col = terrainSprite.getData("col");
+        let army = armySprite.getData("data");
 
+        //TODO: probably pull this
         scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves);
 
         let neighbors = scene.board.getNeighboringTiles(row, col);
@@ -100,15 +101,27 @@ export default class ArmyManager {
             }
         }
 
-        //remove bad moves
-        //GameUtils.getIntersectionCoordinates
-        //TODO: complete this
-        //pick the cheapest move
-        let targetSprite = null;
+        let movesCost = scene.board.getPossibleMovesArmy(armySprite);
+        movesCost = GameUtils.getIntersectionCoordinates(movesCost, neighbors);
 
+        if (movesCost.length == 0)
+            return;
 
-        this.moveArmyHelper(armySprite, targetSprite, scene.selectedArmyPossibleMoves)
+        let targetRow = movesCost[0].row
+        let targetCol = movesCost[0].col;
+        let lowestCost = movesCost[0].cost;
+        for (let i = 1; i < movesCost.length; i++) {
+            if (movesCost[i].cost < lowestCost) {
+                targetRow = movesCost[i].row;
+                targetCol = movesCost[i].col;
+                lowestCost = movesCost[i].cost;
+            }
+        }
 
+        let targetSprite = scene.board.boardTerrainSprites[targetRow][targetCol];
+        this.moveArmyPlayer(armySprite, targetSprite);
+
+        //TODO: perhaps move this
         scene.selectedArmyPossibleMoves = scene.board.getPossibleMovesArmy(armySprite);
         scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
     }

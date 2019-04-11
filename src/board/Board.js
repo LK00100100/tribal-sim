@@ -326,9 +326,10 @@ export default class Board {
      * gets the neighbors of one tile
      * @param {*} row 
      * @param {*} col 
+     * @return an array of {row, col}
      */
     getNeighboringTiles(row, col) {
-        tiles = [];
+        let tiles = [];
 
         for (let d = 0; d < this.directions.length; d++) {
             let i = this.directions[d][0];
@@ -538,7 +539,7 @@ export default class Board {
     }
 
     /**
-     * does the same thing as possible moves
+     * does the same thing as getPossibleMoves()
      * @param {*} armySprite 
      */
     getPossibleMovesArmy(armySprite) {
@@ -553,6 +554,7 @@ export default class Board {
      * @param {*} row 
      * @param {*} col 
      * @param {*} moveAmount 
+     * @returns an array of {row, col, cost}
      */
     getPossibleMoves(row, col, moveAmount) {
         //TODO: redo this whole thing to be correct. BFS from 1 to moveAmount

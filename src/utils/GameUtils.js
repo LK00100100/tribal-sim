@@ -30,30 +30,30 @@ export default class GameUtils {
     }
 
     /**
-     * 
      * @param {*} coordinates1 an array of {row, col}
      * @param {*} coordinates2 an array of {row, col}
+     * @returns coordinate1's intersecting objects
      */
     static getIntersectionCoordinates(coordinates1, coordinates2) {
 
-        let set1 = new Set();
+        let set2 = new Set();
         let answer = [];
-
-        coordinates1.forEach(coordinate => {
-            let row = coordinate.row;
-            let col = coordinate.col;
-
-            let key = row + "," + col;
-            set1.add(key);
-        });
 
         coordinates2.forEach(coordinate => {
             let row = coordinate.row;
             let col = coordinate.col;
 
             let key = row + "," + col;
+            set2.add(key);
+        });
 
-            if (set1.has(key)) {
+        coordinates1.forEach(coordinate => {
+            let row = coordinate.row;
+            let col = coordinate.col;
+
+            let key = row + "," + col;
+
+            if (set2.has(key)) {
                 answer.push(coordinate);
             }
 
