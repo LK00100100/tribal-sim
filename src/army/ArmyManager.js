@@ -114,7 +114,7 @@ export default class ArmyManager {
             }
         }
 
-        let targetSprite = scene.board.boardTerrainSprites[targetRow][targetCol];
+        let targetSprite = scene.board.getTerrain(targetRow, targetCol);
         this.moveArmyPlayer(armySprite, targetSprite);
     }
 
@@ -374,6 +374,7 @@ export default class ArmyManager {
         }
     }
 
+    //TODO: pass sprites
     /**
      * simulates an army attacking the other army. and vice versa
      * @param {*} yourArmy data
@@ -405,6 +406,7 @@ export default class ArmyManager {
 
     }
 
+    //TODO: pass sprites
     simulateArmyAttackArmyOneWay(yourArmy, enemyArmy) {
 
         let yourUnits = yourArmy.units;

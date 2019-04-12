@@ -593,13 +593,14 @@ export default class SceneGame extends Phaser.Scene {
     //TODO: make it for every player
     endTurn(scene) {
 
+        //TODO: lock it
         //disable all game controls
         scene.btnEndTurn.setTint(0xff0000);
 
-        scene.postTurnPhase(scene.turnOfPlayer);
-
         if (scene.selectedArmy != null)
             scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves)
+
+        scene.postTurnPhase(scene.turnOfPlayer);
 
         //TODO: fix this later
         for (let i = 2; i <= scene.numPlayers; i++) {

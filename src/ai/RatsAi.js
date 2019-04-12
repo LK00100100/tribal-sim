@@ -1,5 +1,6 @@
 import Village from '../buildings/village_buildings/Village';
 import GameUtils from '../utils/GameUtils';
+import GameUtilsArmy from '../utils/GameUtilsArmy';
 import Rat from '../army/unit/Rat';
 
 export default class RatsAi {
@@ -80,29 +81,41 @@ export default class RatsAi {
                 scene.armyManager.simulateArmiesAttacking(armyData, enemySprite.getData("data"));
             }
             else {
-                //if there's an enemy near me, attack it.
+                let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(scene.board, territoryMoves, this.playerNumber);
 
-                //otherwise, pick a random square to move to
-                let pickedIndex = GameUtils.getRandomInt(territoryMoves.length);
-                let pickedCoordinate = territoryMoves[pickedIndex];
+                //if there's an enemy in range, move to it and attack it.
+                if (enemySprites.length > 0) {
+                    let enemySprite = enemySprites[0];
+                    let enemyData = enemySprite.getData("data");
+                    let targetTerrain = scene.board.getTerrain(enemyData.row, enemyData.col);
+                    scene.armyManager.moveArmyCloser(armySprite, targetTerrain);
 
-                let terrainSprite = scene.board.boardTerrainSprites[pickedCoordinate.row][pickedCoordinate.col];
-
-                //if no movement picked, reproduce
-                if (pickedCoordinate.row == armyData.row && pickedCoordinate.col == armyData.col) {
-                    console.log("reproducing at: " + armyData.row + "," + armyData.col);
-
-                    if (armyData.size() < 50) {
-                        let reproduceAmount = 1;
-                        for (let i = 0; i < reproduceAmount; i++) {
-                            let rat = new Rat();
-                            armyData.addUnit(rat);
-                        }
-                    }
-
+                    scene.armyManager.simulateArmiesAttacking(armyData, enemyData);
                 }
+                //no enemies around
                 else {
-                    scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
+                    //pick a random square to move to
+                    let pickedIndex = GameUtils.getRandomInt(territoryMoves.length);
+                    let pickedCoordinate = territoryMoves[pickedIndex];
+
+                    let terrainSprite = scene.board.boardTerrainSprites[pickedCoordinate.row][pickedCoordinate.col];
+
+                    //if we stand still, reproduce
+                    if (pickedCoordinate.row == armyData.row && pickedCoordinate.col == armyData.col) {
+                        console.log("reproducing at: " + armyData.row + "," + armyData.col);
+
+                        if (armyData.size() < 50) {
+                            let reproduceAmount = 1;
+                            for (let i = 0; i < reproduceAmount; i++) {
+                                let rat = new Rat();
+                                armyData.addUnit(rat);
+                            }
+                        }
+
+                    }
+                    else {
+                        scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
+                    }
                 }
             }
 
