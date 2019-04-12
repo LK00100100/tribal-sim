@@ -597,8 +597,10 @@ export default class SceneGame extends Phaser.Scene {
         //disable all game controls
         scene.btnEndTurn.setTint(0xff0000);
 
-        if (scene.selectedArmy != null)
+        if (scene.selectedArmy != null){
             scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves)
+            scene.selectedArmyPossibleMoves = null;
+        }
 
         scene.postTurnPhase(scene.turnOfPlayer);
 

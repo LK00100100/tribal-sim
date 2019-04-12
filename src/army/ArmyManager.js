@@ -98,24 +98,25 @@ export default class ArmyManager {
         }
 
         let movesCost = scene.board.getPossibleMovesArmy(armySprite);
-        movesCost = GameUtils.getIntersectionCoordinates(movesCost, neighbors);
+        let neighborMovesCost = GameUtils.getIntersectionCoordinates(movesCost, neighbors);
 
         if (movesCost.length == 0)
             return;
 
-        let targetRow = movesCost[0].row
-        let targetCol = movesCost[0].col;
-        let lowestCost = movesCost[0].cost;
-        for (let i = 1; i < movesCost.length; i++) {
-            if (movesCost[i].cost < lowestCost) {
-                targetRow = movesCost[i].row;
-                targetCol = movesCost[i].col;
-                lowestCost = movesCost[i].cost;
+        //get cheapest cost
+        let targetRow = neighborMovesCost[0].row
+        let targetCol = neighborMovesCost[0].col;
+        let lowestCost = neighborMovesCost[0].cost;
+        for (let i = 1; i < neighborMovesCost.length; i++) {
+            if (neighborMovesCost[i].cost < lowestCost) {
+                targetRow = neighborMovesCost[i].row;
+                targetCol = neighborMovesCost[i].col;
+                lowestCost = neighborMovesCost[i].cost;
             }
         }
 
         let targetSprite = scene.board.getTerrain(targetRow, targetCol);
-        this.moveArmyPlayer(armySprite, targetSprite);
+        this.moveArmy(armySprite, targetSprite, movesCost);
     }
 
     /**

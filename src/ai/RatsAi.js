@@ -98,8 +98,7 @@ export default class RatsAi {
                     let pickedIndex = GameUtils.getRandomInt(territoryMoves.length);
                     let pickedCoordinate = territoryMoves[pickedIndex];
 
-                    let terrainSprite = scene.board.boardTerrainSprites[pickedCoordinate.row][pickedCoordinate.col];
-
+                    let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
                     //if we stand still, reproduce
                     if (pickedCoordinate.row == armyData.row && pickedCoordinate.col == armyData.col) {
                         console.log("reproducing at: " + armyData.row + "," + armyData.col);
