@@ -1,6 +1,7 @@
 
 export default class GameUtils {
 
+    //TODO: gameutils ui?
     //input: an array of gameobjects
     static hideGameObjects(array) {
         array.forEach(gameObject => gameObject.visible = false);

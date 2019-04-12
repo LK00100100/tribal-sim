@@ -293,6 +293,7 @@ export default class ArmyManager {
 
         scene.selectedArmy = armySprite;
         console.log('selecting army');
+        console.log("army health: " + army.getUnitsHealthStatus());
 
         armySprite.setTint(0xffff00);
 
@@ -375,8 +376,8 @@ export default class ArmyManager {
 
     /**
      * simulates an army attacking the other army. and vice versa
-     * @param {*} units 
-     * @param {*} otherUnits 
+     * @param {*} yourArmy data
+     * @param {*} enemyArmy data
      */
     simulateArmiesAttacking(yourArmy, enemyArmy) {
         this.simulateArmyAttackArmyOneWay(yourArmy, enemyArmy);

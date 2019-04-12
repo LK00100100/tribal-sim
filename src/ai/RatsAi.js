@@ -54,38 +54,56 @@ export default class RatsAi {
             let possibleMovesArmy = scene.board.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
 
             //move in territory
-            let territoryMoves = GameUtils.getIntersectionCoordinates(territory, possibleMovesArmy);
+            let territoryMoves = GameUtils.getIntersectionCoordinates(possibleMovesArmy, territory);
 
             //add itself (no movement)
-            let startArmy = { row: armyData.row, col: armyData.col };
+            let startArmy = { row: armyData.row, col: armyData.col, cost: 0 };
             territoryMoves.push(startArmy);
 
-            //TODO: if there's something in its territory, then move closer and attack
+            //check adjacent squares for enemy
+            let neighbors = scene.board.getNeighboringTiles(armyData.row, armyData.col);
+            let enemySprite = null;
+            neighbors.forEach(neighbor => {
+                let unit = scene.board.getUnits(neighbor.row, neighbor.col);
 
-            //otherwise, pick a random square to move to
-            let pickedIndex = GameUtils.getRandomInt(territoryMoves.length);
-            let pickedCoordinate = territoryMoves[pickedIndex];
+                if (unit == null)
+                    return;
 
-            let terrainSprite = scene.board.boardTerrainSprites[pickedCoordinate.row][pickedCoordinate.col];
-
-
-            //if it didn't move, reproduce
-            if (pickedCoordinate.row == armyData.row && pickedCoordinate.col == armyData.col) {
-                console.log("reproducing at: " + armyData.row + "," + armyData.col);
-
-                //TODO: make own rat army extend & use a reproduce method
-
-                if (armyData.size() < 50) {
-                    let reproduceAmount = 1;
-                    for (let i = 0; i < reproduceAmount; i++) {
-                        let rat = new Rat();
-                        armyData.addUnit(rat);
-                    }
+                let unitData = unit.getData("data");
+                if (unitData.player != this.playerNumber) {
+                    enemySprite = unit;
                 }
+            });
 
+            //attack enemy neighbors
+            if (enemySprite != null) {
+                scene.armyManager.simulateArmiesAttacking(armyData, enemySprite.getData("data"));
             }
             else {
-                scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
+                //if there's an enemy near me, attack it.
+
+                //otherwise, pick a random square to move to
+                let pickedIndex = GameUtils.getRandomInt(territoryMoves.length);
+                let pickedCoordinate = territoryMoves[pickedIndex];
+
+                let terrainSprite = scene.board.boardTerrainSprites[pickedCoordinate.row][pickedCoordinate.col];
+
+                //if no movement picked, reproduce
+                if (pickedCoordinate.row == armyData.row && pickedCoordinate.col == armyData.col) {
+                    console.log("reproducing at: " + armyData.row + "," + armyData.col);
+
+                    if (armyData.size() < 50) {
+                        let reproduceAmount = 1;
+                        for (let i = 0; i < reproduceAmount; i++) {
+                            let rat = new Rat();
+                            armyData.addUnit(rat);
+                        }
+                    }
+
+                }
+                else {
+                    scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
+                }
             }
 
         });

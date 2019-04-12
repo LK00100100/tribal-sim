@@ -306,6 +306,18 @@ export default class Board {
     }
 
     /**
+     * @param {*} row 
+     * @param {*} col 
+     * returns a unitSprite or null if none
+     */
+    getUnits(row, col){
+        if(!this.isWithinBounds(row, col))
+            return null;
+
+        return this.boardUnits[row][col];
+    }
+
+    /**
      * returns player number of who is occupying it with a unit
      * 
      * a building by itself is not occupying
@@ -640,6 +652,18 @@ export default class Board {
         }
 
         return possibleMoves;
+    }
+
+    /**
+     * @param {*} row 
+     * @param {*} col 
+     * @returns terrainSprite or null
+     */
+    getTerrain(row, col){
+        if(!this.isWithinBounds(row, col))
+            return null;
+
+        return this.boardTerrainSprites[row][col];
     }
 
     /**
