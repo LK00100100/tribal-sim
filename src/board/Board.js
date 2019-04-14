@@ -106,11 +106,8 @@ export default class Board {
         this.boardUnits[row][col] = null;
     }
 
-    destroyBuilding(row, col) {
-        if (this.boardBuildings[row][col] != null) {
-            this.boardBuildings[row][col].destroy();
-            this.boardBuildings[row][col] = null;
-        }
+    removeBuilding(row, col) {
+        this.boardBuildings[row][col] = null;
     }
 
     /**

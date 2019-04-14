@@ -443,11 +443,12 @@ export default class ArmyManager {
 
     /**
      * 
-     * @param {*} yourArmy data
-     * @param {*} enemyBuilding data
+     * @param {*} armySprite
+     * @param {*} buildingSprite
      */
-    simulateArmyAttackingBuilding(army, building) {
-        let scene = this.scene;
+    simulateArmyAttackingBuilding(armySprite, buildingSprite) {
+        let army = armySprite.getData("data");
+        let building = buildingSprite.getData("data");
 
         console.log("army health: " + army.getUnitsHealthStatus());
         console.log("enemy building HP: " + building.health);
@@ -468,7 +469,7 @@ export default class ArmyManager {
             this.destroyArmy(army);
 
         if (building.health <= 0)
-            scene.board.destroyBuilding(building.row, building.col);
+            this.destroyBuilding(buildingSprite);
 
     }
 
@@ -558,11 +559,9 @@ export default class ArmyManager {
      * @param {*} armySprite 
      */
     armyAttackBuilding(armySprite, buildingSprite) {
-        let army = armySprite.getData("data");
-        let building = buildingSprite.getData("data");
         console.log("attacking building");
 
-        this.simulateArmyAttackingBuilding(army, building);
+        this.simulateArmyAttackingBuilding(armySprite, buildingSprite);
     }
 
     //TODO: probably just sprites argument
@@ -576,7 +575,6 @@ export default class ArmyManager {
 
         let playersArmies = scene.playerArmies[playerNumber];
         for (let i = 0; i < playersArmies.length; i++) {
-
             if (playersArmies[i] == sprite) {
                 playersArmies.splice(i, 1);
                 break;
@@ -591,6 +589,30 @@ export default class ArmyManager {
         }
 
         sprite.destroy();
+    }
+
+
+    destroyBuilding(buildingSprite) {
+        let scene = this.scene;
+
+        let building = buildingSprite.getData("data");
+        let row = building.row;
+        let col = building.col;
+        let playerNumber = building.player;
+
+        let playerBuildings = scene.playerBuildings[playerNumber];
+        for (let i = 0; i < playerBuildings.length; i++) {
+            if (playerBuildings[i] == buildingSprite) {
+                playerBuildings.splice(i, 1);
+                break;
+            }
+        }
+
+        scene.board.removeBuilding(row, col);
+
+        //TTODO: unselect selected building
+
+        buildingSprite.destroy();
     }
 
     armyAttackCancel() {
