@@ -21,8 +21,9 @@ export default class Board {
 
         //these hold gameobjects (which hold data)
         this.boardTerrainSprites = []; //holds terrain sprites
-        this.boardBuildings = []; //holds building sprites
-        this.boardUnits = [];   //holds occupying units
+        this.boardBuildings = [];       //holds building sprites
+        this.boardText = [];            //holds text
+        this.boardUnits = [];           //holds occupying units
 
         //TODO: make an enums for terrain
         this.terrainType = ['tileGrass', 'tileOcean', 'tileHill', 'tileDesert', 'tileForest'];
@@ -87,7 +88,7 @@ export default class Board {
             this.boardUnits.push(theRow);
         }
 
-        //init board villages
+        //init board buildings
         for (let row = 0; row < this.rows; row++) {
             let theRow = [];
             for (let col = 0; col < this.cols; col++) {
@@ -96,10 +97,27 @@ export default class Board {
             this.boardBuildings.push(theRow);
         }
 
+        //init board text
+        for (let row = 0; row < this.rows; row++) {
+            let theRow = [];
+            for (let col = 0; col < this.cols; col++) {
+                theRow.push(null);
+            }
+            this.boardText.push(theRow);
+        }
+
     }
 
     addArmy(row, col, armySprite) {
         this.boardUnits[row][col] = armySprite;
+    }
+
+    addBuilding(row, col, buildingSprite) {
+        this.boardBuildings[row][col] = buildingSprite;
+    }
+
+    addText(row, col, text) {
+        this.boardText[row][col] = text;
     }
 
     removeArmy(row, col) {
@@ -108,6 +126,11 @@ export default class Board {
 
     removeBuilding(row, col) {
         this.boardBuildings[row][col] = null;
+    }
+
+    destroyText(row, col) {
+        this.boardText[row][col].destroy();
+        this.boardText[row][col] = null;
     }
 
     /**

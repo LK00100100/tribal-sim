@@ -609,6 +609,7 @@ export default class ArmyManager {
         }
 
         scene.board.removeBuilding(row, col);
+        scene.board.destroyText(row, col);
 
         //TTODO: unselect selected building
 

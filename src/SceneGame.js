@@ -21,8 +21,7 @@ export default class SceneGame extends Phaser.Scene {
 
         this.playerHuman = 1;
 
-        //TODO: temporary fix
-        //TODO: handle collisions?
+        //TODO: temporary. do fix
         this.buildings = [
             {
                 row: 2, col: 2,
@@ -92,7 +91,6 @@ export default class SceneGame extends Phaser.Scene {
         this.uiArmy = [];
         this.uiArmyEnemy = [];
         this.uiArmyEnemyBuilding = [];
-        this.textsVillageName = [];
 
         this.armyManager;
     }
@@ -213,6 +211,8 @@ export default class SceneGame extends Phaser.Scene {
             y = 256 + (building.row * 256);
             let name = building.name;
             let player = building.player;
+            let row = building.row;
+            let col = building.col;
 
             let imageName, data;
             let race = this.playerRace[building.player];
@@ -231,7 +231,7 @@ export default class SceneGame extends Phaser.Scene {
                             throw 'undefined building type for this race: ' + race
                     }
 
-                    data = new Village(building.row, building.col, x, y, player, name);
+                    data = new Village(row, col, x, y, player, name);
                     data.population = building.population;
                     data.amountFood = building.amountFood;
                     data.amountStone = building.amountStone;
@@ -248,12 +248,12 @@ export default class SceneGame extends Phaser.Scene {
                 .setDataEnabled()
                 .on('pointerdown', this.clickedVillage);
 
-            this.board.boardBuildings[building.row][building.col] = tempSprite;
+            this.board.addBuilding(row, col, tempSprite);
 
             this.playerBuildings[building.player].push(tempSprite);
 
-            tempSprite.data.set('row', building.row);
-            tempSprite.data.set('col', building.col);
+            tempSprite.data.set('row', row);
+            tempSprite.data.set('col', col);
             tempSprite.data.set('data', data);
 
             tempText = this.add.text(x, y + 100)
@@ -261,11 +261,10 @@ export default class SceneGame extends Phaser.Scene {
                 .setFontSize(38)
                 .setAlign('center')
                 .setOrigin(0.5)
-
                 .setDepth(1)
                 .setBackgroundColor('#000000');
 
-            this.textsVillageName.push(tempText);
+            this.board.addText(row, col, tempText);
 
         });
 
