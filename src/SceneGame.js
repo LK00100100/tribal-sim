@@ -29,9 +29,9 @@ export default class SceneGame extends Phaser.Scene {
                 type: 'village',
                 player: 1,
                 population: 20,
-                amountFood: 100,
-                amountStone: 25,
-                amountWood: 50
+                amountFood: 1000,
+                amountStone: 250,
+                amountWood: 500
             },
             {
                 row: 10, col: 8,
@@ -902,6 +902,8 @@ export default class SceneGame extends Phaser.Scene {
         console.log('building clicked');
 
         let scene = this.scene;
+        let building = this.getData("data");
+        console.log(building.health);
 
         if (pointer.leftButtonDown()) {
             scene.deselectEverything();

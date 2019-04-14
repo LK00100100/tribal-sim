@@ -82,10 +82,16 @@ export default class RatsAi extends Ai {
             else {
                 let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(scene.board, territoryMoves, this.playerNumber);
 
-                //if we're standing on a building, attack it and end turn
-                if (true) {
+                let buildingSprite = scene.board.getBuilding(row, col);
 
-                    //return;
+                //if we're standing on a building and it's not ours,
+                //attack it and end turn
+                if (buildingSprite != null) {
+                    let building = buildingSprite.getData("data");
+                    if (building.player != this.playerNumber) {
+                        scene.armyManager.armyAttackBuilding(armySprite, buildingSprite);
+                        return;
+                    }
                 }
 
                 //if there's an enemy in range, move to it and attack it.

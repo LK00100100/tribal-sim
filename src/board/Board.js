@@ -129,6 +129,9 @@ export default class Board {
     }
 
     destroyText(row, col) {
+        if (this.boardText[row][col] == null)
+            return;
+
         this.boardText[row][col].destroy();
         this.boardText[row][col] = null;
     }

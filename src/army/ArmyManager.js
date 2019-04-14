@@ -559,7 +559,8 @@ export default class ArmyManager {
      * @param {*} armySprite 
      */
     armyAttackBuilding(armySprite, buildingSprite) {
-        console.log("attacking building");
+
+        //TODO: take out some moves
 
         this.simulateArmyAttackingBuilding(armySprite, buildingSprite);
     }
