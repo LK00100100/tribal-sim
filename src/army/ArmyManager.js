@@ -452,23 +452,23 @@ export default class ArmyManager {
         console.log("army health: " + army.getUnitsHealthStatus());
         console.log("enemy building HP: " + building.health);
 
-        simulateArmyAttackingBuildingOneWay(army, building);
-        simulateBuildingAttackingArmyOneWay(building, army);
+        this.simulateArmyAttackingBuildingOneWay(army, building);
+        this.simulateBuildingAttackingArmyOneWay(building, army);
 
         console.log("purge dead");
         this.purgeDeadUnits(army);
         console.log("purged...");
 
         console.log("army health: " + army.getUnitsHealthStatus());
-        console.log("enemy army health: " + enemyArmy.getUnitsHealthStatus());
+        console.log("enemy building HP: " + building.health);
 
         //TODO: probably remove
         //remove dead armies and deselect
         if (army.size() == 0)
             this.destroyArmy(army);
 
-        if (building.health() == 0)
-            this.destroyArmy(enemyArmy);
+        if (building.health <= 0)
+            scene.board.destroyBuilding(building.row, building.col);
 
     }
 
@@ -543,17 +543,26 @@ export default class ArmyManager {
         if (scene.selectedArmy == null)
             return;
 
-        let army = scene.selectedArmy;
+        let armySprite = scene.selectedArmy;
+        let army = armySprite.getData("data");
 
-        armyAttackBuilding(army);
+        let buildingSprite = scene.board.getBuilding(army.row, army.col);
+
+        scene.armyManager.armyAttackBuilding(armySprite, buildingSprite);
+
+        scene.updateUI();
     }
 
     /**
      * attack the thing you are standing on
      * @param {*} armySprite 
      */
-    armyAttackBuilding(armySprite) {
+    armyAttackBuilding(armySprite, buildingSprite) {
+        let army = armySprite.getData("data");
+        let building = buildingSprite.getData("data");
         console.log("attacking building");
+
+        this.simulateArmyAttackingBuilding(army, building);
     }
 
     //TODO: probably just sprites argument

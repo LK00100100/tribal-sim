@@ -1,6 +1,8 @@
 import VillageBuilding from './VillageBuilding.js';
 import Races from '../../Races.js';
 
+import GameUtils from "../../utils/GameUtils";
+
 export default class Village extends VillageBuilding {
 
     constructor(row, col, x, y, player, name) {
