@@ -3,8 +3,9 @@ import Races from '../../Races.js';
 
 export default class Village extends VillageBuilding {
 
-    constructor(row, col, x, y, player, name, ) {
+    constructor(row, col, x, y, player, name) {
         super(row, col, x, y, player);
+        this.village = this;
 
         this.name = name;
 
@@ -27,7 +28,7 @@ export default class Village extends VillageBuilding {
         //when people are starving, this is calculated only once and reused.
         this.starvationAmount = 0;
 
-        this.village = this;
+        this.health = 1000;
     }
 
     /**

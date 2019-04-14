@@ -9,6 +9,8 @@ export default class Building {
         this.y = y;
 
         this.player = player;
+
+        this.health = 100;
     }
 
 }

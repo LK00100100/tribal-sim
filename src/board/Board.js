@@ -290,6 +290,10 @@ export default class Board {
         return answer;
     }
 
+    /**
+     * get buildings's data from coordinates
+     * @param {*} coordinates array of {row, col}
+     */
     getBuildingsData(coordinates) {
 
         let buildingsData = [];
@@ -310,11 +314,18 @@ export default class Board {
      * @param {*} col 
      * returns a unitSprite or null if none
      */
-    getUnits(row, col){
-        if(!this.isWithinBounds(row, col))
+    getUnits(row, col) {
+        if (!this.isWithinBounds(row, col))
             return null;
 
         return this.boardUnits[row][col];
+    }
+
+    getBuilding(row, col) {
+        if (!this.isWithinBounds(row, col))
+            return null;
+
+        return this.boardBuildings[row][col];
     }
 
     /**
@@ -659,8 +670,8 @@ export default class Board {
      * @param {*} col 
      * @returns terrainSprite or null
      */
-    getTerrain(row, col){
-        if(!this.isWithinBounds(row, col))
+    getTerrain(row, col) {
+        if (!this.isWithinBounds(row, col))
             return null;
 
         return this.boardTerrainSprites[row][col];

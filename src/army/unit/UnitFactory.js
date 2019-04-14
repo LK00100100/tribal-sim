@@ -21,6 +21,7 @@ export default class UnitFactory {
     static getUnitSprite(scene, village, race) {
 
         //TODO: remove card code stuff
+        //TODO: repeat code
         let armySprite;
         switch (race) {
             case Races.CAVEMEN:

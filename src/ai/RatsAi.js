@@ -48,6 +48,8 @@ export default class RatsAi {
 
         this.armies.forEach(armySprite => {
             let armyData = armySprite.data.get("data");
+            let row = armyData.row;
+            let col = armyData.col;
             let village = armyData.village;
 
             //TODO: fix this. ignore units on board and "move through" them
@@ -83,6 +85,12 @@ export default class RatsAi {
             else {
                 let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(scene.board, territoryMoves, this.playerNumber);
 
+                //if we're standing on a building, attack it and end turn
+                if (true) {
+
+                    //return;
+                }
+
                 //if there's an enemy in range, move to it and attack it.
                 if (enemySprites.length > 0) {
                     let enemySprite = enemySprites[0];
@@ -99,7 +107,7 @@ export default class RatsAi {
                     let pickedCoordinate = territoryMoves[pickedIndex];
 
                     let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
-                    //if we stand still, reproduce
+                    //if we stand still, reproduce and stop
                     if (pickedCoordinate.row == armyData.row && pickedCoordinate.col == armyData.col) {
                         console.log("reproducing at: " + armyData.row + "," + armyData.col);
 
@@ -111,6 +119,7 @@ export default class RatsAi {
                             }
                         }
 
+                        return
                     }
                     else {
                         scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);

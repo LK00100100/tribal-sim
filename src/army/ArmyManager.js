@@ -277,6 +277,11 @@ export default class ArmyManager {
         }
     }
 
+    /**
+     * you are selecting your own army. for human-players
+     * @param {*} pointer 
+     * @param {*} armySprite 
+     */
     selectArmy(pointer, armySprite) {
         let scene = this.scene;
 
@@ -444,6 +449,23 @@ export default class ArmyManager {
             if (unit.health <= 0)
                 armyData.units.splice(i, 1);
         }
+    }
+
+    clickedArmyAttackBuilding(pointer) {
+        let scene = this.scene;
+
+        if(scene.selectedArmy == null)
+            return;
+
+        let army = scene.selectedArmy;
+        let armyData = army.getData("data");
+    }
+
+    /**
+     * attack the thing you are standing on
+     * @param {*} armySprite 
+     */
+    armyAttackBuilding(armySprite) {
     }
 
     //TODO: probably just sprites argument

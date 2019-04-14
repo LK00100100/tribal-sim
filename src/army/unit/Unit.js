@@ -4,6 +4,7 @@ export default class Unit {
 
     constructor(health) {
         this.health = health;
+        this.maxHealth = health;
 
         this.attackBase = 1;
         this.attackBonusMin = 0;

@@ -1,7 +1,8 @@
 import Building from '../Building.js';
 
 /**
- * A building connected to a village
+ * A building connected to a village.
+ * a village is connected to itself.
  */
 export default class VillageBuilding extends Building {
 
