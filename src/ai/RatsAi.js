@@ -2,15 +2,12 @@ import Village from '../buildings/village_buildings/Village';
 import GameUtils from '../utils/GameUtils';
 import GameUtilsArmy from '../utils/GameUtilsArmy';
 import Rat from '../army/unit/Rat';
+import Ai from './Ai.js';
 
-export default class RatsAi {
+export default class RatsAi extends Ai {
 
     constructor(scene, playerNumber) {
-        this.scene = scene;
-        this.playerNumber = playerNumber;
-
-        this.armies = scene.playerArmies[playerNumber];
-        this.buildings = scene.playerBuildings[playerNumber];
+        super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber])
 
         this.territorySize = 3;
     }
