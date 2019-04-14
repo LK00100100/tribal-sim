@@ -29,6 +29,9 @@ export default class Village extends VillageBuilding {
         this.starvationAmount = 0;
 
         this.health = 1000;
+        this.attackBase = 5;
+        this.attackBonusMin = 0;
+        this.attackBonusMax = 5;
     }
 
     /**
@@ -128,6 +131,11 @@ export default class Village extends VillageBuilding {
         this.incomeStone = 5 + (countsOfBuildings.countQuarry * 5);
         this.incomeWood = 10 + (countsOfBuildings.countLumberMill * 10);
 
+    }
+
+    rollAttack() {
+        let bonus = GameUtils.getRandomIntFromRange(this.attackBonusMin, this.attackBonusMax);
+        return this.attackBase + bonus;
     }
 
 }

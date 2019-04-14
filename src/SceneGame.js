@@ -485,7 +485,14 @@ export default class SceneGame extends Phaser.Scene {
         x = 1150;
         y = -160;
 
-        this.txtEnemyBuilding = this.add.text(x, y + 120)
+        this.txtEnemyBuildingPlayer = this.add.text(x, y + 120)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setOrigin(1, 0) //right-to-left text
+            .setShadow(3, 3, '#000000', 3);
+
+        this.txtEnemyBuildingHealth = this.add.text(x, y + 180)
             .setScrollFactor(0)
             .setFontSize(50)
             .setDepth(100)
@@ -493,14 +500,15 @@ export default class SceneGame extends Phaser.Scene {
             .setShadow(3, 3, '#000000', 3);
 
         //TODO: redo naming
-        this.btnEnemyBuildingAttack = this.add.sprite(x, y + 180, 'btnArmyAttackBuilding')
+        this.btnEnemyBuildingAttack = this.add.sprite(x, y + 240, 'btnArmyAttackBuilding')
             .setScrollFactor(0)
             .setInteractive()
             .setOrigin(1, 0) //right-to-left text
             .setDepth(100)
             .on('pointerdown', this.armyManager.clickedArmyAttackBuilding);
 
-        this.uiArmyEnemyBuilding.push(this.txtEnemyBuilding);
+        this.uiArmyEnemyBuilding.push(this.txtEnemyBuildingPlayer);
+        this.uiArmyEnemyBuilding.push(this.txtEnemyBuildingHealth);
         this.uiArmyEnemyBuilding.push(this.btnEnemyBuildingAttack);
 
         //hide some ui elements
@@ -569,11 +577,14 @@ export default class SceneGame extends Phaser.Scene {
         this.controls.update(delta);
     }
 
+    /**
+     * updates and shows relevant UI
+     */
     updateUI() {
         let scene = this;
 
         //TODO: replace with icons later
-        this.txtDay.setText('day: ' + scene.day);
+        this.txtDay.setText('Day: ' + scene.day);
 
         //village UI
         if (scene.selectedVillage != null) {
@@ -616,8 +627,8 @@ export default class SceneGame extends Phaser.Scene {
             let building = scene.board.getBuilding(row, col);
             if (building != null) {
                 let buildingData = building.getData("data");
-                if (buildingData.player != scene.playerHuman){
-                    scene.showArmyEnemyBuilding();
+                if (buildingData.player != scene.playerHuman) {
+                    scene.showUiBuildingEnemy(buildingData);
                 }
             }
         }
@@ -743,7 +754,7 @@ export default class SceneGame extends Phaser.Scene {
 
                 //killed through attrition
                 if (army.size() == 0) {
-                    this.armyManager.removeArmy(army);
+                    this.armyManager.destroyArmy(army);
                 }
             });
         }
@@ -995,8 +1006,15 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    showArmyEnemyBuilding(){
+    /**
+     * updates and shows UI
+     * @param {*} buildingData 
+     */
+    showUiBuildingEnemy(buildingData) {
         let scene = this;
+
+        scene.txtEnemyBuildingPlayer.setText(buildingData.player + " :Player");
+        scene.txtEnemyBuildingHealth.setText(buildingData.health + " :Health");
         GameUtils.showGameObjects(scene.uiArmyEnemyBuilding);
     }
 }

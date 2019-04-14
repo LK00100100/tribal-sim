@@ -106,6 +106,13 @@ export default class Board {
         this.boardUnits[row][col] = null;
     }
 
+    destroyBuilding(row, col) {
+        if (this.boardBuildings[row][col] != null) {
+            this.boardBuildings[row][col].destroy();
+            this.boardBuildings[row][col] = null;
+        }
+    }
+
     /**
      * is this within the board?
      * @param {*} row 

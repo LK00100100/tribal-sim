@@ -398,17 +398,17 @@ export default class ArmyManager {
         this.purgeDeadUnits(yourArmy);
         this.purgeDeadUnits(enemyArmy);
 
-        console.log("purge dead...");
+        console.log("purged...");
         console.log("army health: " + yourArmy.getUnitsHealthStatus());
         console.log("enemy army health: " + enemyArmy.getUnitsHealthStatus());
 
         //TODO: probably remove
         //remove dead armies and deselect
         if (yourArmy.size() == 0)
-            this.removeArmy(yourArmy);
+            this.destroyArmy(yourArmy);
 
         if (enemyArmy.size() == 0)
-            this.removeArmy(enemyArmy);
+            this.destroyArmy(enemyArmy);
 
     }
 
@@ -426,9 +426,7 @@ export default class ArmyManager {
             let attack = unit.rollAttack();
 
             //enemy defense
-            let defense = 0;
-            if (defenseRolls.length > 0)
-                defense = defenseRolls.shift();
+            let defense = (defenseRolls.length > 0) ? defenseRolls.shift() : 0;
 
             let damage = attack - defense;
             damage = damage > 0 ? damage : 0;
@@ -443,6 +441,93 @@ export default class ArmyManager {
 
     }
 
+    /**
+     * 
+     * @param {*} yourArmy data
+     * @param {*} enemyBuilding data
+     */
+    simulateArmyAttackingBuilding(army, building) {
+        let scene = this.scene;
+
+        console.log("army health: " + army.getUnitsHealthStatus());
+        console.log("enemy building HP: " + building.health);
+
+        simulateArmyAttackingBuildingOneWay(army, building);
+        simulateBuildingAttackingArmyOneWay(building, army);
+
+        console.log("purge dead");
+        this.purgeDeadUnits(army);
+        console.log("purged...");
+
+        console.log("army health: " + army.getUnitsHealthStatus());
+        console.log("enemy army health: " + enemyArmy.getUnitsHealthStatus());
+
+        //TODO: probably remove
+        //remove dead armies and deselect
+        if (army.size() == 0)
+            this.destroyArmy(army);
+
+        if (building.health() == 0)
+            this.destroyArmy(enemyArmy);
+
+    }
+
+    /**
+     * 
+     * @param {*} yourArmy data
+     * @param {*} building data
+     */
+    simulateArmyAttackingBuildingOneWay(yourArmy, building) {
+
+        let yourUnits = yourArmy.units;
+
+        yourUnits.forEach(unit => {
+            //your attack
+            let attack = unit.rollAttack();
+
+            //enemy defense
+            building.health -= attack;
+        });
+
+    }
+
+    /**
+     * a building (with population) fights back against an occupying army.
+     * @param {*} building data
+     * @param {*} enemyArmy data
+     */
+    simulateBuildingAttackingArmyOneWay(building, enemyArmy) {
+
+        if (building.population == null)
+            return;
+
+        let enemyUnits = enemyArmy.units;
+
+        let currentTarget = 0;
+        let defenseRolls = enemyArmy.rollDefenses();
+
+        for (let i = 0; i < building.population; i++) {
+
+            //your attack
+            let attack = building.rollAttack();
+
+            //enemy defense
+            let defense = (defenseRolls.length > 0) ? defenseRolls.shift() : 0;
+
+            let damage = attack - defense;
+            damage = damage > 0 ? damage : 0;
+
+            let enemyUnit = enemyUnits[currentTarget];
+            enemyUnit.health -= damage;
+
+            currentTarget++;
+            if (currentTarget >= enemyUnits.length)
+                currentTarget = 0;
+
+        }
+
+    }
+
     purgeDeadUnits(armyData) {
         for (let i = armyData.units.length - 1; i >= 0; i--) {
             let unit = armyData.units[i];
@@ -452,13 +537,15 @@ export default class ArmyManager {
     }
 
     clickedArmyAttackBuilding(pointer) {
+        console.log("clicked attacking building");
         let scene = this.scene;
 
-        if(scene.selectedArmy == null)
+        if (scene.selectedArmy == null)
             return;
 
         let army = scene.selectedArmy;
-        let armyData = army.getData("data");
+
+        armyAttackBuilding(army);
     }
 
     /**
@@ -466,10 +553,11 @@ export default class ArmyManager {
      * @param {*} armySprite 
      */
     armyAttackBuilding(armySprite) {
+        console.log("attacking building");
     }
 
     //TODO: probably just sprites argument
-    removeArmy(armyData) {
+    destroyArmy(armyData) {
         let scene = this.scene;
         let row = armyData.row;
         let col = armyData.col;
@@ -494,9 +582,6 @@ export default class ArmyManager {
         }
 
         sprite.destroy();
-
-        //TODO: deselect dead enemy
-
     }
 
     armyAttackCancel() {
