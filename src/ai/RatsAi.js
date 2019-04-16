@@ -1,7 +1,7 @@
-import Village from '../buildings/village_buildings/Village';
-import GameUtils from '../utils/GameUtils';
-import GameUtilsArmy from '../utils/GameUtilsArmy';
-import Rat from '../army/unit/Rat';
+import Village from '../buildings/village_buildings/Village.js';
+import GameUtils from '../utils/GameUtils.js';
+import GameUtilsArmy from '../utils/GameUtilsArmy.js';
+import Rat from '../army/unit/Rat.js';
 import Ai from './Ai.js';
 
 export default class RatsAi extends Ai {
@@ -40,7 +40,7 @@ export default class RatsAi extends Ai {
         /**
          * the territory is 3 movement points from the rat cave
          * rats should wander their "territory"
-         * rats attack & persue anything within their movement range and within their territory.
+         * rats attack & pursue anything within their movement range and within their territory.
          */
 
         this.armies.forEach(armySprite => {

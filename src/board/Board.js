@@ -221,25 +221,26 @@ export default class Board {
     }
 
     /**
-     * gets an array of rows & cols of buildings connected to target village.
-     * @param {*} targetVillage data of
+     * gets an array of buildings connected to target village.
+     * including target village
+     * @param {*} targetVillage data
+     * @returns array of buildingSprites
      */
-    getRelatedBuildings(targetVillage) {
-
+    getVillageBuildings(targetVillage) {
         let row = targetVillage.row;
         let col = targetVillage.col;
 
-        return this.getRelatedBuildingsHelper(targetVillage, row, col, new Set());
+        return this.getVillageBuildingsHelper(targetVillage, row, col, new Set());
     }
 
     /**
-     * returns an array of row/col with Buildings connected to the target village
+     * used by getVillageBuildings()
      * @param {*} targetVillage data of
      * @param {*} row 
      * @param {*} col 
      * @param {*} visited - a set of visited coordinates 
      */
-    getRelatedBuildingsHelper(targetVillage, row, col, visited) {
+    getVillageBuildingsHelper(targetVillage, row, col, visited) {
 
         let answer = [];
 
@@ -271,18 +272,17 @@ export default class Board {
             return answer;
 
         //connection found, so spread
-        if (building.village == targetVillage || building instanceof Village) {
+        if (building.village == targetVillage) {
             answer.push({ row: row, col: col });
 
             for (let d = 0; d < this.directions.length; d++) {
                 let i = this.directions[d][0];
                 let j = this.directions[d][1];
-                answer = answer.concat(this.getRelatedBuildingsHelper(targetVillage, row + i, col + j, visited));
+                answer = answer.concat(this.getVillageBuildingsHelper(targetVillage, row + i, col + j, visited));
             }
         }
 
         return answer;
-
     }
 
     /**
@@ -535,7 +535,7 @@ export default class Board {
         GameUtils.clearTintArray(scene.uiVillage);
         gameSprite.setTint('0x00ff00');
 
-        scene.possibleMoves = scene.board.getRelatedBuildings(village);
+        scene.possibleMoves = scene.board.getVillageBuildings(village);
         scene.possibleMoves = scene.board.getNeighbors(scene.possibleMoves);
 
         //filter out impossible moves

@@ -8,6 +8,7 @@ import ArmyManager from './army/ArmyManager.js';
 import Races from './Races.js';
 
 import RatsAi from './ai/RatsAi.js';
+import CavemenAi from './ai/CavemenAi.js';
 
 export default class SceneGame extends Phaser.Scene {
 
@@ -566,7 +567,7 @@ export default class SceneGame extends Phaser.Scene {
         this.playerBuildings;
 
         //TODO: make dynamic-y
-        this.playersAi[2] = null;
+        this.playersAi[2] = new CavemenAi(this);
         this.playersAi[3] = new RatsAi(this, 3);
 
         this.updateUI();
@@ -590,7 +591,7 @@ export default class SceneGame extends Phaser.Scene {
             let village = scene.selectedVillage.data.get('data');
 
             //TODO: put this in some sort of village manager. updateUi should do no calcs
-            let coordinates = scene.board.getRelatedBuildings(village);
+            let coordinates = scene.board.getVillageBuildings(village);
             let buildingsData = scene.board.getBuildingsData(coordinates);
             let countsOfBuildings = scene.board.countBuildings(buildingsData);
             village.calculateIncome(countsOfBuildings);
@@ -675,6 +676,7 @@ export default class SceneGame extends Phaser.Scene {
 
         scene.btnEndTurn.clearTint();
 
+        console.log('===================================');
         console.log('\nstart of your turn: ');
         scene.updateUI();
     }
@@ -728,7 +730,7 @@ export default class SceneGame extends Phaser.Scene {
             let data = building.data.get('data');
 
             if (data instanceof Village) {
-                let coordinates = this.board.getRelatedBuildings(data);
+                let coordinates = this.board.getVillageBuildings(data);
                 let buildingsData = this.board.getBuildingsData(coordinates);
                 let countsOfBuildings = this.board.countBuildings(buildingsData);
 
