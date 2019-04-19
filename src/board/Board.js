@@ -1,9 +1,5 @@
 
 import Village from '../buildings/village_buildings/Village.js';
-import Farm from '../buildings/village_buildings/Farm.js';
-import LumberMill from '../buildings/village_buildings/LumberMill.js';
-import Quarry from '../buildings/village_buildings/Quarry.js';
-import Housing from '../buildings/village_buildings/Housing.js';
 
 import GameUtils from '../utils/GameUtils.js';
 
@@ -446,15 +442,13 @@ export default class Board {
         });
     }
 
-    placeBuilding(pointer, terrainSprite) {
+    //TODO: put in building mangaer
+    placeBuildingPlayer(pointer, terrainSprite) {
 
         let scene = terrainSprite.scene;
 
         let row = terrainSprite.data.get('row');
         let col = terrainSprite.data.get('col');
-
-        let x = terrainSprite.x;
-        let y = terrainSprite.y;
 
         if (scene.selectedBuyBuilding == null)
             return;
@@ -475,12 +469,32 @@ export default class Board {
         if (!isIn)
             return false;
 
-        let village = scene.selectedVillage.data.get('data');
+        this.placeBuilding(scene.selectedVillage, terrainSprite, scene.selectedBuyBuilding);
+
+        //re-calculate income
+        scene.updateUI();
+
+        //we're done here
+        GameUtils.clearTintArray(scene.uiVillage);
+        this.unhighlightTiles(scene.possibleMoves);
+        scene.possibleMoves = null;
+        scene.selectedBuyBuilding = null;
+    }
+
+    //TODO: put in building mangaer
+    placeBuilding(selectedVillage, terrainSprite, buildingType) {
+        let scene = selectedVillage.scene;
+        let row = terrainSprite.data.get('row');
+        let col = terrainSprite.data.get('col');
+        let x = terrainSprite.x;
+        let y = terrainSprite.y;
+
+        let village = selectedVillage.data.get('data');
 
         let building = BuildingFactory
-            .getVillageBuilding(scene.selectedBuyBuilding, row, col, x, y, village);
+            .getVillageBuilding(buildingType, row, col, x, y, village);
 
-        let tempSprite = scene.add.sprite(x, y, 'build' + scene.selectedBuyBuilding)
+        let tempSprite = scene.add.sprite(x, y, 'build' + buildingType)
             .setInteractive()
             .setDataEnabled()
             .setDepth(1)
@@ -495,17 +509,9 @@ export default class Board {
 
         //TODO: change this later to reflect 'final' building costs
         village.amountWood -= 100;
-
-        //re-calculate income
-        scene.updateUI();
-
-        //we're done here
-        GameUtils.clearTintArray(scene.uiVillage);
-        this.unhighlightTiles(scene.possibleMoves);
-        scene.possibleMoves = null;
-        scene.selectedBuyBuilding = null;
     }
 
+    //TODO: rename to selectBuy
     buyBuilding(pointer, gameSprite, buildingType) {
 
         let scene = gameSprite.scene;
@@ -513,6 +519,7 @@ export default class Board {
         if (pointer.rightButtonDown())
             return;
 
+        //deselect
         if (gameSprite.isTinted) {
             gameSprite.clearTint();
             scene.board.unhighlightTiles(scene.possibleMoves);
@@ -525,7 +532,7 @@ export default class Board {
 
         let village = scene.selectedVillage.data.get('data');
 
-        //TODO: ensure enough resources from this specific village
+        //TODO: ensure enough resources from this specific building
         if (village.amountWood < 100) {
             console.log('not enough wood. need 100');
             return;
@@ -550,44 +557,6 @@ export default class Board {
         }
 
         scene.board.highlightTiles(scene.possibleMoves);
-
-    }
-
-    countBuildings(connectedBuildings) {
-
-        let countsOfBuildings = {
-            countFarm: 0,
-            countLumberMill: 0,
-            countQuarry: 0,
-            countHousing: 0,
-        }
-
-        connectedBuildings.forEach(building => {
-
-            if (building instanceof Village) {
-                //do nothing    
-            }
-            else if (building instanceof Farm) {
-                countsOfBuildings.countFarm++;
-
-            }
-            else if (building instanceof LumberMill) {
-                countsOfBuildings.countLumberMill++;
-
-            }
-            else if (building instanceof Quarry) {
-                countsOfBuildings.countQuarry++;
-
-            }
-            else if (building instanceof Housing) {
-
-                countsOfBuildings.countHousing++;
-            }
-            else
-                console.log('cannot count this building');
-        });
-
-        return countsOfBuildings;
 
     }
 

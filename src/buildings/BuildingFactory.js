@@ -6,6 +6,7 @@ import Village from './village_buildings/Village.js';
 
 export default class BuildingFactory {
 
+    //TODO: use enums like races
     //TODO: reduce this method header (x, y)
     static getVillageBuilding(buildingType, row, col, x, y, village) {
         let player = village.player;

@@ -1,5 +1,7 @@
 
 import GameUtils from './utils/GameUtils.js';
+import GameUtilsBuilding from './utils/GameUtilsBuilding.js';
+
 import Board from './board/Board.js';
 import Village from './buildings/village_buildings/Village.js';
 
@@ -327,6 +329,7 @@ export default class SceneGame extends Phaser.Scene {
             .setDepth(100)
             .on('pointerdown', this.armyManager.createArmyButton);
 
+        //TODO: pull this out to building manager
         this.btnBuildFarm = this.add.sprite(-200, y + 440, 'btnBuildFarm')
             .setScrollFactor(0)
             .setInteractive()
@@ -593,7 +596,7 @@ export default class SceneGame extends Phaser.Scene {
             //TODO: put this in some sort of village manager. updateUi should do no calcs
             let coordinates = scene.board.getVillageBuildings(village);
             let buildingsData = scene.board.getBuildingsData(coordinates);
-            let countsOfBuildings = scene.board.countBuildings(buildingsData);
+            let countsOfBuildings = GameUtilsBuilding.countBuildings(buildingsData);
             village.calculateIncome(countsOfBuildings);
 
             let populationGrowth = village.getPopulationGrowthDay(countsOfBuildings.countHousing);
@@ -732,7 +735,7 @@ export default class SceneGame extends Phaser.Scene {
             if (data instanceof Village) {
                 let coordinates = this.board.getVillageBuildings(data);
                 let buildingsData = this.board.getBuildingsData(coordinates);
-                let countsOfBuildings = this.board.countBuildings(buildingsData);
+                let countsOfBuildings = GameUtilsBuilding.countBuildings(buildingsData);
 
                 data.calculateIncome(countsOfBuildings);
                 data.calculateDay(countsOfBuildings);
@@ -881,7 +884,7 @@ export default class SceneGame extends Phaser.Scene {
         if (pointer.rightButtonDown()) {
             //place building
             if (scene.selectedBuyBuilding != null) {
-                scene.board.placeBuilding(pointer, this);
+                scene.board.placeBuildingPlayer(pointer, this);
                 return
             }
 

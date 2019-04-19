@@ -1,6 +1,7 @@
 import Village from '../buildings/village_buildings/Village.js';
 import GameUtils from '../utils/GameUtils.js';
 import GameUtilsArmy from '../utils/GameUtilsArmy.js';
+import GameUtilsBuilding from '../utils/GameUtilsBuilding.js';
 import Caveman from '../army/unit/Caveman.js';
 import Ai from './Ai.js';
 
@@ -25,13 +26,34 @@ export default class CavemenAi extends Ai {
                 console.log('   village starvation pop:' + buildingData.starvationAmount);
 
                 let villageBuildings = scene.board.getVillageBuildings(buildingData);
+                let buildingCounts = GameUtilsBuilding.countBuildings(villageBuildings);
+                
+                let countFarm = buildingCounts.countFarm;
+                let countHousing = buildingCounts.countHousing;
+                let countLumberMill = buildingCounts.countLumberMill;
+                let countQuarry = buildingCounts.countQuarry;
+                
+                if(countLumberMill <= 3){
+
+                }
+
+                if(countFarm <= 3){
+                    
+                }
+
+                //if we have enough food
+                if(buildingData.amountFood > 1 && countHousing <= 3){
+
+
+                }
+
 
             }
 
         });
 
         this.armies.forEach(armySprite => {
-            let armyData = armySprite.data.get("data");
+            let armyData = armySprite.getData("data");
             let row = armyData.row;
             let col = armyData.col;
             let village = armyData.village;
@@ -39,5 +61,6 @@ export default class CavemenAi extends Ai {
         });
 
     }
+
 
 }
