@@ -6,7 +6,8 @@ This game uses Phaser 3.
 **This repository is under construction. This game will be published when completed**
 
 ## Setup and notes
-1) In root directory, type the following to install all of the necessary packages. **Do this once.**
+1) You will need to download "node package manager (NPM)" which comes with node.js [(Download)](https://nodejs.org/en/download/). In root directory, type the following to install all of the necessary packages. **Do this once.**
+
 ```
 npm install 
 ```
