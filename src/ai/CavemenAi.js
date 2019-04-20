@@ -9,6 +9,8 @@ export default class CavemenAi extends Ai {
 
     constructor(scene, playerNumber) {
         super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber])
+
+        this.scene = scene;
     }
 
     calculateTurn() {
@@ -34,10 +36,6 @@ export default class CavemenAi extends Ai {
 
                 //count buildings
                 let buildingCounts = GameUtilsBuilding.countBuildings(buildingsData);
-                let countFarm = buildingCounts.countFarm;
-                let countHousing = buildingCounts.countHousing;
-                let countLumberMill = buildingCounts.countLumberMill;
-                let countQuarry = buildingCounts.countQuarry;
 
                 //if we have a spot to build
                 if (buildableTiles.length > 0) {
@@ -46,22 +44,9 @@ export default class CavemenAi extends Ai {
                     let pickedTile = buildableTiles[randomIndex];
                     let terrainSprite = scene.board.getTerrain(pickedTile.row, pickedTile.col);
 
-                    if (countLumberMill < 3) {
-                        scene.board.placeBuilding(building, terrainSprite, "LumberMill");
-                    }
+                    this.stageOneBuilding(buildingCounts, building, terrainSprite);
 
-                    if (countFarm < 4) {
-                        scene.board.placeBuilding(building, terrainSprite, "Farm");
-                    }
-
-                    if (countQuarry < 2) {
-                        scene.board.placeBuilding(building, terrainSprite, "Quarry");
-                    }
-
-                    //if we have enough food
-                    if (countHousing < 3 && countFarm > countHousing) {
-                        scene.board.placeBuilding(building, terrainSprite, "Housing");
-                    }
+                    this.stageTwoBuilding(buildingCounts, building, terrainSprite);
                 }
 
             }
@@ -78,5 +63,54 @@ export default class CavemenAi extends Ai {
 
     }
 
+    stageOneBuilding(buildingCounts, village, terrainSprite) {
+        let scene = this.scene;
+        let countFarm = buildingCounts.countFarm;
+        let countHousing = buildingCounts.countHousing;
+        let countLumberMill = buildingCounts.countLumberMill;
+        let countQuarry = buildingCounts.countQuarry;
+
+        if (countLumberMill < 3) {
+            scene.board.placeBuilding(village, terrainSprite, "LumberMill");
+        }
+
+        if (countFarm < 4) {
+            scene.board.placeBuilding(village, terrainSprite, "Farm");
+        }
+
+        if (countQuarry < 2) {
+            scene.board.placeBuilding(village, terrainSprite, "Quarry");
+        }
+
+        //if we have enough food
+        if (countHousing < 3 && countFarm > countHousing) {
+            scene.board.placeBuilding(village, terrainSprite, "Housing");
+        }
+    }
+
+    stageTwoBuilding(buildingCounts, village, terrainSprite) {
+        let scene = this.scene;
+        let countFarm = buildingCounts.countFarm;
+        let countHousing = buildingCounts.countHousing;
+        let countLumberMill = buildingCounts.countLumberMill;
+        let countQuarry = buildingCounts.countQuarry;
+
+        if (countLumberMill < 6) {
+            scene.board.placeBuilding(village, terrainSprite, "LumberMill");
+        }
+
+        if (countFarm < 6) {
+            scene.board.placeBuilding(village, terrainSprite, "Farm");
+        }
+
+        if (countQuarry < 4) {
+            scene.board.placeBuilding(village, terrainSprite, "Quarry");
+        }
+
+        //if we have enough food
+        if (countHousing < 6 && countFarm > countHousing) {
+            scene.board.placeBuilding(village, terrainSprite, "Housing");
+        }
+    }
 
 }
