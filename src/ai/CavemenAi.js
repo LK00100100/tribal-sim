@@ -42,23 +42,24 @@ export default class CavemenAi extends Ai {
                 //if we have a spot to build
                 if (buildableTiles.length > 0) {
                     //TODO: pick semi-random? based off of distance?
-                    let pickedTile = buildableTiles[0];
+                    let randomIndex = GameUtils.getRandomInt(buildableTiles.length);
+                    let pickedTile = buildableTiles[randomIndex];
                     let terrainSprite = scene.board.getTerrain(pickedTile.row, pickedTile.col);
 
-                    if (countLumberMill <= 3) {
+                    if (countLumberMill < 3) {
                         scene.board.placeBuilding(building, terrainSprite, "LumberMill");
                     }
 
-                    if (countFarm <= 3) {
+                    if (countFarm < 4) {
                         scene.board.placeBuilding(building, terrainSprite, "Farm");
                     }
 
-                    if (countQuarry <= 3) {
+                    if (countQuarry < 2) {
                         scene.board.placeBuilding(building, terrainSprite, "Quarry");
                     }
 
                     //if we have enough food
-                    if (countHousing <= 3 && countFarm > countHousing) {
+                    if (countHousing < 3 && countFarm > countHousing) {
                         scene.board.placeBuilding(building, terrainSprite, "Housing");
                     }
                 }

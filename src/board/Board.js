@@ -499,6 +499,10 @@ export default class Board {
         let col = terrainSprite.getData('col');
         let x = terrainSprite.x;
         let y = terrainSprite.y;
+        
+        //already occupied
+        if(this.boardBuildings[row][col] != null)
+            return;
 
         let village = selectedVillage.getData('data');
 
