@@ -570,7 +570,7 @@ export default class SceneGame extends Phaser.Scene {
         this.playerBuildings;
 
         //TODO: make dynamic-y
-        this.playersAi[2] = new CavemenAi(this);
+        this.playersAi[2] = new CavemenAi(this, 2);
         this.playersAi[3] = new RatsAi(this, 3);
 
         this.updateUI();
@@ -697,11 +697,7 @@ export default class SceneGame extends Phaser.Scene {
         let ai = this.playersAi[player];
 
         //TODO: replace this function with more functions
-        if (this.turnOfPlayer == 3) {
-            console.log('rats doing rat stuff...');
-
-            ai.calculateTurn();
-        }
+        ai.calculateTurn();
 
         this.postTurnPhase(player);
 
@@ -780,6 +776,9 @@ export default class SceneGame extends Phaser.Scene {
         }
 
         console.log('village clicked');
+        console.log('food: ' + this.getData("data").amountFood);
+        console.log('stone: ' + this.getData("data").amountStone);
+        console.log('wood: ' + this.getData("data").amountWood);
 
         if (pointer.rightButtonDown()) {
             if (scene.selectedArmy == null)

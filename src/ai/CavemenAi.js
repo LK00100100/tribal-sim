@@ -12,6 +12,8 @@ export default class CavemenAi extends Ai {
     }
 
     calculateTurn() {
+        console.log('cavemen doing cavemen stuff...');
+
         let scene = this.scene;
 
         this.buildings.forEach(building => {
@@ -25,28 +27,41 @@ export default class CavemenAi extends Ai {
                 console.log('   village pop:' + buildingData.population);
                 console.log('   village starvation pop:' + buildingData.starvationAmount);
 
-                let villageBuildings = scene.board.getVillageBuildings(buildingData);
-                let buildingCounts = GameUtilsBuilding.countBuildings(villageBuildings);
-                
+                //get buildable tiles
+                let villageBuildingTiles = scene.board.getVillageBuildings(buildingData);
+                let buildingsData = scene.board.getBuildingsData(villageBuildingTiles);
+                let buildableTiles = scene.board.getBuildableNeighbors(villageBuildingTiles);
+
+                //count buildings
+                let buildingCounts = GameUtilsBuilding.countBuildings(buildingsData);
                 let countFarm = buildingCounts.countFarm;
                 let countHousing = buildingCounts.countHousing;
                 let countLumberMill = buildingCounts.countLumberMill;
                 let countQuarry = buildingCounts.countQuarry;
-                
-                if(countLumberMill <= 3){
 
+                //if we have a spot to build
+                if (buildableTiles.length > 0) {
+                    //TODO: pick semi-random? based off of distance?
+                    let pickedTile = buildableTiles[0];
+                    let terrainSprite = scene.board.getTerrain(pickedTile.row, pickedTile.col);
+
+                    if (countLumberMill <= 3) {
+                        scene.board.placeBuilding(building, terrainSprite, "LumberMill");
+                    }
+
+                    if (countFarm <= 3) {
+                        scene.board.placeBuilding(building, terrainSprite, "Farm");
+                    }
+
+                    if (countQuarry <= 3) {
+                        scene.board.placeBuilding(building, terrainSprite, "Quarry");
+                    }
+
+                    //if we have enough food
+                    if (countHousing <= 3 && countFarm > countHousing) {
+                        scene.board.placeBuilding(building, terrainSprite, "Housing");
+                    }
                 }
-
-                if(countFarm <= 3){
-                    
-                }
-
-                //if we have enough food
-                if(buildingData.amountFood > 1 && countHousing <= 3){
-
-
-                }
-
 
             }
 

@@ -29,7 +29,6 @@ export default class GameUtilsBuilding {
             }
             else if (building instanceof Quarry) {
                 countsOfBuildings.countQuarry++;
-
             }
             else if (building instanceof Housing) {
                 countsOfBuildings.countHousing++;

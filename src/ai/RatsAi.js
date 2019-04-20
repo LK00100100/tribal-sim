@@ -13,6 +13,7 @@ export default class RatsAi extends Ai {
     }
 
     calculateTurn() {
+        console.log('rats doing rat stuff...');
 
         let scene = this.scene;
 

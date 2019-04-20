@@ -216,11 +216,12 @@ export default class Board {
 
     }
 
+    //TODO: pull this out to buildingsManager
     /**
      * gets an array of buildings connected to target village.
      * including target village
      * @param {*} targetVillage data
-     * @returns array of buildingSprites
+     * @returns array of {row, col}
      */
     getVillageBuildings(targetVillage) {
         let row = targetVillage.row;
@@ -285,7 +286,7 @@ export default class Board {
      * gets only neighbors of tiles.
      * @param {*} tiles 
      */
-    getNeighbors(tiles) {
+    getBuildableNeighbors(tiles) {
 
         let answer = [];
 
@@ -305,6 +306,10 @@ export default class Board {
 
                 if (!this.isWithinBounds(row + i, col + j))
                     continue;
+
+                if (!this.isBuildable(row + i, col + j)) {
+                    continue
+                }
 
                 if (visited.has(key))
                     continue;
@@ -482,14 +487,26 @@ export default class Board {
     }
 
     //TODO: put in building mangaer
+    /**
+     * places building on the board
+     * @param {*} selectedVillage sprite
+     * @param {*} terrainSprite sprite
+     * @param {*} buildingType text of building ("Farm", "Quarry")
+     */
     placeBuilding(selectedVillage, terrainSprite, buildingType) {
-        let scene = selectedVillage.scene;
-        let row = terrainSprite.data.get('row');
-        let col = terrainSprite.data.get('col');
+        let scene = selectedVillage.scene;  //TODO: do this.scene after placed in buildingmanager.
+        let row = terrainSprite.getData('row');
+        let col = terrainSprite.getData('col');
         let x = terrainSprite.x;
         let y = terrainSprite.y;
 
-        let village = selectedVillage.data.get('data');
+        let village = selectedVillage.getData('data');
+
+        //TODO: change this later to reflect 'final' building costs
+        if (village.amountWood < 100)
+            return;
+
+        village.amountWood -= 100;
 
         let building = BuildingFactory
             .getVillageBuilding(buildingType, row, col, x, y, village);
@@ -506,9 +523,6 @@ export default class Board {
 
         this.boardBuildings[row][col] = tempSprite;
         scene.playerBuildings[village.player].push(tempSprite);
-
-        //TODO: change this later to reflect 'final' building costs
-        village.amountWood -= 100;
     }
 
     //TODO: rename to selectBuy
@@ -543,18 +557,7 @@ export default class Board {
         gameSprite.setTint('0x00ff00');
 
         scene.possibleMoves = scene.board.getVillageBuildings(village);
-        scene.possibleMoves = scene.board.getNeighbors(scene.possibleMoves);
-
-        //filter out impossible moves
-        for (let i = scene.possibleMoves.length - 1; i >= 0; i--) {
-            let row = scene.possibleMoves[i].row;
-            let col = scene.possibleMoves[i].col;
-
-            if (!scene.board.isBuildable(row, col)) {
-                scene.possibleMoves.splice(i, 1);
-            }
-
-        }
+        scene.possibleMoves = scene.board.getBuildableNeighbors(scene.possibleMoves);
 
         scene.board.highlightTiles(scene.possibleMoves);
 
