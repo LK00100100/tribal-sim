@@ -20,7 +20,7 @@ export default class SceneGame extends Phaser.Scene {
         super('SceneGame');
 
         this.board = new Board();
-        this.playerRace = ['', 'cavemen', 'cavemen', 'rats'];
+        this.playerRace = ['', 'cavemen', 'cavemen', 'rats', 'rats'];
 
         this.playerHuman = 1;
 
@@ -37,7 +37,7 @@ export default class SceneGame extends Phaser.Scene {
                 amountWood: 500
             },
             {
-                row: 10, col: 8,
+                row: 13, col: 10,
                 name: 'baddies',
                 type: 'village',
                 player: 2,
@@ -55,6 +55,26 @@ export default class SceneGame extends Phaser.Scene {
                 amountFood: 200,
                 amountStone: 0,
                 amountWood: 0
+            },
+            {
+                row: 9, col: 1,
+                name: 'desert rats',
+                type: 'village',
+                player: 4,
+                population: 10,
+                amountFood: 200,
+                amountStone: 0,
+                amountWood: 0
+            },
+            {
+                row: 8, col: 7,
+                name: 'crazy rats',
+                type: 'village',
+                player: 3,
+                population: 10,
+                amountFood: 200,
+                amountStone: 0,
+                amountWood: 0
             }
         ];
 
@@ -65,7 +85,8 @@ export default class SceneGame extends Phaser.Scene {
 
         this.gameOver = false;
 
-        this.numPlayers;
+        //TODO: make this dynamic-y
+        this.numPlayers = 4;
 
         //[player #] = array of army pieces
         //sprites
@@ -146,8 +167,6 @@ export default class SceneGame extends Phaser.Scene {
         /**
          * pre init
          */
-        //TODO: make this dynamic-y
-        this.numPlayers = 3;
 
         this.playerBuildings = [];
         this.playerArmies = [];
@@ -538,7 +557,7 @@ export default class SceneGame extends Phaser.Scene {
         this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(controlConfig);
         this.cam = this.cameras.main;
         var zoomLevel = 0.5;
-        this.cam.setBounds(0, 0, 4096, 4096).setZoom(zoomLevel);
+        this.cam.setBounds(0, 0, 4800, 4800).setZoom(zoomLevel);
 
         /**
          * keyboard
@@ -572,6 +591,7 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: make dynamic-y
         this.playersAi[2] = new CavemenAi(this, 2);
         this.playersAi[3] = new RatsAi(this, 3);
+        this.playersAi[4] = new RatsAi(this, 4);
 
         this.updateUI();
     }
