@@ -1,9 +1,16 @@
 # tribal-sim
+[![HitCount](http://hits.dwyl.io/lk00100100/tribal-sim.svg)](http://hits.dwyl.io/lk00100100/tribal-sim)
+![GitHub](https://img.shields.io/github/license/LK00100100/tribal-sim.svg)
+![RepoSize](https://img.shields.io/github/repo-size/LK00100100/tribal-sim.svg)
+![GitHub stars](https://img.shields.io/github/stars/LK00100100/tribal-sim.svg?style=social)
+
 A strategy game that simulates tribes.
 
 This game uses Phaser 3.
 
 **This repository is under construction. This game will be published when completed**
+
+![alt text](https://raw.githubusercontent.com/LK00100100/tribal-sim/master/tribal-sim-screenshot.PNG "Demo")
 
 ## Setup and notes
 1) You will need to download "node package manager (NPM)" which comes with node.js [(Download)](https://nodejs.org/en/download/). In root directory, type the following to install all of the necessary packages. **Do this once.**
