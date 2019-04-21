@@ -10,6 +10,8 @@ export default class RatsAi extends Ai {
         super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber])
 
         this.territorySize = 3;
+        this.reproductionChance = 0.33;
+        this.reproduceAmount = 1;
     }
 
     calculateTurn() {
@@ -106,28 +108,28 @@ export default class RatsAi extends Ai {
                 }
                 //no enemies around
                 else {
+                    //roll for reproduction. 
+                    //if success, reproduce and stop
+                    let reproduce = GameUtils.getRandomInt(1 / this.reproductionChance);
+                    if (reproduce == 1) {
+                        console.log("reproducing at: " + armyData.row + "," + armyData.col);
+
+                        if (armyData.size() < 50) {
+                            for (let i = 0; i < this.reproduceAmount; i++) {
+                                let rat = new Rat();
+                                armyData.addUnit(rat);
+                            }
+                        }
+                        return;
+                    }
+
                     //pick a random square to move to
                     let pickedIndex = GameUtils.getRandomInt(territoryMoves.length);
                     let pickedCoordinate = territoryMoves[pickedIndex];
 
                     let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
-                    //if we stand still, reproduce and stop
-                    if (pickedCoordinate.row == armyData.row && pickedCoordinate.col == armyData.col) {
-                        console.log("reproducing at: " + armyData.row + "," + armyData.col);
+                    scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
 
-                        if (armyData.size() < 50) {
-                            let reproduceAmount = 1;
-                            for (let i = 0; i < reproduceAmount; i++) {
-                                let rat = new Rat();
-                                armyData.addUnit(rat);
-                            }
-                        }
-
-                        return
-                    }
-                    else {
-                        scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
-                    }
                 }
             }
 

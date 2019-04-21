@@ -6,7 +6,7 @@ var sceneGame = new SceneGame();
 
 var config = {
     type: Phaser.AUTO,
-    width: 1024,
+    width: 800,
     height: 800,
     scene: [sceneGame]  //TODO: put more scenes here
 };
