@@ -9,6 +9,8 @@ This game uses Phaser 3.
 
 **This repository is under construction. This game will be published when completed**
 
+**The art below is all placeholder art**
+
 ![alt text](https://raw.githubusercontent.com/LK00100100/tribal-sim/master/tribal-sim-screenshot.PNG "Demo")
 
 ## Setup and notes
