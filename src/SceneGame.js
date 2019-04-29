@@ -947,6 +947,7 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
+    //TODO: move to armyManager
     /**
      * process army action such as move to targetSprite
      * @param {*} targetSprite building or terrain sprite
@@ -961,10 +962,16 @@ export default class SceneGame extends Phaser.Scene {
             return;
 
         let armySprite = scene.selectedArmy;
+        let army = armySprite.getData("data");
 
         let playerOwner = scene.board.getTileOwnership(targetRow, targetCol);
         let selectedArmyRow = armySprite.data.get("data").row;
         let selectedArmyCol = armySprite.data.get("data").col;
+
+        //own square
+        if(army.row == targetRow && army.col == targetCol){
+            return; //do nothing
+        }
 
         //empty terrain
         if (playerOwner == 0) {
