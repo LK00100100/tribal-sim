@@ -871,6 +871,10 @@ export default class SceneGame extends Phaser.Scene {
         GameUtils.hideGameObjects(this.uiArmyEnemy);
         GameUtils.hideGameObjects(this.uiArmyEnemyBuilding);
 
+        if(this.selectedBuyBuilding != null){
+            this.selectedBuyBuilding = null;
+        }
+
         if (this.selectedVillage != null) {
             this.selectedVillage.clearTint();
             this.selectedVillage = null;
