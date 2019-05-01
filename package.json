@@ -4,15 +4,16 @@
   "description": "tribal simulator game",
   "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
     "dev": "webpack --mode=development --watch",
     "build": "webpack --mode=production",
     "start:dev": "webpack-dev-server --mode=development --port=8888",
     "start": "npm run start:dev"
   },
   "author": "L. Keh: LK00100100@gmail.com",
-  "license": "ISC",
   "devDependencies": {
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
+    "jest": "^24.7.1",
     "webpack": "^4.29.0",
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14"
