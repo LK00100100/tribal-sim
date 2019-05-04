@@ -322,14 +322,16 @@ export default class ArmyManager {
 
         let buildingSprite = scene.board.boardBuildings[row][col];
         let village;
-        if (buildingSprite != null) {
-            let buildingData = buildingSprite.data.get('data');
 
-            if (buildingData.player == army.player)
-                village = buildingData.village;
-            else
-                return;
-        }
+        if (buildingSprite == null)
+            return;
+
+        let buildingData = buildingSprite.data.get('data');
+
+        if (buildingData.player == army.player)
+            village = buildingData.village;
+        else
+            return;
 
         if (village.population < 10)
             return;
@@ -345,6 +347,51 @@ export default class ArmyManager {
         scene.updateUI();
     }
 
+    //TODO: remove prefix army
+
+    /**
+     * puts some people back into their own village
+     * returns the last units in the "units" roster
+     * @param {*} pointer
+     */
+    armyDisbandUnits(pointer) {
+        console.log("disbanding!");
+
+        let scene = this.scene;
+        let army = scene.selectedArmy.getData("data");
+
+        let disbandAmount = army.size() >= 10 ? 10 : army.size();
+
+        let row = army.row;
+        let col = army.col;
+
+        let buildingSprite = scene.board.boardBuildings[row][col];
+        let village;
+
+        if (buildingSprite == null)
+            return;
+
+        let buildingData = buildingSprite.data.get('data');
+
+        //is this our village?
+        if (buildingData.player == army.player)
+            village = buildingData.village;
+        else
+            return;
+
+        for (let i = 0; i < disbandAmount; i++) {
+            army.units.pop();
+        }
+
+        village.population += disbandAmount;
+
+        if (army.size() == 0)
+            scene.armyManager.destroyArmy(army);
+
+        scene.updateUI();
+
+    }
+
     armyAttack(pointer) {
         let scene = this.scene;
 
@@ -356,8 +403,8 @@ export default class ArmyManager {
         let enemyArmy = scene.board.boardUnits[targetRow][targetCol].getData("data");
 
         //TODO: remove this later. let player decide how they want to sort (formation)
-        yourArmy.sortUnitsByHealth();
-        enemyArmy.sortUnitsByHealth();
+        yourArmy.sortUnitsByHealthReverse();
+        enemyArmy.sortUnitsByHealthReverse();
 
         scene.armyManager.simulateArmiesAttacking(yourArmy, enemyArmy);
 

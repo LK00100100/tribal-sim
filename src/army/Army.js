@@ -110,10 +110,24 @@ export default class Army {
         return total;
     }
 
+    /**
+     * sorts by health. low to high
+     */
     sortUnitsByHealth() {
         this.units.sort(function (x, y) {
             if (x.health < y.health) return -1;
             if (x.health > y.health) return 1;
+            return 0;
+        });
+    }
+
+    /**
+     * sorts by health. high to low
+     */
+    sortUnitsByHealthReverse() {
+        this.units.sort(function (x, y) {
+            if (x.health < y.health) return 1;
+            if (x.health > y.health) return -1;
             return 0;
         });
     }

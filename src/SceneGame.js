@@ -151,6 +151,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //ui, army
         this.load.image('btnArmyGetUnits', 'assets/btn-army-get-units.png');
+        this.load.image('btnArmyDisbandUnits', 'assets/btn-army-disband-units.png');
         this.load.image('btnArmyGetFood', 'assets/btn-army-get-food.png');
         this.load.image('btnArmyAttack', 'assets/btn-army-attack.png');
         this.load.image('btnArmyAttackBuilding', 'assets/btn-army-attack-building.png');
@@ -430,7 +431,14 @@ export default class SceneGame extends Phaser.Scene {
             .setOrigin(0)
             .on('pointerdown', this.armyManager.armyGetUnits);
 
-        this.btnArmyGetFood = this.add.sprite(x, y + 420, 'btnArmyGetFood')
+        this.btnArmyDisbandUnits = this.add.sprite(x, y + 420, 'btnArmyDisbandUnits')
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .setOrigin(0)
+            .on('pointerdown', this.armyManager.armyDisbandUnits);
+
+        this.btnArmyGetFood = this.add.sprite(x, y + 560, 'btnArmyGetFood')
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
@@ -442,6 +450,7 @@ export default class SceneGame extends Phaser.Scene {
         this.uiArmy.push(this.txtArmyMoves);
         this.uiArmy.push(this.txtArmyFood);
         this.uiArmy.push(this.btnArmyGetUnits);
+        this.uiArmy.push(this.btnArmyDisbandUnits);
         this.uiArmy.push(this.btnArmyGetFood);
 
         /**
@@ -600,6 +609,8 @@ export default class SceneGame extends Phaser.Scene {
         this.controls.update(delta);
     }
 
+    //TODO: maybe refactor? split up to function
+    //TODO: split up to another class, UI manager?
     /**
      * updates and shows relevant UI
      */
@@ -643,7 +654,7 @@ export default class SceneGame extends Phaser.Scene {
             //display army texts
             GameUtils.showGameObjects(scene.uiArmy);
 
-            scene.showArmyButtons(army);
+            scene.showUiArmyButtons(army);
 
             //if you're standing on an enemy building
             GameUtils.hideGameObjects(scene.uiArmyEnemyBuilding);
@@ -871,7 +882,7 @@ export default class SceneGame extends Phaser.Scene {
         GameUtils.hideGameObjects(this.uiArmyEnemy);
         GameUtils.hideGameObjects(this.uiArmyEnemyBuilding);
 
-        if(this.selectedBuyBuilding != null){
+        if (this.selectedBuyBuilding != null) {
             this.selectedBuyBuilding = null;
         }
 
@@ -969,7 +980,7 @@ export default class SceneGame extends Phaser.Scene {
         let selectedArmyCol = armySprite.data.get("data").col;
 
         //own square
-        if(army.row == targetRow && army.col == targetCol){
+        if (army.row == targetRow && army.col == targetCol) {
             return; //do nothing
         }
 
@@ -1004,7 +1015,8 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    showArmyButtons(armyData) {
+    showUiArmyButtons(armyData) {
+        let scene = this;
 
         let row = armyData.row;
         let col = armyData.col;
@@ -1013,24 +1025,30 @@ export default class SceneGame extends Phaser.Scene {
 
         //on-top-of-village buttons
         //TODO: be able to replenish in friendly villages through trade.
+        //TODO: buttons in a list. text in a list.
         this.btnArmyGetFood.visible = false;
         this.btnArmyGetUnits.visible = false;
+        this.btnArmyDisbandUnits.visible = false;
         if (buildingSprite != null) {
             let buildingData = buildingSprite.data.get('data');
 
+            //if this is your territory
             if (buildingData.player == armyData.player) {
                 this.btnArmyGetFood.visible = true;
+                this.btnArmyDisbandUnits.visible = true;
                 this.btnArmyGetUnits.visible = true;
 
                 /**
                  * adequate resources check
                  */
+                //get food
                 this.btnArmyGetFood.clearTint();
                 if (buildingData.village.amountFood < 10)
                     this.btnArmyGetFood.setTint('0xff0000');
                 else if (buildingData.village.amountFood == 10)
                     this.btnArmyGetFood.setTint('0xffff00');
 
+                //get units
                 this.btnArmyGetUnits.clearTint();
                 if (buildingData.village.population < 10)
                     this.btnArmyGetUnits.setTint('0xff0000');
