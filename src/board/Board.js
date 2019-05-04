@@ -121,12 +121,9 @@ export default class Board {
         this.boardText[row][col] = text;
     }
 
+    //TODO: remove this. doesn't remove from player and ai
     removeArmy(row, col) {
         this.boardUnits[row][col] = null;
-    }
-
-    removeBuilding(row, col) {
-        this.boardBuildings[row][col] = null;
     }
 
     destroyText(row, col) {

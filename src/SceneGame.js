@@ -11,6 +11,7 @@ import Races from './Races.js';
 
 import RatsAi from './ai/RatsAi.js';
 import CavemenAi from './ai/CavemenAi.js';
+import BuildingManager from './buildings/BuildingManager.js';
 
 export default class SceneGame extends Phaser.Scene {
 
@@ -22,7 +23,7 @@ export default class SceneGame extends Phaser.Scene {
         this.board = new Board();
         this.playerRace = ['', 'cavemen', 'cavemen', 'rats', 'rats'];
 
-        this.playerHuman = 1;
+        this.playerHuman = 1;   //this is you
 
         //TODO: temporary. do fix
         this.buildings = [
@@ -95,6 +96,10 @@ export default class SceneGame extends Phaser.Scene {
 
         //ui
         this.uiVillage = [];
+        this.uiBuilding = [];
+        this.uiArmy = [];
+        this.uiArmyEnemy = [];
+        this.uiArmyEnemyBuilding = [];
 
         this.groupTerrain;
         this.groupGrid;
@@ -103,6 +108,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //sprites
         this.selectedVillage;
+        this.selectedBuilding;  //TODO: consolidate this and selectedVillage
         this.selectedArmy;
         this.selectedBuyBuilding;
 
@@ -111,10 +117,6 @@ export default class SceneGame extends Phaser.Scene {
         this.selectedVillageBuildings;
         //TODO: considate army and village moves
         this.possibleMoves;
-
-        this.uiArmy = [];
-        this.uiArmyEnemy = [];
-        this.uiArmyEnemyBuilding = [];
 
         this.armyManager;
     }
@@ -149,6 +151,9 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image('btnBuildLumberMill', 'assets/btn-build-lumber-mill.png');
         this.load.image('btnBuildHousing', 'assets/btn-build-housing.png');
 
+        //ui, buildings
+        this.load.image('btnBuildDestroy', 'assets/btn-build-destroy.png');
+
         //ui, army
         this.load.image('btnArmyGetUnits', 'assets/btn-army-get-units.png');
         this.load.image('btnArmyDisbandUnits', 'assets/btn-army-disband-units.png');
@@ -179,6 +184,7 @@ export default class SceneGame extends Phaser.Scene {
         this.playersAi = [];
 
         this.armyManager = new ArmyManager(this);
+        this.buildingManager = new BuildingManager(this);
 
         let x, y;
         let tempImage, tempSprite, tempText;
@@ -391,6 +397,27 @@ export default class SceneGame extends Phaser.Scene {
         this.uiVillage.push(this.btnBuildLumberMill);
         this.uiVillage.push(this.btnBuildQuarry);
         this.uiVillage.push(this.btnBuildHousing);
+
+        /**
+         * UI - building
+         */
+        //TODO: put in own scene
+        y = -120;
+
+        this.txtBuildName = this.add.text(-375, y)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setShadow(3, 3, '#000000', 3);
+
+        this.btnBuildDestroy = this.add.sprite(-200, y + 140, 'btnBuildDestroy')
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .on('pointerdown', this.buildingManager.clickedDestroyBuilding);
+
+        this.uiBuilding.push(this.txtBuildName);
+        this.uiBuilding.push(this.btnBuildDestroy);
 
         /**
          * UI - army
@@ -643,6 +670,14 @@ export default class SceneGame extends Phaser.Scene {
                 scene.btnCreateArmy.setTint('0xffff00');
         }
 
+        //building UI
+        if (scene.selectedBuilding != null) {
+            GameUtils.showGameObjects(scene.uiBuilding);
+
+            let building = scene.selectedBuilding.getData("data");
+            scene.txtBuildName.setText(building.name);
+        }
+
         //army UI
         if (scene.selectedArmy != null) {
             let army = scene.selectedArmy.data.get('data');
@@ -790,7 +825,8 @@ export default class SceneGame extends Phaser.Scene {
             });
         }
 
-        if (this.selectedArmy == null && this.selectedVillage == null) {
+        //if we're selecting nothing, turn off
+        if (!this.selectedArmy == null && !this.selectedVillage && !this.selectedBuilding) {
             this.deselectEverything();
         }
 
@@ -878,10 +914,12 @@ export default class SceneGame extends Phaser.Scene {
     deselectEverything() {
 
         GameUtils.hideGameObjects(this.uiVillage);
+        GameUtils.hideGameObjects(this.uiBuilding);
         GameUtils.hideGameObjects(this.uiArmy);
         GameUtils.hideGameObjects(this.uiArmyEnemy);
         GameUtils.hideGameObjects(this.uiArmyEnemyBuilding);
 
+        //TODO: remove if-statements
         if (this.selectedBuyBuilding != null) {
             this.selectedBuyBuilding = null;
         }
@@ -889,6 +927,11 @@ export default class SceneGame extends Phaser.Scene {
         if (this.selectedVillage != null) {
             this.selectedVillage.clearTint();
             this.selectedVillage = null;
+        }
+
+        if (this.selectedBuilding != null) {
+            this.selectedBuilding.clearTint();
+            this.selectedBuilding = null;
         }
 
         if (this.selectedArmy != null) {
@@ -918,6 +961,7 @@ export default class SceneGame extends Phaser.Scene {
         if (pointer.rightButtonDown()) {
             //place building
             if (scene.selectedBuyBuilding != null) {
+                //TODO: move building stuff
                 scene.board.placeBuildingPlayer(pointer, this);
                 return
             }
@@ -938,14 +982,20 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     clickedBuilding(pointer) {
+        let scene = this.scene;
+
         console.log('building clicked');
 
-        let scene = this.scene;
         let building = this.getData("data");
         console.log(building.health);
 
         if (pointer.leftButtonDown()) {
             scene.deselectEverything();
+
+            if (building.player == scene.playerHuman)
+                scene.selectedBuilding = this;
+
+            scene.updateUI();
         }
 
         if (pointer.rightButtonDown()) {

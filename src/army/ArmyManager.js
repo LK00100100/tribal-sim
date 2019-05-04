@@ -196,7 +196,7 @@ export default class ArmyManager {
 
         let army = new Army(player, village);
         //TODO: set army moveAmount dynamically
-        army.moveAmount = 3;
+        army.moveAmount = 0;
         army.moveMax = 3;
         army.amountFood += 10;
 
@@ -494,6 +494,7 @@ export default class ArmyManager {
      * @param {*} buildingSprite
      */
     simulateArmyAttackingBuilding(armySprite, buildingSprite) {
+        let scene = this.scene;
         let army = armySprite.getData("data");
         let building = buildingSprite.getData("data");
 
@@ -516,7 +517,7 @@ export default class ArmyManager {
             this.destroyArmy(army);
 
         if (building.health <= 0)
-            this.destroyBuilding(buildingSprite);
+            scene.buildingManager.destroyBuilding(buildingSprite);
 
     }
 
@@ -637,31 +638,6 @@ export default class ArmyManager {
         }
 
         sprite.destroy();
-    }
-
-
-    destroyBuilding(buildingSprite) {
-        let scene = this.scene;
-
-        let building = buildingSprite.getData("data");
-        let row = building.row;
-        let col = building.col;
-        let playerNumber = building.player;
-
-        let playerBuildings = scene.playerBuildings[playerNumber];
-        for (let i = 0; i < playerBuildings.length; i++) {
-            if (playerBuildings[i] == buildingSprite) {
-                playerBuildings.splice(i, 1);
-                break;
-            }
-        }
-
-        scene.board.removeBuilding(row, col);
-        scene.board.destroyText(row, col);
-
-        //TTODO: unselect selected building
-
-        buildingSprite.destroy();
     }
 
     armyAttackCancel() {

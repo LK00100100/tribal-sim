@@ -73,6 +73,7 @@ export default class RatsAi extends Ai {
                     return;
 
                 let unitData = unit.getData("data");
+                //TODO: actually see if it's an enemy (use set)
                 if (unitData.player != this.playerNumber) {
                     enemySprite = unit;
                 }
