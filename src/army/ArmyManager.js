@@ -100,7 +100,8 @@ export default class ArmyManager {
         let movesCost = scene.board.getPossibleMovesArmy(armySprite);
         let neighborMovesCost = GameUtils.getIntersectionCoordinates(movesCost, neighbors);
 
-        if (movesCost.length == 0)
+        //no where to move
+        if (neighborMovesCost.length == 0)
             return;
 
         //get cheapest cost

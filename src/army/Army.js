@@ -47,12 +47,16 @@ export default class Army {
         let cost = 0;
 
         for (let i = 0; i < this.size(); i++) {
-            cost += this.units[i].cost();
+            cost += this.units[i].getCost();
         }
 
         return cost;
     }
 
+    //TODO: rename to simulate
+    /**
+     * simulates cost of a day and people starving
+     */
     calculateCostDay() {
 
         this.calculateAttrition();
@@ -111,6 +115,24 @@ export default class Army {
     }
 
     /**
+     * if we have food,
+     * simulate healing on units.
+     */
+    simulateHealing(){
+        if(this.amountFood == 0)
+            return;
+
+        this.units.forEach(unit => {
+
+            if(unit.health == unit.maxHealth)
+                return; //continue
+
+            let healAmount = unit.rollHeal();
+            unit.addHealth(healAmount);
+        });
+    }
+
+    /**
      * sorts by health. low to high
      */
     sortUnitsByHealth() {
@@ -141,6 +163,7 @@ export default class Army {
         return healths;
     }
 
+    //TODO: rename rollAttacks
     /**
      * returns an array of attacks rolls for all units
      */

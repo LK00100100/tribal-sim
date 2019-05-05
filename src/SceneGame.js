@@ -1,3 +1,4 @@
+//TODO: refactor!!!
 
 import GameUtils from './utils/GameUtils.js';
 import GameUtilsBuilding from './utils/GameUtilsBuilding.js';
@@ -194,16 +195,20 @@ export default class SceneGame extends Phaser.Scene {
 
         /**
         * draw the terrain
-        */
+        */ 
+        //the top left corner of the drawn board
+        let topY = 512;
+        let topX = 512;
+
         this.board.initBoard();
         console.log(this.board.boardTerrain);
         this.groupTerrain = this.add.group();
         this.groupGrid = this.add.group();
         let theBoard = this.board.boardTerrain;
         for (let row = 0; row < this.board.boardTerrain.length; row++) {
-            y = 256 + (row * 256);
+            y = topY + (row * 256);
             for (let col = 0; col < this.board.boardTerrain[0].length; col++) {
-                x = 256 + (col * 256);
+                x = topX + (col * 256);
 
                 if (this.board.terrainType[theBoard[row][col]] == undefined) {
                     throw 'terrain type does not exist at: ' + row + ',' + col;
@@ -234,10 +239,9 @@ export default class SceneGame extends Phaser.Scene {
         /**
         * draw buildings
         */
-
         this.buildings.forEach(building => {
-            x = 256 + (building.col * 256);
-            y = 256 + (building.row * 256);
+            x = topX + (building.col * 256);
+            y = topY + (building.row * 256);
             let name = building.name;
             let player = building.player;
             let row = building.row;
@@ -609,6 +613,11 @@ export default class SceneGame extends Phaser.Scene {
             this.scene.endTurn(this.scene);
         });
 
+        this.input.keyboard.on('keydown_SHIFT', function (event) {
+            console.log("shift key!");
+            this.scene.endTurn(this.scene);
+        });
+
         /**
         * mouse
         */
@@ -818,6 +827,9 @@ export default class SceneGame extends Phaser.Scene {
                 army = army.data.get('data');
 
                 army.calculateCostDay();
+
+                //survivors heal (if they have food)
+                army.simulateHealing();
 
                 //killed through attrition
                 if (army.size() == 0) {
