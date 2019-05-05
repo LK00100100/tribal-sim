@@ -575,13 +575,14 @@ export default class SceneGame extends Phaser.Scene {
         /**
         * Camera stuff
         */
-        let cursors = this.input.keyboard.createCursorKeys();
+        //let cursors = this.input.keyboard.createCursorKeys(); //cursors.right
+        let keys = this.input.keyboard.addKeys('W,S,A,D');
         var controlConfig = {
             camera: this.cameras.main,
-            left: cursors.left,
-            right: cursors.right,
-            up: cursors.up,
-            down: cursors.down,
+            left: keys.A,
+            right: keys.D,
+            up: keys.W,
+            down: keys.S,
             //TODO: this causes UI to shrink/expand. i dont know how to fix this now
             //zoomIn: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.Q),
             //zoomOut: this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E),
