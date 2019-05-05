@@ -481,8 +481,8 @@ export default class Board {
         //re-calculate income
         scene.updateUI();
 
+        //TODO: move highlight?
         //we're done here
-        GameUtils.clearTintArray(scene.uiVillage);
         this.unhighlightTiles(scene.possibleMoves);
         scene.possibleMoves = null;
         scene.selectedBuyBuilding = null;
@@ -531,13 +531,22 @@ export default class Board {
         scene.playerBuildings[village.player].push(tempSprite);
     }
 
-    //TODO: rename to selectBuy
+    //TODO: rename to clickedBuyBuilding
     buyBuilding(pointer, gameSprite, buildingType) {
 
         let scene = gameSprite.scene;
 
         if (pointer.rightButtonDown())
             return;
+
+            
+        let village = scene.selectedVillage.data.get('data');
+
+        //TODO: ensure enough resources from this specific building
+        if (village.amountWood < 100) {
+            console.log('not enough wood. need 100');
+            return;
+        }
 
         //deselect
         if (gameSprite.isTinted) {
@@ -549,14 +558,6 @@ export default class Board {
         }
 
         console.log('before: build a ' + buildingType);
-
-        let village = scene.selectedVillage.data.get('data');
-
-        //TODO: ensure enough resources from this specific building
-        if (village.amountWood < 100) {
-            console.log('not enough wood. need 100');
-            return;
-        }
 
         scene.selectedBuyBuilding = buildingType;
         GameUtils.clearTintArray(scene.uiVillage);

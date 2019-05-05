@@ -195,7 +195,7 @@ export default class SceneGame extends Phaser.Scene {
 
         /**
         * draw the terrain
-        */ 
+        */
         //the top left corner of the drawn board
         let topY = 512;
         let topX = 512;
@@ -659,6 +659,12 @@ export default class SceneGame extends Phaser.Scene {
 
         //village UI
         if (scene.selectedVillage != null) {
+            scene.selectedVillage.setTint('0xffff00');
+
+            //show village buttons
+            GameUtils.clearTintArray(scene.uiVillage);
+            GameUtils.showGameObjects(scene.uiVillage);
+
             let village = scene.selectedVillage.data.get('data');
 
             //TODO: put this in some sort of village manager. updateUi should do no calcs
@@ -678,6 +684,14 @@ export default class SceneGame extends Phaser.Scene {
             scene.btnCreateArmy.clearTint();
             if (village.population == 10)
                 scene.btnCreateArmy.setTint('0xffff00');
+
+            //TODO: change this later. more dynamic
+            if(village.amountWood < 100){
+                scene.btnBuildFarm.setTint('0xff0000');
+                scene.btnBuildHousing.setTint('0xff0000');
+                scene.btnBuildLumberMill.setTint('0xff0000');
+                scene.btnBuildQuarry.setTint('0xff0000');
+            }
         }
 
         //building UI
@@ -846,11 +860,9 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     clickedVillage(pointer) {
-
-        //TODO: add unit attacking
-
         let scene = this.scene;
 
+        //already selected? center camera
         if (scene.selectedVillage == this) {
             scene.cam.pan(this.x, this.y, 500); //(x, y, duration) 
         }
@@ -860,6 +872,7 @@ export default class SceneGame extends Phaser.Scene {
         console.log('stone: ' + this.getData("data").amountStone);
         console.log('wood: ' + this.getData("data").amountWood);
 
+        //attacking
         if (pointer.rightButtonDown()) {
             if (scene.selectedArmy == null)
                 return;
@@ -870,20 +883,13 @@ export default class SceneGame extends Phaser.Scene {
 
         let village = this.data.get('data');
 
-        scene.deselectEverything();
-
         if (village.player != 1)
             return;
 
+        scene.deselectEverything();
         scene.selectedVillage = this;
-        scene.selectedVillage.setTint('0xffff00');
-
-        //show village buttons
-        GameUtils.clearTintArray(scene.uiVillage);
-        GameUtils.showGameObjects(scene.uiVillage);
 
         scene.updateUI();
-
     }
 
     //TODO: remove? refactor?
