@@ -19,7 +19,7 @@ This game uses Phaser 3.
 ```
 npm install 
 ```
-2) Open up a terminal and type the following to allow automatic code building whenever code changes:
+2) Open up a terminal and type the following to do the initial build and to allow automatic code building whenever code changes:
 ```
 npm run dev
 ```
