@@ -27,7 +27,7 @@ export default class ArmyManager {
 
         this.moveArmy(armySprite, terrainSprite, scene.selectedArmyPossibleMoves)
 
-        scene.selectedArmyPossibleMoves = scene.board.getPossibleMovesArmy(armySprite);
+        scene.selectedArmyPossibleMoves = this.getPossibleMovesArmy(armySprite);
         scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
     }
 
@@ -52,7 +52,7 @@ export default class ArmyManager {
             return;
         }
 
-        scene.board.removeArmy(army.row, army.col);
+        this.removeArmyFromBoard(army.row, army.col);
 
         army.moveAmount -= cost;
         army.row = targetRow;
@@ -68,7 +68,7 @@ export default class ArmyManager {
             duration: 500
         });
 
-        scene.board.addArmy(targetRow, targetCol, spriteArmy);
+        this.addArmyToBoard(targetRow, targetCol, spriteArmy);
 
         scene.updateUI();
 
@@ -97,7 +97,7 @@ export default class ArmyManager {
             }
         }
 
-        let movesCost = scene.board.getPossibleMovesArmy(armySprite);
+        let movesCost = scene.armyManager.getPossibleMovesArmy(armySprite);
         let neighborMovesCost = GameUtils.getIntersectionCoordinates(movesCost, neighbors);
 
         //no where to move
@@ -211,9 +211,13 @@ export default class ArmyManager {
 
         armySprite.data.set('data', army);
         scene.playerArmies[player].push(armySprite);
-        scene.board.addArmy(row, col, armySprite);
+        this.addArmyToBoard(row, col, armySprite);
 
         return armySprite;
+    }
+
+    addArmyToBoard(row, col, armySprite) {
+        this.scene.board.boardUnits[row][col] = armySprite;
     }
 
     /**
@@ -304,7 +308,7 @@ export default class ArmyManager {
 
         armySprite.setTint(0xffff00);
 
-        scene.showPossibleArmyMoves(army);
+        this.showPossibleArmyMoves(army);
 
         scene.updateUI();
     }
@@ -414,7 +418,7 @@ export default class ArmyManager {
 
         //update your ui
         if (yourArmy.size() > 0) {
-            scene.showPossibleArmyMoves(yourArmy);
+            scene.armyManager.showPossibleArmyMoves(yourArmy);
             scene.updateUI();
         }
 
@@ -631,7 +635,7 @@ export default class ArmyManager {
             }
         }
 
-        scene.board.removeArmy(row, col);
+        this.removeArmyFromBoard(row, col);
 
         //TODO: probably just sprites
         if (scene.selectedArmy != null && scene.selectedArmy.getData("data") == armyData) {
@@ -641,9 +645,142 @@ export default class ArmyManager {
         sprite.destroy();
     }
 
+    /**
+     * this removes the army from the board.
+     * this does not completely destroy the sprite
+     * and do any player's army book-keeping
+     * @param {*} row 
+     * @param {*} col 
+     */
+    removeArmyFromBoard(row, col) {
+        let scene = this.scene;
+        scene.board.boardUnits[row][col] = null;
+    }
+
     armyAttackCancel() {
         let scene = this.scene;
         GameUtils.hideGameObjects(scene.uiArmyEnemy);
     }
+
+    /**
+     * gets squares that you can move to.
+     * also returns squares with enemy units.
+     * @param {*} row 
+     * @param {*} col 
+     * @param {*} moveAmount 
+     * @returns an array of {row, col, cost}
+     */
+    getPossibleMoves(row, col, moveAmount) {
+        let scene = this.scene;
+        let board = scene.board;
+        //TODO: redo this whole thing to be correct. BFS from 1 to moveAmount
+
+        let possibleMoves = [];
+
+        let startPoint = {
+            row: row,
+            col: col,
+            cost: 0
+        }
+
+        let coordinate = row + ',' + col;
+
+        let visited = new Set();
+        visited.add(coordinate);
+
+        let queue = [];
+        queue.push(startPoint);
+
+        let currentAllowableCost = -1;
+
+        while (queue.length > 0) {
+
+            let queueLength = queue.length;
+
+            currentAllowableCost++;
+
+            //check around this level
+            for (let x = 0; x < queueLength; x++) {
+                let tempSquare = queue.shift();
+
+                let row = tempSquare.row;
+                let col = tempSquare.col;
+                let cost = tempSquare.cost;
+
+                //too costly for now.
+                if (cost > currentAllowableCost) {
+                    queue.push(tempSquare);
+                    continue;
+                }
+
+                //check up, down, left, right
+                for (let d = 0; d < board.directions.length; d++) {
+                    let i = board.directions[d][0];
+                    let j = board.directions[d][1];
+
+                    coordinate = (row + i) + ',' + (col + j);
+
+                    if (visited.has(coordinate))
+                        continue;
+
+                    visited.add(coordinate);
+
+                    let terrainCost = board.movementCost(row + i, col + j);
+                    tempSquare = {
+                        row: row + i,
+                        col: col + j,
+                        cost: cost + terrainCost
+                    };
+
+                    if (board.isWalkable(row + i, col + j)) {
+                        if (moveAmount >= cost + terrainCost) {
+                            possibleMoves.push(tempSquare);
+                            queue.push(tempSquare);
+                        }
+                    }
+                    //you can't walk here since there is a unit
+                    //but you may interact with it (shown as possible move)
+                    else if (board.boardUnits[row + i][col + j] != null) {
+                        //let unit = board.boardUnits[row + i][col + j].data.get("data");
+
+                        if (moveAmount >= cost + terrainCost) {
+                            possibleMoves.push(tempSquare);
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        return possibleMoves;
+    }
+
+    /**
+     * highlights the squares that an army can move
+     * @param {*} armyData 
+     */
+    showPossibleArmyMoves(armyData) {
+        let scene = this.scene;
+        let possibleMoves = this.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
+
+        scene.selectedArmyPossibleMoves = possibleMoves;
+
+        scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
+    }
+
+    /**
+     * does the same thing as getPossibleMoves()
+     * but you pass in an armySprite
+     * @param {*} armySprite 
+     */
+    getPossibleMovesArmy(armySprite) {
+        let army = armySprite.data.get("data");
+
+        return this.getPossibleMoves(army.row, army.col, army.moveAmount);
+    }
+
 
 }

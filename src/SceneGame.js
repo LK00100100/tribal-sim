@@ -1,4 +1,3 @@
-//TODO: refactor!!!
 
 import GameUtils from './utils/GameUtils.js';
 import GameUtilsBuilding from './utils/GameUtilsBuilding.js';
@@ -281,7 +280,7 @@ export default class SceneGame extends Phaser.Scene {
                 .setDataEnabled()
                 .on('pointerdown', this.clickedVillage);
 
-            this.board.addBuilding(row, col, tempSprite);
+            this.buildingManager.addBuildingToBoard(row, col, tempSprite);
 
             this.playerBuildings[building.player].push(tempSprite);
 
@@ -365,7 +364,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.board.buyBuilding(pointer, this, 'Farm');
+                this.scene.buildingManager.buyBuilding(pointer, this, 'Farm');
             });
 
         this.btnBuildLumberMill = this.add.sprite(-200, y + 580, 'btnBuildLumberMill')
@@ -373,7 +372,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.board.buyBuilding(pointer, this, 'LumberMill');
+                this.scene.buildingManager.buyBuilding(pointer, this, 'LumberMill');
             });
 
         this.btnBuildQuarry = this.add.sprite(-200, y + 720, 'btnBuildQuarry')
@@ -381,7 +380,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.board.buyBuilding(pointer, this, 'Quarry');
+                this.scene.buildingManager.buyBuilding(pointer, this, 'Quarry');
             });
 
         this.btnBuildHousing = this.add.sprite(-200, y + 860, 'btnBuildHousing')
@@ -389,7 +388,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.board.buyBuilding(pointer, this, 'Housing');
+                this.scene.buildingManager.buyBuilding(pointer, this, 'Housing');
             });
 
         this.uiVillage.push(this.txtVillagePopulation);
@@ -668,7 +667,7 @@ export default class SceneGame extends Phaser.Scene {
             let village = scene.selectedVillage.data.get('data');
 
             //TODO: put this in some sort of village manager. updateUi should do no calcs
-            let coordinates = scene.board.getVillageBuildings(village);
+            let coordinates = scene.buildingManager.getVillageBuildings(village);
             let buildingsData = scene.board.getBuildingsData(coordinates);
             let countsOfBuildings = GameUtilsBuilding.countBuildings(buildingsData);
             village.calculateIncome(countsOfBuildings);
@@ -686,7 +685,7 @@ export default class SceneGame extends Phaser.Scene {
                 scene.btnCreateArmy.setTint('0xffff00');
 
             //TODO: change this later. more dynamic
-            if(village.amountWood < 100){
+            if (village.amountWood < 100) {
                 scene.btnBuildFarm.setTint('0xff0000');
                 scene.btnBuildHousing.setTint('0xff0000');
                 scene.btnBuildLumberMill.setTint('0xff0000');
@@ -765,7 +764,7 @@ export default class SceneGame extends Phaser.Scene {
         scene.preTurnPhase(scene.turnOfPlayer);
 
         if (scene.selectedArmy != null)
-            scene.showPossibleArmyMoves(scene.selectedArmy.data.get('data'));
+            scene.armyManager.showPossibleArmyMoves(scene.selectedArmy.data.get('data'));
 
         scene.btnEndTurn.clearTint();
 
@@ -819,7 +818,7 @@ export default class SceneGame extends Phaser.Scene {
             let data = building.data.get('data');
 
             if (data instanceof Village) {
-                let coordinates = this.board.getVillageBuildings(data);
+                let coordinates = this.buildingManager.getVillageBuildings(data);
                 let buildingsData = this.board.getBuildingsData(coordinates);
                 let countsOfBuildings = GameUtilsBuilding.countBuildings(buildingsData);
 
@@ -890,15 +889,6 @@ export default class SceneGame extends Phaser.Scene {
         scene.selectedVillage = this;
 
         scene.updateUI();
-    }
-
-    //TODO: remove? refactor?
-    showPossibleArmyMoves(armyData) {
-        let possibleMoves = this.board.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
-
-        this.selectedArmyPossibleMoves = possibleMoves;
-
-        this.board.highlightTiles(this.selectedArmyPossibleMoves);
     }
 
     /**
@@ -981,7 +971,7 @@ export default class SceneGame extends Phaser.Scene {
             //place building
             if (scene.selectedBuyBuilding != null) {
                 //TODO: move building stuff
-                scene.board.placeBuildingPlayer(pointer, this);
+                scene.buildingManager.placeBuildingPlayer(pointer, this);
                 return
             }
 
@@ -1079,8 +1069,6 @@ export default class SceneGame extends Phaser.Scene {
             }
 
         }
-
-        return;
 
     }
 

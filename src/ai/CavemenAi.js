@@ -30,9 +30,9 @@ export default class CavemenAi extends Ai {
                 console.log('   village starvation pop:' + buildingData.starvationAmount);
 
                 //get buildable tiles
-                let villageBuildingTiles = scene.board.getVillageBuildings(buildingData);
+                let villageBuildingTiles = scene.buildingManager.getVillageBuildings(buildingData);
                 let buildingsData = scene.board.getBuildingsData(villageBuildingTiles);
-                let buildableTiles = scene.board.getBuildableNeighbors(villageBuildingTiles);
+                let buildableTiles = scene.buildingManager.getBuildableNeighbors(villageBuildingTiles);
 
                 //count buildings
                 let buildingCounts = GameUtilsBuilding.countBuildings(buildingsData);
@@ -71,20 +71,20 @@ export default class CavemenAi extends Ai {
         let countQuarry = buildingCounts.countQuarry;
 
         if (countLumberMill < 3) {
-            scene.board.placeBuilding(village, terrainSprite, "LumberMill");
+            scene.buildingManager.placeBuilding(village, terrainSprite, "LumberMill");
         }
 
         if (countFarm < 4) {
-            scene.board.placeBuilding(village, terrainSprite, "Farm");
+            scene.buildingManager.placeBuilding(village, terrainSprite, "Farm");
         }
 
         if (countQuarry < 2) {
-            scene.board.placeBuilding(village, terrainSprite, "Quarry");
+            scene.buildingManager.placeBuilding(village, terrainSprite, "Quarry");
         }
 
         //if we have enough food
         if (countHousing < 3 && countFarm > countHousing) {
-            scene.board.placeBuilding(village, terrainSprite, "Housing");
+            scene.buildingManager.placeBuilding(village, terrainSprite, "Housing");
         }
     }
 
@@ -96,20 +96,20 @@ export default class CavemenAi extends Ai {
         let countQuarry = buildingCounts.countQuarry;
 
         if (countLumberMill < 6) {
-            scene.board.placeBuilding(village, terrainSprite, "LumberMill");
+            scene.buildingManager.placeBuilding(village, terrainSprite, "LumberMill");
         }
 
         if (countFarm < 6) {
-            scene.board.placeBuilding(village, terrainSprite, "Farm");
+            scene.buildingManager.placeBuilding(village, terrainSprite, "Farm");
         }
 
         if (countQuarry < 4) {
-            scene.board.placeBuilding(village, terrainSprite, "Quarry");
+            scene.buildingManager.placeBuilding(village, terrainSprite, "Quarry");
         }
 
         //if we have enough food
         if (countHousing < 6 && countFarm > countHousing) {
-            scene.board.placeBuilding(village, terrainSprite, "Housing");
+            scene.buildingManager.placeBuilding(village, terrainSprite, "Housing");
         }
     }
 

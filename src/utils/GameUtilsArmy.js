@@ -12,7 +12,7 @@ export default class GameUtilsArmy {
         let enemies = [];
 
         coordinates.forEach(coordinate => {
-            let unit = board.getUnits(coordinate.row, coordinate.col);
+            let unit = board.getUnit(coordinate.row, coordinate.col);
             if (unit == null)
                 return;
 

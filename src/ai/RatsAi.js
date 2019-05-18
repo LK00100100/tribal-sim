@@ -54,7 +54,7 @@ export default class RatsAi extends Ai {
 
             //TODO: fix this. ignore units on board and "move through" them
             let territory = scene.board.getTerritory(village.row, village.col, this.territorySize);
-            let possibleMovesArmy = scene.board.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
+            let possibleMovesArmy = scene.armyManager.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
 
             //move in territory
             let territoryMoves = GameUtils.getIntersectionCoordinates(possibleMovesArmy, territory);
@@ -67,7 +67,7 @@ export default class RatsAi extends Ai {
             let neighbors = scene.board.getNeighboringTiles(armyData.row, armyData.col);
             let enemySprite = null;
             neighbors.forEach(neighbor => {
-                let unit = scene.board.getUnits(neighbor.row, neighbor.col);
+                let unit = scene.board.getUnit(neighbor.row, neighbor.col);
 
                 if (unit == null)
                     return;

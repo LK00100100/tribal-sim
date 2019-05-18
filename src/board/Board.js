@@ -1,10 +1,4 @@
 
-import Village from '../buildings/village_buildings/Village.js';
-
-import GameUtils from '../utils/GameUtils.js';
-
-import BuildingFactory from '../buildings/BuildingFactory.js';
-
 export default class Board {
 
     constructor() {
@@ -45,7 +39,7 @@ export default class Board {
             [1, 3, 3, 3, 3, 3, 0, 0, 0, 0, 0, 1, 1, 1, 1],
             [1, 1, 0, 0, 3, 3, 0, 0, 0, 1, 0, 1, 0, 1, 1],
             [1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1],
-			[1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
             [1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
             [1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1],
             [1, 1, 1, 1, 1, 2, 1, 1, 0, 0, 1, 1, 1, 1, 1],
@@ -109,21 +103,8 @@ export default class Board {
 
     }
 
-    addArmy(row, col, armySprite) {
-        this.boardUnits[row][col] = armySprite;
-    }
-
-    addBuilding(row, col, buildingSprite) {
-        this.boardBuildings[row][col] = buildingSprite;
-    }
-
     addText(row, col, text) {
         this.boardText[row][col] = text;
-    }
-
-    //TODO: remove this. doesn't remove from player and ai
-    removeArmy(row, col) {
-        this.boardUnits[row][col] = null;
     }
 
     destroyText(row, col) {
@@ -218,111 +199,6 @@ export default class Board {
 
     }
 
-    //TODO: pull this out to buildingsManager
-    /**
-     * gets an array of buildings connected to target village.
-     * including target village
-     * @param {*} targetVillage data
-     * @returns array of {row, col}
-     */
-    getVillageBuildings(targetVillage) {
-        let row = targetVillage.row;
-        let col = targetVillage.col;
-
-        return this.getVillageBuildingsHelper(targetVillage, row, col, new Set());
-    }
-
-    /**
-     * used by getVillageBuildings()
-     * @param {*} targetVillage data of
-     * @param {*} row 
-     * @param {*} col 
-     * @param {*} visited - a set of visited coordinates 
-     */
-    getVillageBuildingsHelper(targetVillage, row, col, visited) {
-
-        let answer = [];
-
-        if (this.isWithinBounds(row, col) == false)
-            return answer;
-
-        let key = row + ',' + col;
-
-        if (visited.has(key))
-            return answer;
-
-        visited.add(key);
-
-        let building = this.boardBuildings[row][col];
-
-        //no building here
-        if (building == null)
-            return answer;
-
-        building = building.data.get('data');
-
-        //if this village is not ours
-        if (building instanceof Village) {
-            if (building != targetVillage)
-                return answer;
-        }
-        //if building does not have a target village
-        else if (building.village == null)
-            return answer;
-
-        //connection found, so spread
-        if (building.village == targetVillage) {
-            answer.push({ row: row, col: col });
-
-            for (let d = 0; d < this.directions.length; d++) {
-                let i = this.directions[d][0];
-                let j = this.directions[d][1];
-                answer = answer.concat(this.getVillageBuildingsHelper(targetVillage, row + i, col + j, visited));
-            }
-        }
-
-        return answer;
-    }
-
-    /**
-     * gets only neighbors of tiles.
-     * @param {*} tiles 
-     */
-    getBuildableNeighbors(tiles) {
-
-        let answer = [];
-
-        let visited = new Set();
-
-        tiles.forEach(tile => {
-            let row = tile.row;
-            let col = tile.col;
-
-            visited.add(row + ',' + col);
-
-            for (let d = 0; d < this.directions.length; d++) {
-                let i = this.directions[d][0];
-                let j = this.directions[d][1];
-
-                let key = (row + i) + ',' + (col + j);
-
-                if (!this.isWithinBounds(row + i, col + j))
-                    continue;
-
-                if (!this.isBuildable(row + i, col + j)) {
-                    continue
-                }
-
-                if (visited.has(key))
-                    continue;
-
-                answer.push({ row: row + i, col: col + j });
-            }
-        });
-
-        return answer;
-    }
-
     /**
      * get buildings's data from coordinates
      * @param {*} coordinates array of {row, col}
@@ -345,9 +221,9 @@ export default class Board {
     /**
      * @param {*} row 
      * @param {*} col 
-     * returns a unitSprite or null if none
+     * @returns a unitSprite or null if none
      */
-    getUnits(row, col) {
+    getUnit(row, col) {
         if (!this.isWithinBounds(row, col))
             return null;
 
@@ -447,231 +323,6 @@ export default class Board {
             }
 
         });
-    }
-
-    //TODO: put in building mangaer
-    placeBuildingPlayer(pointer, terrainSprite) {
-
-        let scene = terrainSprite.scene;
-
-        let row = terrainSprite.data.get('row');
-        let col = terrainSprite.data.get('col');
-
-        if (scene.selectedBuyBuilding == null)
-            return;
-
-        if (scene.possibleMoves == null)
-            return;
-
-        if (scene.selectedVillage == null)
-            return;
-
-        //not in possible moves
-        let isIn = false;
-        for (let i = 0; i < scene.possibleMoves.length; i++) {
-            if (scene.possibleMoves[i].row == row && scene.possibleMoves[i].col == col)
-                isIn = true;
-        }
-
-        if (!isIn)
-            return false;
-
-        this.placeBuilding(scene.selectedVillage, terrainSprite, scene.selectedBuyBuilding);
-
-        //re-calculate income
-        scene.updateUI();
-
-        //TODO: move highlight?
-        //we're done here
-        this.unhighlightTiles(scene.possibleMoves);
-        scene.possibleMoves = null;
-        scene.selectedBuyBuilding = null;
-    }
-
-    //TODO: put in building mangaer
-    /**
-     * places building on the board
-     * @param {*} selectedVillage sprite
-     * @param {*} terrainSprite sprite
-     * @param {*} buildingType text of building ("Farm", "Quarry")
-     */
-    placeBuilding(selectedVillage, terrainSprite, buildingType) {
-        let scene = selectedVillage.scene;  //TODO: do this.scene after placed in buildingmanager.
-        let row = terrainSprite.getData('row');
-        let col = terrainSprite.getData('col');
-        let x = terrainSprite.x;
-        let y = terrainSprite.y;
-        
-        //already occupied
-        if(this.boardBuildings[row][col] != null)
-            return;
-
-        let village = selectedVillage.getData('data');
-
-        //TODO: change this later to reflect 'final' building costs
-        if (village.amountWood < 100)
-            return;
-
-        village.amountWood -= 100;
-
-        let building = BuildingFactory
-            .getVillageBuilding(buildingType, row, col, x, y, village);
-
-        let tempSprite = scene.add.sprite(x, y, 'build' + buildingType)
-            .setInteractive()
-            .setDataEnabled()
-            .setDepth(1)
-            .on('pointerdown', scene.clickedBuilding);
-
-        tempSprite.data.set('row', row);
-        tempSprite.data.set('col', col);
-        tempSprite.data.set('data', building);
-
-        this.boardBuildings[row][col] = tempSprite;
-        scene.playerBuildings[village.player].push(tempSprite);
-    }
-
-    //TODO: rename to clickedBuyBuilding
-    buyBuilding(pointer, gameSprite, buildingType) {
-
-        let scene = gameSprite.scene;
-
-        if (pointer.rightButtonDown())
-            return;
-
-            
-        let village = scene.selectedVillage.data.get('data');
-
-        //TODO: ensure enough resources from this specific building
-        if (village.amountWood < 100) {
-            console.log('not enough wood. need 100');
-            return;
-        }
-
-        //deselect
-        if (gameSprite.isTinted) {
-            gameSprite.clearTint();
-            scene.board.unhighlightTiles(scene.possibleMoves);
-            scene.possibleMoves = null;
-            scene.selectedBuyBuilding = null;
-            return;
-        }
-
-        console.log('before: build a ' + buildingType);
-
-        scene.selectedBuyBuilding = buildingType;
-        GameUtils.clearTintArray(scene.uiVillage);
-        gameSprite.setTint('0x00ff00');
-
-        scene.possibleMoves = scene.board.getVillageBuildings(village);
-        scene.possibleMoves = scene.board.getBuildableNeighbors(scene.possibleMoves);
-
-        scene.board.highlightTiles(scene.possibleMoves);
-
-    }
-
-    /**
-     * does the same thing as getPossibleMoves()
-     * @param {*} armySprite 
-     */
-    getPossibleMovesArmy(armySprite) {
-        let army = armySprite.data.get("data");
-
-        return this.getPossibleMoves(army.row, army.col, army.moveAmount);
-    }
-
-    /**
-     * gets squares that you can move to.
-     * also returns squares with enemy units.
-     * @param {*} row 
-     * @param {*} col 
-     * @param {*} moveAmount 
-     * @returns an array of {row, col, cost}
-     */
-    getPossibleMoves(row, col, moveAmount) {
-        //TODO: redo this whole thing to be correct. BFS from 1 to moveAmount
-
-        let possibleMoves = [];
-
-        let startPoint = {
-            row: row,
-            col: col,
-            cost: 0
-        }
-
-        let coordinate = row + ',' + col;
-
-        let visited = new Set();
-        visited.add(coordinate);
-
-        let queue = [];
-        queue.push(startPoint);
-
-        let currentAllowableCost = -1;
-
-        while (queue.length > 0) {
-
-            let queueLength = queue.length;
-
-            currentAllowableCost++;
-
-            //check around this level
-            for (let x = 0; x < queueLength; x++) {
-                let tempSquare = queue.shift();
-
-                let row = tempSquare.row;
-                let col = tempSquare.col;
-                let cost = tempSquare.cost;
-
-                //too costly for now.
-                if (cost > currentAllowableCost) {
-                    queue.push(tempSquare);
-                    continue;
-                }
-
-                //check up, down, left, right
-                for (let d = 0; d < this.directions.length; d++) {
-                    let i = this.directions[d][0];
-                    let j = this.directions[d][1];
-
-                    coordinate = (row + i) + ',' + (col + j);
-
-                    if (visited.has(coordinate))
-                        continue;
-
-                    visited.add(coordinate);
-
-                    let terrainCost = this.movementCost(row + i, col + j);
-                    tempSquare = {
-                        row: row + i,
-                        col: col + j,
-                        cost: cost + terrainCost
-                    };
-
-                    if (this.isWalkable(row + i, col + j)) {
-                        if (moveAmount >= cost + terrainCost) {
-                            possibleMoves.push(tempSquare);
-                            queue.push(tempSquare);
-                        }
-                    }
-                    //you can't walk here since there is a unit
-                    //but you may interact with it (shown as possible move)
-                    else if (this.boardUnits[row + i][col + j] != null) {
-                        let unit = this.boardUnits[row + i][col + j].data.get("data");
-
-                        if (moveAmount >= cost + terrainCost) {
-                            possibleMoves.push(tempSquare);
-                        }
-
-                    }
-
-                }
-
-            }
-
-        }
-
-        return possibleMoves;
     }
 
     /**
