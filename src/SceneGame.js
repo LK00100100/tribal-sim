@@ -364,7 +364,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.buildingManager.buyBuilding(pointer, this, 'Farm');
+                this.scene.buildingManager.clickedBuyBuilding(pointer, this, 'Farm');
             });
 
         this.btnBuildLumberMill = this.add.sprite(-200, y + 580, 'btnBuildLumberMill')
@@ -372,7 +372,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.buildingManager.buyBuilding(pointer, this, 'LumberMill');
+                this.scene.buildingManager.clickedBuyBuilding(pointer, this, 'LumberMill');
             });
 
         this.btnBuildQuarry = this.add.sprite(-200, y + 720, 'btnBuildQuarry')
@@ -380,7 +380,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.buildingManager.buyBuilding(pointer, this, 'Quarry');
+                this.scene.buildingManager.clickedBuyBuilding(pointer, this, 'Quarry');
             });
 
         this.btnBuildHousing = this.add.sprite(-200, y + 860, 'btnBuildHousing')
@@ -388,7 +388,7 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .on('pointerdown', function (pointer) {
-                this.scene.buildingManager.buyBuilding(pointer, this, 'Housing');
+                this.scene.buildingManager.clickedBuyBuilding(pointer, this, 'Housing');
             });
 
         this.uiVillage.push(this.txtVillagePopulation);
@@ -691,6 +691,11 @@ export default class SceneGame extends Phaser.Scene {
                 scene.btnBuildLumberMill.setTint('0xff0000');
                 scene.btnBuildQuarry.setTint('0xff0000');
             }
+
+            if(scene.selectedBuyBuilding != null){
+                scene.selectedBuyBuilding = null;
+                scene.board.unhighlightTiles(scene.possibleMoves);
+            }
         }
 
         //building UI
@@ -743,6 +748,7 @@ export default class SceneGame extends Phaser.Scene {
         //disable all game controls
         scene.btnEndTurn.setTint(0xff0000);
 
+        //unhighlight moves
         if (scene.selectedArmy != null) {
             scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves)
             scene.selectedArmyPossibleMoves = null;
@@ -930,6 +936,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //TODO: remove if-statements
         if (this.selectedBuyBuilding != null) {
+            this.board.unhighlightTiles(this.possibleMoves);
             this.selectedBuyBuilding = null;
         }
 
@@ -1064,7 +1071,7 @@ export default class SceneGame extends Phaser.Scene {
 
                 scene.armyManager.moveArmyCloser(armySprite, targetSprite);
 
-                scene.selectedArmyPossibleMoves = scene.board.getPossibleMovesArmy(armySprite);
+                scene.selectedArmyPossibleMoves = scene.armyManager.getPossibleMovesArmy(armySprite);
                 scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
             }
 

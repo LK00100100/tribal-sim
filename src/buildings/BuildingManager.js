@@ -125,8 +125,7 @@ export default class BuildingManager {
         return answer;
     }
 
-    //TODO: rename to clickedBuyBuilding
-    buyBuilding(pointer, gameSprite, buildingType) {
+    clickedBuyBuilding(pointer, gameSprite, buildingType) {
         let scene = gameSprite.scene;
 
         if (pointer.rightButtonDown())
