@@ -242,7 +242,7 @@ export default class BuildingManager {
     }
 
     /**
-     * gets only neighbors of tiles.
+     * gets only buildable neighbors of tiles.
      * @param {*} tiles 
      */
     getBuildableNeighbors(tiles) {

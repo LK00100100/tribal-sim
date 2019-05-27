@@ -12,6 +12,11 @@ export default class Ai {
         this.playerNumber = playerNumber;
         this.armies = armies;
         this.buildings = buildings;
+
+        //either distance from buildings
+        //or distance from one point
+        this.territorySize = 0;
+        this.threatMemory = 30; //length to remember threats
     }
 
     calculateTurn() { }

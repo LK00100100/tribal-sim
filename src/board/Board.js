@@ -174,7 +174,12 @@ export default class Board {
 
     }
 
-    //call isWalkable before you use this.
+    /**
+     * returns the movement cost of a board's square
+     * call isWalkable before you use this.
+     * @param {*} row 
+     * @param {*} col 
+     */
     movementCost(row, col) {
 
         let terrainType = this.boardTerrain[row][col];
@@ -277,6 +282,59 @@ export default class Board {
         return tiles;
     }
 
+    /**
+     * like getNeighboringTiles but it returns all neighbors within a certain inclusive distance
+     * @param {*} tiles - array of {row, col}
+     * @param {*} distance - how far the neighbors should be
+     * @return an array of {row, col} of neighbors within an inclusive distance
+     */
+    getFarNeighboringTiles(tiles, distance) {
+        let totalNeighbors = [];
+
+        if (distance <= 0)
+            return totalNeighbors;
+
+        //the previous layer of neighbors
+        let prevNeighbors = tiles;
+
+        //init visited
+        let visited = new Set();
+        tiles.forEach(tile => {
+            let key = tile.row + "," + tile.col;
+            visited.add(key);
+        });
+
+        for (let i = 0; i < distance; i++) {
+
+            let nextNeighbors = [];
+
+            //get first layer of neighbors
+            prevNeighbors.forEach(tile => {
+                let neighbors = this.getNeighboringTiles(tile.row, tile.col);
+                neighbors.forEach(neighbor => {
+                    let row = neighbor.row;
+                    let col = neighbor.col;
+                    let key = row + "," + col;
+
+                    if (visited.has(key))
+                        return; //continue;
+
+                    if(!this.isWithinBounds(row, col))
+                        return; //continue
+
+                    visited.add(key);
+                    nextNeighbors.push({ row: row, col: col });
+                });
+            });
+
+            //process X-neighbors
+            nextNeighbors.forEach(neighbor => totalNeighbors.push(neighbor));
+            prevNeighbors = nextNeighbors;
+        }
+
+        return totalNeighbors;
+    }
+
     unhighlightTiles(tiles) {
         if (tiles == null)
             return;
@@ -339,7 +397,7 @@ export default class Board {
 
     /**
      * get the surrounding area (water and impassable land included)
-     * breadth-first search of distance
+     * breadth-first search (BFS) of distance
      * @param {*} row 
      * @param {*} col 
      * @param {*} distance 

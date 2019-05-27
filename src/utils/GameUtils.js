@@ -62,11 +62,11 @@ export default class GameUtils {
         });
 
         return answer;
-
     }
 
     /**
-     * is exactly one vertical/horizontal space away?
+     * are these coordinates
+     * exactly one vertical or one horizontal space away?
      * @param {*} rowA 
      * @param {*} colA 
      * @param {*} rowB 

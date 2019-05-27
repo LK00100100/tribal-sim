@@ -1,8 +1,7 @@
 import Village from '../buildings/village_buildings/Village.js';
 import GameUtils from '../utils/GameUtils.js';
-import GameUtilsArmy from '../utils/GameUtilsArmy.js';
+import GameUtilsArmy from '../utils/GameUtilsArmy';
 import GameUtilsBuilding from '../utils/GameUtilsBuilding.js';
-import Caveman from '../army/unit/Caveman.js';
 import Ai from './Ai.js';
 
 export default class CavemenAi extends Ai {
@@ -11,6 +10,12 @@ export default class CavemenAi extends Ai {
         super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber])
 
         this.scene = scene;
+
+        //stores {row, col, level}. This is the location of threats
+        //level is the threat level. Threats will slowly be forgotten with time.
+        this.threats = [];
+
+        this.territorySize = 2;
     }
 
     calculateTurn() {
@@ -18,11 +23,14 @@ export default class CavemenAi extends Ai {
 
         let scene = this.scene;
 
+        let villageData = null; //the last village
+
         this.buildings.forEach(building => {
             let buildingData = building.data.get('data');
 
             //do village stuff
             if (buildingData instanceof Village) {
+                villageData = buildingData;
                 console.log('---------------------');
                 console.log('caveman village:');
                 console.log('   village food:' + buildingData.amountFood);
@@ -53,13 +61,34 @@ export default class CavemenAi extends Ai {
 
         });
 
+        //calculate territory
+        if(villageData != null){
+            let villageBuildings = scene.buildingManager.getVillageBuildings(villageData);
+            let villageNeighbors = scene.board.getFarNeighboringTiles(villageBuildings, this.territorySize);
+            let territory = villageBuildings.concat(villageNeighbors);
+
+            //get dangerous threats
+            let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(scene.board, territory, this.playerNumber);
+
+            //TODO: make armies (if needed) if we're in danger.
+        }   
+        
+        //move and get rid of the danger
         this.armies.forEach(armySprite => {
             let armyData = armySprite.getData("data");
             let row = armyData.row;
             let col = armyData.col;
             let village = armyData.village;
 
+            //TODO: loiter and protect. dearm if threats have been forgotten.
         });
+
+        //slowly forget the danger
+        this.threats.forEach(threat => threat.level = threat.level - 1);
+        for (let i = this.threats.length - 1; i >= 0; i--) {
+            if (this.threats[i].level <= 0)
+                this.threats.splice(i, 1);
+        }
 
     }
 
