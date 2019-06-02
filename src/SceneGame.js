@@ -873,6 +873,7 @@ export default class SceneGame extends Phaser.Scene {
         }
 
         console.log('village clicked');
+        console.log('pop: ' + this.getData("data").population);
         console.log('food: ' + this.getData("data").amountFood);
         console.log('stone: ' + this.getData("data").amountStone);
         console.log('wood: ' + this.getData("data").amountWood);

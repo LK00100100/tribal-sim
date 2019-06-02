@@ -4,6 +4,11 @@ import GameUtilsArmy from '../utils/GameUtilsArmy';
 import GameUtilsBuilding from '../utils/GameUtilsBuilding.js';
 import Ai from './Ai.js';
 
+/**
+ * defensive AI
+ * does not expand.
+ * defends territory
+ */
 export default class CavemenAi extends Ai {
 
     constructor(scene, playerNumber) {
@@ -11,11 +16,10 @@ export default class CavemenAi extends Ai {
 
         this.scene = scene;
 
-        //stores {row, col, level}. This is the location of threats
-        //level is the threat level. Threats will slowly be forgotten with time.
-        this.threats = [];
-
         this.territorySize = 2;
+        this.threatMemory = 90; //remember threats for 90 days
+
+        this.enemyDistanceFromVillage
     }
 
     calculateTurn() {
@@ -23,14 +27,14 @@ export default class CavemenAi extends Ai {
 
         let scene = this.scene;
 
-        let villageData = null; //the last village
+        let village = null; //the last village
 
         this.buildings.forEach(building => {
             let buildingData = building.data.get('data');
 
             //do village stuff
             if (buildingData instanceof Village) {
-                villageData = buildingData;
+                village = buildingData;
                 console.log('---------------------');
                 console.log('caveman village:');
                 console.log('   village food:' + buildingData.amountFood);
@@ -62,34 +66,79 @@ export default class CavemenAi extends Ai {
         });
 
         //calculate territory
-        if(villageData != null){
-            let villageBuildings = scene.buildingManager.getVillageBuildings(villageData);
+        if (village != null) {
+            let villageBuildings = scene.buildingManager.getVillageBuildings(village);
             let villageNeighbors = scene.board.getFarNeighboringTiles(villageBuildings, this.territorySize);
             let territory = villageBuildings.concat(villageNeighbors);
 
             //get dangerous threats
             let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(scene.board, territory, this.playerNumber);
 
-            //TODO: make armies (if needed) if we're in danger.
-        }   
-        
+            //update threats
+            enemySprites.forEach(enemySprite => {
+                let enemy = enemySprite.getData("data");
+                let row = enemy.row;
+                let col = enemy.col;
+                let key = row + "," + col;
+
+                this.threats.set(key, this.threatMemory);
+            });
+
+            //make armies if we're in danger.
+            //produce armies to match the threat
+            if (this.threats.size > 0) {
+                if (village.population >= 10 && village.amountFood > 100) {
+                    let armySprite = scene.armyManager.createArmy(this.playerNumber, village);
+
+                    //TODO: customize army names
+                    if (armySprite != null)
+                        armySprite.getData("data").name = "Rat Stompers";
+                }
+            }
+        }
+
         //move and get rid of the danger
         this.armies.forEach(armySprite => {
-            let armyData = armySprite.getData("data");
-            let row = armyData.row;
-            let col = armyData.col;
-            let village = armyData.village;
+            let army = armySprite.getData("data");
+            let row = army.row;
+            let col = army.col;
+            let armyVillage = armyData.village;
 
             //TODO: loiter and protect. dearm if threats have been forgotten.
+            //TODO: randomly but smartly (A*) move towards the direction
+
+            //check if we're in our territory
+            let building = scene.board.getBuildingData(row, col);
+            if (building != null) {
+
+                //are we in the army's village territory?
+                if (building.village == armyVillage) {
+
+                    //threats gone. go to village and dearm
+                    if (this.threats.size == 0) {
+                        //TODO: dearm
+                    }
+                }
+
+                //make sure you have 2 days worth of food.
+                if(army.amountFood == 0){
+                    //TODO: getfood
+                }
+
+            }
+
+            //TODO: this task
+            //prevent starvation. go back to territory
+
         });
 
         //slowly forget the danger
-        this.threats.forEach(threat => threat.level = threat.level - 1);
-        for (let i = this.threats.length - 1; i >= 0; i--) {
-            if (this.threats[i].level <= 0)
-                this.threats.splice(i, 1);
-        }
+        this.threats.forEach((value, key, map) => {
+            map.set(key, value - 1);
 
+            if (value - 1 <= 0)
+                map.delete(key);
+        });
     }
 
     stageOneBuilding(buildingCounts, village, terrainSprite) {

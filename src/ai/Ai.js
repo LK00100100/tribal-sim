@@ -16,7 +16,14 @@ export default class Ai {
         //either distance from buildings
         //or distance from one point
         this.territorySize = 0;
-        this.threatMemory = 30; //length to remember threats
+
+        //stores "row,col" => level. 
+        //This is the location of threats
+        //level is the threat level. Threats will slowly be forgotten with time.
+        this.threats = new Map();
+        //higher number = more danger.
+        this.threatLevel = 0;   //1 person killed = +1 level
+        this.threatMemory = 30; //time length to remember threats. in days
     }
 
     calculateTurn() { }

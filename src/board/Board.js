@@ -122,10 +122,10 @@ export default class Board {
      */
     isWithinBounds(row, col) {
 
-        if (row < 0 || row > this.boardTerrain.length)
+        if (row < 0 || row >= this.boardTerrain.length)
             return false;
 
-        if (col < 0 || col > this.boardTerrain[0].length)
+        if (col < 0 || col >= this.boardTerrain[0].length)
             return false;
 
         return true;
@@ -243,6 +243,20 @@ export default class Board {
     }
 
     /**
+     * returns buildingData. null if nothing
+     * @param {*} row 
+     * @param {*} col 
+     */
+    getBuildingData(row, col) {
+        if (!this.isWithinBounds(row, col))
+            return null;
+
+        let sprite = this.boardBuildings[row][col];
+
+        return sprite == null ? null : sprite.getData("data");
+    }
+
+    /**
      * returns player number of who is occupying it with a unit
      * 
      * a building by itself is not occupying
@@ -305,7 +319,6 @@ export default class Board {
         });
 
         for (let i = 0; i < distance; i++) {
-
             let nextNeighbors = [];
 
             //get first layer of neighbors
@@ -319,7 +332,7 @@ export default class Board {
                     if (visited.has(key))
                         return; //continue;
 
-                    if(!this.isWithinBounds(row, col))
+                    if (!this.isWithinBounds(row, col))
                         return; //continue
 
                     visited.add(key);

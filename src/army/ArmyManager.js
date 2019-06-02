@@ -164,6 +164,12 @@ export default class ArmyManager {
 
     }
 
+    /**
+     * creates an army from a village.
+     * requires resources and people
+     * @param {*} player 
+     * @param {*} village 
+     */
     createArmy(player, village) {
 
         let scene = this.scene;
@@ -352,7 +358,7 @@ export default class ArmyManager {
         scene.updateUI();
     }
 
-    //TODO: remove prefix army
+    //TODO: remove prefix army. add "player" vs no prefix
 
     /**
      * puts some people back into their own village
@@ -369,7 +375,7 @@ export default class ArmyManager {
 
         let row = army.row;
         let col = army.col;
-
+        //TODO: refactor
         let buildingSprite = scene.board.boardBuildings[row][col];
         let village;
 
@@ -396,6 +402,8 @@ export default class ArmyManager {
         scene.updateUI();
 
     }
+
+    
 
     armyAttack(pointer) {
         let scene = this.scene;
