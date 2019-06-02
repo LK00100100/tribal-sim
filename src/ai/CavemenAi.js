@@ -17,7 +17,9 @@ export default class CavemenAi extends Ai {
         this.scene = scene;
 
         this.territorySize = 2;
-        this.threatMemory = 90; //remember threats for 90 days
+        this.threatMemory = 30; //remember threats for 90 days
+
+        this.armyDaysOfFood = 4;
 
         this.enemyDistanceFromVillage
     }
@@ -65,11 +67,12 @@ export default class CavemenAi extends Ai {
 
         });
 
+        let territory;
         //calculate territory
         if (village != null) {
             let villageBuildings = scene.buildingManager.getVillageBuildings(village);
             let villageNeighbors = scene.board.getFarNeighboringTiles(villageBuildings, this.territorySize);
-            let territory = villageBuildings.concat(villageNeighbors);
+            territory = villageBuildings.concat(villageNeighbors);
 
             //get dangerous threats
             let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(scene.board, territory, this.playerNumber);
@@ -86,8 +89,9 @@ export default class CavemenAi extends Ai {
 
             //make armies if we're in danger.
             //produce armies to match the threat
+            //TODO: change amountFood
             if (this.threats.size > 0) {
-                if (village.population >= 10 && village.amountFood > 100) {
+                if (village.population > 15 && village.amountFood > 100) {
                     let armySprite = scene.armyManager.createArmy(this.playerNumber, village);
 
                     //TODO: customize army names
@@ -97,15 +101,87 @@ export default class CavemenAi extends Ai {
             }
         }
 
+        //TODO: move this code. copy paste. logic is duplicate as rats
         //move and get rid of the danger
         this.armies.forEach(armySprite => {
             let army = armySprite.getData("data");
             let row = army.row;
             let col = army.col;
-            let armyVillage = armyData.village;
+            let armyVillage = army.village;
 
             //TODO: loiter and protect. dearm if threats have been forgotten.
             //TODO: randomly but smartly (A*) move towards the direction
+
+            //our village is dead
+            if (territory == null)
+                return;
+
+            let possibleMovesArmy = scene.armyManager.getPossibleMoves(row, col, army.moveAmount);
+
+            //move in territory
+            let territoryMoves = GameUtils.getIntersectionCoordinates(possibleMovesArmy, territory);
+
+            //check adjacent squares for enemy
+            let neighbors = scene.board.getNeighboringTiles(army.row, army.col);
+            let enemySprite = null;
+            neighbors.forEach(neighbor => {
+                let unit = scene.board.getUnit(neighbor.row, neighbor.col);
+
+                if (unit == null)
+                    return;
+
+                let unitData = unit.getData("data");
+                //TODO: actually see if it's an enemy (use set)
+                if (unitData.player != this.playerNumber) {
+                    enemySprite = unit;
+                }
+            });
+
+            //attack enemy neighbors
+            if (enemySprite != null) {
+                scene.armyManager.simulateArmiesAttacking(army, enemySprite.getData("data"));
+            }
+            else {
+                let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(scene.board, territoryMoves, this.playerNumber);
+
+                let buildingSprite = scene.board.getBuilding(row, col);
+
+                //if we're standing on a building and it's not ours,
+                //attack it and end turn
+                if (buildingSprite != null) {
+                    let building = buildingSprite.getData("data");
+                    if (building.player != this.playerNumber) {
+                        scene.armyManager.armyAttackBuilding(armySprite, buildingSprite);
+                        return;
+                    }
+                }
+
+                //if there's an enemy in range, move to it and attack it.
+                if (enemySprites.length > 0) {
+                    let enemySprite = enemySprites[0];
+                    let enemyData = enemySprite.getData("data");
+                    let targetTerrain = scene.board.getTerrain(enemyData.row, enemyData.col);
+                    scene.armyManager.moveArmyCloser(armySprite, targetTerrain);
+
+                    scene.armyManager.simulateArmiesAttacking(army, enemyData);
+                }
+                //no enemies around
+                else {
+
+                    if (territoryMoves.length > 0) {
+                        //TODO: move this code. copy paste
+                        //pick a random square to move to
+                        let pickedIndex = GameUtils.getRandomInt(territoryMoves.length);
+                        let pickedCoordinate = territoryMoves[pickedIndex];
+
+                        let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
+                        scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
+                    }
+
+                }
+            }
+
+            //TODO: in the future, check move counts. food/attack = 1 move each.
 
             //check if we're in our territory
             let building = scene.board.getBuildingData(row, col);
@@ -120,9 +196,10 @@ export default class CavemenAi extends Ai {
                     }
                 }
 
-                //make sure you have 2 days worth of food.
-                if(army.amountFood == 0){
-                    //TODO: getfood
+                //make sure you have several days worth of food.
+                if (army.amountFood == 0) {
+                    for (let i = 0; i < this.armyDaysOfFood; i++)
+                        scene.armyManager.getFood(army);
                 }
 
             }

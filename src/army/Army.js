@@ -5,7 +5,7 @@ export default class Army {
 
         this.row = village.row;
         this.col = village.col;
-        this.player = player;
+        this.player = player;   //player number
         this.village = village;
         this.name;
 

@@ -408,6 +408,7 @@ export default class Board {
         return this.boardTerrainSprites[row][col];
     }
 
+    //TODO: rename this to "getArea". name is misleading
     /**
      * get the surrounding area (water and impassable land included)
      * breadth-first search (BFS) of distance

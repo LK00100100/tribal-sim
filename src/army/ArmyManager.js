@@ -226,6 +226,7 @@ export default class ArmyManager {
         this.scene.board.boardUnits[row][col] = armySprite;
     }
 
+    //TODO: rename prefix to just player.
     /**
      * assumed that the army is on a friendly village.
      * restocks the arny with one day's worth of food
@@ -236,22 +237,38 @@ export default class ArmyManager {
         let scene = this.scene;
 
         let army = scene.selectedArmy.data.get('data');
+        scene.armyManager.getFood(army);
+
+        scene.updateUI();
+    }
+
+    //TODO: variable food amount
+    /**
+     * assumes that an army is on top of a village
+     * @param {*} army 
+     */
+    getFood(army){
+        let scene = this.scene;
         let row = army.row;
         let col = army.col;
-        let cost = army.getCostDay();
+        let armyCost = army.getCostDay();
 
-        let building = scene.board.boardBuildings[row][col].data.get('data');
+        let building = scene.board.getBuildingData(row, col);
+        if(building == null)
+            return;
 
-        //transfer
-        if (building.village.amountFood < cost) {
+        //check if it's your building
+        if(building.player != army.player)
+            return;
+
+        //transfer food
+        if (building.village.amountFood < armyCost) {
             console.log('not enough food. need 10');
             return;
         }
 
-        building.village.amountFood -= cost;
-        army.amountFood += cost;
-
-        scene.updateUI();
+        building.village.amountFood -= armyCost;
+        army.amountFood += armyCost;
     }
 
     //TODO: separate select and attack
@@ -273,6 +290,7 @@ export default class ArmyManager {
             if (pointer.leftButtonDown()) {
                 //show basic information
                 console.log("units health: " + otherArmy.getUnitsHealthStatus());
+                console.log("units food: " + otherArmy.amountFood);
             }
             //show "attack screen"
             else if (pointer.rightButtonDown()) {
