@@ -275,6 +275,10 @@ export default class CavemenAi extends Ai {
         let countFarm = buildingCounts.countFarm;
         let countHousing = buildingCounts.countHousing;
 
+        //stop building!
+        if(countHousing >= 8)
+            return;
+
         //expand population
         if (countFarm > countHousing) {
             scene.buildingManager.placeBuilding(village, terrainSprite, "Housing");

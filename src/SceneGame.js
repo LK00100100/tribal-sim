@@ -21,7 +21,8 @@ export default class SceneGame extends Phaser.Scene {
         super('SceneGame');
 
         this.board = new Board();
-        this.playerRace = ['', 'cavemen', 'cavemen', 'rats', 'rats'];
+        this.playerRace = ['', 'cavemen', 'cavemen', 'rats', 'rats', 'cavemen'];
+        this.numPlayers = this.playerRace.length - 1;
 
         this.playerHuman = 1;   //this is you
 
@@ -39,7 +40,7 @@ export default class SceneGame extends Phaser.Scene {
             },
             {
                 row: 13, col: 10,
-                name: 'baddies',
+                name: 'stompers',
                 type: 'village',
                 player: 2,
                 population: 10,
@@ -76,6 +77,16 @@ export default class SceneGame extends Phaser.Scene {
                 amountFood: 200,
                 amountStone: 0,
                 amountWood: 0
+            },
+            {
+                row: 7, col: 13,
+                name: 'clubbers',
+                type: 'village',
+                player: 5,
+                population: 10,
+                amountFood: 200,
+                amountStone: 0,
+                amountWood: 0
             }
         ];
 
@@ -85,9 +96,6 @@ export default class SceneGame extends Phaser.Scene {
         this.day;
 
         this.gameOver = false;
-
-        //TODO: make this dynamic-y
-        this.numPlayers = 4;
 
         //[player #] = array of army pieces
         //sprites
@@ -637,6 +645,7 @@ export default class SceneGame extends Phaser.Scene {
         this.playersAi[2] = new CavemenAi(this, 2);
         this.playersAi[3] = new RatsAi(this, 3);
         this.playersAi[4] = new RatsAi(this, 4);
+        this.playersAi[5] = new CavemenAi(this, 5);
 
         this.updateUI();
     }
