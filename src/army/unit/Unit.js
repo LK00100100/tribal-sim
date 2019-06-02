@@ -20,8 +20,13 @@ export default class Unit {
         this.healBase = 1;
         this.healBonusMin = 0;
         this.healBonusMax = 1;
+
+        this.starvationBase = 3;
+        this.starvationBonusMin = 0;
+        this.starvationBonusMax = 5;
     }
 
+    //TODO: rename to alter
     /**
      * adds (or subs) health. respects health limits.
      * @param {*} amount +/- number that'll be rounded up.
@@ -57,6 +62,11 @@ export default class Unit {
     rollDefense() {
         let bonus = GameUtils.getRandomIntFromRange(this.defenseBonusMin, this.defenseBonusMax);
         return this.defenseBase + bonus;
+    }
+
+    rollStarvation(){
+        let bonus = GameUtils.getRandomIntFromRange(this.starvationBonusMin, this.starvationBonusMax);
+        return this.starvationBase + bonus;
     }
 
     rollHeal(){

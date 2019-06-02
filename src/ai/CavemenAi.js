@@ -17,7 +17,7 @@ export default class CavemenAi extends Ai {
         this.scene = scene;
 
         this.territorySize = 2;
-        this.threatMemory = 30; //remember threats for 90 days
+        this.threatMemory = 60; //remember threats for 90 days
 
         this.armyDaysOfFood = 4;
 
@@ -61,6 +61,8 @@ export default class CavemenAi extends Ai {
                     this.stageOneBuilding(buildingCounts, building, terrainSprite);
 
                     this.stageTwoBuilding(buildingCounts, building, terrainSprite);
+
+                    this.stageThreeBuilding(buildingCounts, building, terrainSprite);
                 }
 
             }
@@ -265,6 +267,21 @@ export default class CavemenAi extends Ai {
         //if we have enough food
         if (countHousing < 6 && countFarm > countHousing) {
             scene.buildingManager.placeBuilding(village, terrainSprite, "Housing");
+        }
+    }
+
+    stageThreeBuilding(buildingCounts, village, terrainSprite) {
+        let scene = this.scene;
+        let countFarm = buildingCounts.countFarm;
+        let countHousing = buildingCounts.countHousing;
+
+        //expand population
+        if (countFarm > countHousing) {
+            scene.buildingManager.placeBuilding(village, terrainSprite, "Housing");
+        }
+        //build more farms
+        else {
+            scene.buildingManager.placeBuilding(village, terrainSprite, "Farm");
         }
     }
 

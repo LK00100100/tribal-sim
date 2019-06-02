@@ -18,9 +18,6 @@ export default class Army {
         this.amountStone = 0;
 
         this.carryingCapcity;
-
-        //for each attrition period, this is calculated only once
-        this.attritionAmount = 0;
     }
 
     addUnit(unit) {
@@ -53,11 +50,10 @@ export default class Army {
         return cost;
     }
 
-    //TODO: rename to simulate
     /**
      * simulates cost of a day and people starving
      */
-    calculateCostDay() {
+    simulateCostDay() {
 
         this.calculateAttrition();
 
@@ -72,8 +68,20 @@ export default class Army {
 
         //no attrition
         if (this.amountFood > 0) {
-            this.attritionAmount = 0;
             return;
+        }
+
+        console.log("units starving");
+
+        for (let i = this.units.length - 1; i >= 0; i--) {
+            let unit = this.units[i];
+            let starvationAmount = unit.rollStarvation();
+            unit.addHealth(starvationAmount * -1);
+
+            //remove dead
+            if (unit.health <= 0) {
+                this.units.splice(i, 1);
+            }
         }
 
         //some attrition
@@ -118,13 +126,13 @@ export default class Army {
      * if we have food,
      * simulate healing on units.
      */
-    simulateHealing(){
-        if(this.amountFood == 0)
+    simulateHealing() {
+        if (this.amountFood == 0)
             return;
 
         this.units.forEach(unit => {
 
-            if(unit.health == unit.maxHealth)
+            if (unit.health == unit.maxHealth)
                 return; //continue
 
             let healAmount = unit.rollHeal();

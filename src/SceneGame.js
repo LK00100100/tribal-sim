@@ -845,7 +845,7 @@ export default class SceneGame extends Phaser.Scene {
             armies.forEach((army) => {
                 army = army.data.get('data');
 
-                army.calculateCostDay();
+                army.simulateCostDay();
 
                 //survivors heal (if they have food)
                 army.simulateHealing();
