@@ -980,11 +980,7 @@ export default class SceneGame extends Phaser.Scene {
         let scene = this.scene;
 
         if (pointer.leftButtonDown()) {
-            this.scene.deselectEverything();
-            return;
-        }
 
-        if (pointer.rightButtonDown()) {
             //place building
             if (scene.selectedBuyBuilding != null) {
                 //TODO: move building stuff
@@ -992,6 +988,11 @@ export default class SceneGame extends Phaser.Scene {
                 return
             }
 
+            this.scene.deselectEverything();
+            return;
+        }
+
+        if (pointer.rightButtonDown()) {
             //process action of army of player 1
             if (scene.selectedArmy != null) {
                 scene.processArmyAction(this);

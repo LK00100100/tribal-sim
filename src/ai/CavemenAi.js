@@ -16,12 +16,11 @@ export default class CavemenAi extends Ai {
 
         this.scene = scene;
 
-        this.territorySize = 2;
+        this.territorySize = 1;
         this.threatMemory = 60; //remember threats for 90 days
 
         this.armyDaysOfFood = 4;
 
-        this.enemyDistanceFromVillage
     }
 
     calculateTurn() {
@@ -60,9 +59,11 @@ export default class CavemenAi extends Ai {
 
                     this.stageOneBuilding(buildingCounts, building, terrainSprite);
 
-                    this.stageTwoBuilding(buildingCounts, building, terrainSprite);
+                    if(this.buildingPhase >= 2)
+                        this.stageTwoBuilding(buildingCounts, building, terrainSprite);
 
-                    this.stageThreeBuilding(buildingCounts, building, terrainSprite);
+                    if(this.buildingPhase >= 3)
+                        this.stageThreeBuilding(buildingCounts, building, terrainSprite);
                 }
 
             }
@@ -93,12 +94,23 @@ export default class CavemenAi extends Ai {
             //produce armies to match the threat
             //TODO: change amountFood
             if (this.threats.size > 0) {
-                if (village.population > 15 && village.amountFood > 100) {
+                //TODO: "power up" units. wait for more people. perhaps let them recruit more from territory
+                if (village.population > (15 * this.buildingPhase) && village.amountFood > 100) {
                     let armySprite = scene.armyManager.createArmy(this.playerNumber, village);
+                    if (armySprite != null) {
 
-                    //TODO: customize army names
-                    if (armySprite != null)
-                        armySprite.getData("data").name = "Rat Stompers";
+                        let army = armySprite.getData("data");
+                        army.name = "Rat Stompers";
+
+                        //TODO: make getUnits(#)
+                        if (this.buildingPhase >= 2)
+                            scene.armyManager.getUnits(army);
+
+                        if (this.buildingPhase >= 3) {
+                            scene.armyManager.getUnits(army);
+                        }
+                    }
+
                 }
             }
         }
@@ -198,8 +210,9 @@ export default class CavemenAi extends Ai {
                     }
                 }
 
+                //TODO: fix this
                 //make sure you have several days worth of food.
-                if (army.amountFood == 0) {
+                if (army.amountFood <= this.armyDaysOfFood * army.getCostDay()) {
                     for (let i = 0; i < this.armyDaysOfFood; i++)
                         scene.armyManager.getFood(army);
                 }
@@ -227,22 +240,31 @@ export default class CavemenAi extends Ai {
         let countLumberMill = buildingCounts.countLumberMill;
         let countQuarry = buildingCounts.countQuarry;
 
+        this.buildingPhase = 1;
+
         if (countLumberMill < 3) {
             scene.buildingManager.placeBuilding(village, terrainSprite, "LumberMill");
+            return;
         }
 
         if (countFarm < 4) {
             scene.buildingManager.placeBuilding(village, terrainSprite, "Farm");
+            return;
         }
 
-        if (countQuarry < 2) {
+        if (countQuarry < 1) {
             scene.buildingManager.placeBuilding(village, terrainSprite, "Quarry");
+            return;
         }
 
         //if we have enough food
         if (countHousing < 3 && countFarm > countHousing) {
             scene.buildingManager.placeBuilding(village, terrainSprite, "Housing");
+            return;
         }
+
+        this.buildingPhase = 2;
+
     }
 
     stageTwoBuilding(buildingCounts, village, terrainSprite) {
@@ -252,22 +274,32 @@ export default class CavemenAi extends Ai {
         let countLumberMill = buildingCounts.countLumberMill;
         let countQuarry = buildingCounts.countQuarry;
 
-        if (countLumberMill < 6) {
+        this.armyDaysOfFood = 8;
+        this.territorySize = 2;
+        this.buildingPhase = 2;
+
+        if (countLumberMill < 5) {
             scene.buildingManager.placeBuilding(village, terrainSprite, "LumberMill");
+            return;
         }
 
         if (countFarm < 6) {
             scene.buildingManager.placeBuilding(village, terrainSprite, "Farm");
+            return;
         }
 
-        if (countQuarry < 4) {
+        if (countQuarry < 2) {
             scene.buildingManager.placeBuilding(village, terrainSprite, "Quarry");
+            return;
         }
 
         //if we have enough food
         if (countHousing < 6 && countFarm > countHousing) {
             scene.buildingManager.placeBuilding(village, terrainSprite, "Housing");
+            return;
         }
+
+        this.buildingPhase = 3;
     }
 
     stageThreeBuilding(buildingCounts, village, terrainSprite) {
@@ -275,8 +307,12 @@ export default class CavemenAi extends Ai {
         let countFarm = buildingCounts.countFarm;
         let countHousing = buildingCounts.countHousing;
 
+        this.armyDaysOfFood = 15;
+        this.territorySize = 4;
+        this.buildingPhase = 3;
+
         //stop building!
-        if(countHousing >= 8)
+        if (countHousing >= 8)
             return;
 
         //expand population

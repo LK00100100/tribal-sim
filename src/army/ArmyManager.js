@@ -247,18 +247,18 @@ export default class ArmyManager {
      * assumes that an army is on top of a village
      * @param {*} army 
      */
-    getFood(army){
+    getFood(army) {
         let scene = this.scene;
         let row = army.row;
         let col = army.col;
         let armyCost = army.getCostDay();
 
         let building = scene.board.getBuildingData(row, col);
-        if(building == null)
+        if (building == null)
             return;
 
         //check if it's your building
-        if(building.player != army.player)
+        if (building.player != army.player)
             return;
 
         //transfer food
@@ -341,10 +341,20 @@ export default class ArmyManager {
      * get units from a village
      */
     armyGetUnits() {
-        console.log('get more units');
-
         let scene = this.scene;
         let army = scene.selectedArmy.data.get('data');
+
+        console.log('get more units');
+
+        this.getUnits(army)
+
+        scene.updateUI();
+    }
+
+    //TODO: make compatible with rats
+    //TODO: make... not 10
+    getUnits(army) {
+        let scene = this.scene;
 
         let row = army.row;
         let col = army.col;
@@ -373,7 +383,6 @@ export default class ArmyManager {
             army.addUnit(caveman);
         }
 
-        scene.updateUI();
     }
 
     //TODO: remove prefix army. add "player" vs no prefix
@@ -421,7 +430,7 @@ export default class ArmyManager {
 
     }
 
-    
+
 
     armyAttack(pointer) {
         let scene = this.scene;
