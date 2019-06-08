@@ -551,17 +551,18 @@ export default class SceneGame extends Phaser.Scene {
         * ui enemy elements building
         */
 
+        //TODO: set to previous default after separating attack building/unit
         x = 1150;
         y = -160;
 
-        this.txtEnemyBuildingPlayer = this.add.text(x, y + 120)
+        this.txtEnemyBuildingPlayer = this.add.text(x, y + 120 - 120)
             .setScrollFactor(0)
             .setFontSize(50)
             .setDepth(100)
             .setOrigin(1, 0) //right-to-left text
             .setShadow(3, 3, '#000000', 3);
 
-        this.txtEnemyBuildingHealth = this.add.text(x, y + 180)
+        this.txtEnemyBuildingHealth = this.add.text(x, y + 180 - 120)
             .setScrollFactor(0)
             .setFontSize(50)
             .setDepth(100)
@@ -569,7 +570,7 @@ export default class SceneGame extends Phaser.Scene {
             .setShadow(3, 3, '#000000', 3);
 
         //TODO: redo naming
-        this.btnEnemyBuildingAttack = this.add.sprite(x, y + 240, 'btnArmyAttackBuilding')
+        this.btnEnemyBuildingAttack = this.add.sprite(x, y + 660, 'btnArmyAttackBuilding')
             .setScrollFactor(0)
             .setInteractive()
             .setOrigin(1, 0) //right-to-left text
@@ -1142,8 +1143,8 @@ export default class SceneGame extends Phaser.Scene {
     showUiBuildingEnemy(buildingData) {
         let scene = this;
 
-        scene.txtEnemyBuildingPlayer.setText(buildingData.player + " :Player");
-        scene.txtEnemyBuildingHealth.setText(buildingData.health + " :Health");
+        scene.txtEnemyBuildingPlayer.setText(buildingData.player + " :Building, Player");
+        scene.txtEnemyBuildingHealth.setText(buildingData.health + " :Building, Health");
         GameUtils.showGameObjects(scene.uiArmyEnemyBuilding);
     }
 }

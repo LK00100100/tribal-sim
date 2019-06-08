@@ -346,7 +346,7 @@ export default class ArmyManager {
 
         console.log('get more units');
 
-        this.getUnits(army)
+        scene.armyManager.getUnits(army)
 
         scene.updateUI();
     }
