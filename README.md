@@ -36,3 +36,4 @@ If you want more ideas on how to use Phaser 3, clone the following repo [link](h
 ```
 npm start
 ```
+Side Note: I use Visual Studio Code. I also use the ESLint extension turned to autofix on save.
