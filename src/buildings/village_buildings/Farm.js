@@ -1,4 +1,4 @@
-import VillageBuilding from './VillageBuilding.js';
+import VillageBuilding from "./VillageBuilding.js";
 
 export default class Farm extends VillageBuilding {
 

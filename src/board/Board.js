@@ -16,13 +16,13 @@ export default class Board {
         this.boardUnits = [];           //holds occupying units
 
         //TODO: make an enums for terrain
-        this.terrainType = ['tileGrass', 'tileOcean', 'tileHill', 'tileDesert', 'tileForest'];
+        this.terrainType = ["tileGrass", "tileOcean", "tileHill", "tileDesert", "tileForest"];
 
         //TODO: pull this out completely.
         this.directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
     }
 
-    initBoard(someInputHereLater) {
+    initBoard() {
 
         //TODO: make this more dynamic-y later
         //TODO: replace this hardcoded board. research tilemaps
@@ -159,15 +159,15 @@ export default class Board {
 
         //difficult terrain
         switch (this.boardTerrain[row][col]) {
-            //ocean
-            case 1:
-                return false;
-            //hill
-            case 2:
-                return false;
-            //forest
-            case 4:
-                return false;
+        //ocean
+        case 1:
+            return false;
+        //hill
+        case 2:
+            return false;
+        //forest
+        case 4:
+            return false;
         }
 
         return true;
@@ -186,18 +186,18 @@ export default class Board {
 
         //TODO: replace with array?
         switch (terrainType) {
-            //grass
-            case 0:
-                return 1;
-            //hill
-            case 2:
-                return 2;
-            //desert
-            case 3:
-                return 3;
-            //forest
-            case 4:
-                return 1;
+        //grass
+        case 0:
+            return 1;
+        //hill
+        case 2:
+            return 2;
+        //desert
+        case 3:
+            return 3;
+        //forest
+        case 4:
+            return 1;
         }
 
         return 99999;
@@ -216,7 +216,7 @@ export default class Board {
             let row = coordinate.row;
             let col = coordinate.col;
 
-            buildingsData.push(this.boardBuildings[row][col].data.get('data'));
+            buildingsData.push(this.boardBuildings[row][col].data.get("data"));
         });
 
         return buildingsData;
@@ -373,15 +373,15 @@ export default class Board {
                 let village = this.boardBuildings[row][col];
 
                 //TODO: probably redo for friendlies
-                if (village.data.get('data').player == 1)
-                    this.boardTerrainSprites[row][col].setTint('0x00aaff');
+                if (village.data.get("data").player == 1)
+                    this.boardTerrainSprites[row][col].setTint("0x00aaff");
                 //enemy village
                 else
-                    this.boardTerrainSprites[row][col].setTint('0xaa0000');
+                    this.boardTerrainSprites[row][col].setTint("0xaa0000");
             }
             //plain terrain
             else {
-                this.boardTerrainSprites[row][col].setTint('0x00aaff');
+                this.boardTerrainSprites[row][col].setTint("0x00aaff");
             }
 
             //enemy units
@@ -389,7 +389,7 @@ export default class Board {
                 let unit = this.boardUnits[row][col].data.get("data");
 
                 if (unit.player != 1) {
-                    this.boardTerrainSprites[row][col].setTint('0xaa0000');
+                    this.boardTerrainSprites[row][col].setTint("0xaa0000");
                 }
             }
 
@@ -430,7 +430,7 @@ export default class Board {
         let currentSquare = {
             row: row,
             col: col
-        }
+        };
 
         let queue = [];
         queue.push(currentSquare);
@@ -444,7 +444,7 @@ export default class Board {
 
                 currentSquare = queue.shift();
 
-                let coordinate = currentSquare.row + ',' + currentSquare.col;
+                let coordinate = currentSquare.row + "," + currentSquare.col;
 
                 if (visited.has(coordinate))
                     continue;
@@ -464,7 +464,7 @@ export default class Board {
                     let nextSquare = {
                         row: currentSquare.row + i,
                         col: currentSquare.col + j
-                    }
+                    };
 
                     queue.push(nextSquare);
                 }

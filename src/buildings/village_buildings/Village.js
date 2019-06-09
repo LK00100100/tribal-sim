@@ -1,5 +1,5 @@
-import VillageBuilding from './VillageBuilding.js';
-import Races from '../../Races.js';
+import VillageBuilding from "./VillageBuilding.js";
+import Races from "../../Races.js";
 
 import GameUtils from "../../utils/GameUtils";
 

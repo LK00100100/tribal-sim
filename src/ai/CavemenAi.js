@@ -1,8 +1,8 @@
-import Village from '../buildings/village_buildings/Village.js';
-import GameUtils from '../utils/GameUtils.js';
-import GameUtilsArmy from '../utils/GameUtilsArmy';
-import GameUtilsBuilding from '../utils/GameUtilsBuilding.js';
-import Ai from './Ai.js';
+import Village from "../buildings/village_buildings/Village.js";
+import GameUtils from "../utils/GameUtils.js";
+import GameUtilsArmy from "../utils/GameUtilsArmy";
+import GameUtilsBuilding from "../utils/GameUtilsBuilding.js";
+import Ai from "./Ai.js";
 
 /**
  * defensive AI
@@ -12,7 +12,7 @@ import Ai from './Ai.js';
 export default class CavemenAi extends Ai {
 
     constructor(scene, playerNumber) {
-        super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber])
+        super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
 
         this.scene = scene;
 
@@ -24,23 +24,23 @@ export default class CavemenAi extends Ai {
     }
 
     calculateTurn() {
-        console.log('cavemen doing cavemen stuff...');
+        console.log("cavemen doing cavemen stuff...");
 
         let scene = this.scene;
 
         let village = null; //the last village
 
         this.buildings.forEach(building => {
-            let buildingData = building.data.get('data');
+            let buildingData = building.data.get("data");
 
             //do village stuff
             if (buildingData instanceof Village) {
                 village = buildingData;
-                console.log('---------------------');
-                console.log('caveman village:');
-                console.log('   village food:' + buildingData.amountFood);
-                console.log('   village pop:' + buildingData.population);
-                console.log('   village starvation pop:' + buildingData.starvationAmount);
+                console.log("---------------------");
+                console.log("caveman village:");
+                console.log("   village food:" + buildingData.amountFood);
+                console.log("   village pop:" + buildingData.population);
+                console.log("   village starvation pop:" + buildingData.starvationAmount);
 
                 //get buildable tiles
                 let villageBuildingTiles = scene.buildingManager.getVillageBuildings(buildingData);

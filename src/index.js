@@ -1,6 +1,6 @@
 
-import 'phaser';
-import SceneGame from './SceneGame.js';
+import Phaser from "phaser";
+import SceneGame from "./SceneGame.js";
 
 var sceneGame = new SceneGame();
 
@@ -11,4 +11,4 @@ var config = {
     scene: [sceneGame]  //TODO: put more scenes here
 };
 
-var game = new Phaser.Game(config);
+new Phaser.Game(config);

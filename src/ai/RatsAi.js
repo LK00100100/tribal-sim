@@ -1,13 +1,13 @@
-import Village from '../buildings/village_buildings/Village.js';
-import GameUtils from '../utils/GameUtils.js';
-import GameUtilsArmy from '../utils/GameUtilsArmy.js';
-import Rat from '../army/unit/Rat.js';
-import Ai from './Ai.js';
+import Village from "../buildings/village_buildings/Village.js";
+import GameUtils from "../utils/GameUtils.js";
+import GameUtilsArmy from "../utils/GameUtilsArmy.js";
+import Rat from "../army/unit/Rat.js";
+import Ai from "./Ai.js";
 
 export default class RatsAi extends Ai {
 
     constructor(scene, playerNumber) {
-        super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber])
+        super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
 
         this.territorySize = 3;
         this.reproductionChance = 0.33;
@@ -15,18 +15,18 @@ export default class RatsAi extends Ai {
     }
 
     calculateTurn() {
-        console.log('rats doing rat stuff...');
+        console.log("rats doing rat stuff...");
 
         let scene = this.scene;
 
         this.buildings.forEach(building => {
-            let buildingData = building.data.get('data');
+            let buildingData = building.data.get("data");
 
             if (buildingData instanceof Village) {
-                console.log('rat village:');
-                console.log('   rat village food:' + buildingData.amountFood);
-                console.log('   rat village pop:' + buildingData.population);
-                console.log('   rat village starvation pop:' + buildingData.starvationAmount);
+                console.log("rat village:");
+                console.log("   rat village food:" + buildingData.amountFood);
+                console.log("   rat village pop:" + buildingData.population);
+                console.log("   rat village starvation pop:" + buildingData.starvationAmount);
 
                 //constantly produce rat armies when you can
                 if (buildingData.population >= 20) {

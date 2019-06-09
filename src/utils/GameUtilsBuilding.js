@@ -1,8 +1,8 @@
-import Village from '../buildings/village_buildings/Village.js';
-import Farm from '../buildings/village_buildings/Farm.js';
-import LumberMill from '../buildings/village_buildings/LumberMill.js';
-import Quarry from '../buildings/village_buildings/Quarry.js';
-import Housing from '../buildings/village_buildings/Housing.js';
+import Village from "../buildings/village_buildings/Village.js";
+import Farm from "../buildings/village_buildings/Farm.js";
+import LumberMill from "../buildings/village_buildings/LumberMill.js";
+import Quarry from "../buildings/village_buildings/Quarry.js";
+import Housing from "../buildings/village_buildings/Housing.js";
 
 export default class GameUtilsBuilding {
 
@@ -34,7 +34,7 @@ export default class GameUtilsBuilding {
                 countsOfBuildings.countHousing++;
             }
             else
-                console.log('cannot count this building');
+                console.log("cannot count this building");
         });
 
         return countsOfBuildings;

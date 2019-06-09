@@ -10,7 +10,7 @@ export default class BuildingManager {
     }
 
     //TODO: move to UI manager?
-    clickedDestroyBuilding(pointer) {
+    clickedDestroyBuilding() {
         let scene = this.scene;
 
         console.log("destroying building");
@@ -87,7 +87,7 @@ export default class BuildingManager {
         if (board.isWithinBounds(row, col) == false)
             return answer;
 
-        let key = row + ',' + col;
+        let key = row + "," + col;
 
         if (visited.has(key))
             return answer;
@@ -100,7 +100,7 @@ export default class BuildingManager {
         if (building == null)
             return answer;
 
-        building = building.data.get('data');
+        building = building.data.get("data");
 
         //if this village is not ours
         if (building instanceof Village) {
@@ -132,11 +132,11 @@ export default class BuildingManager {
             return;
 
 
-        let village = scene.selectedVillage.data.get('data');
+        let village = scene.selectedVillage.data.get("data");
 
         //TODO: ensure enough resources from this specific building
         if (village.amountWood < 100) {
-            console.log('not enough wood. need 100');
+            console.log("not enough wood. need 100");
             return;
         }
 
@@ -149,11 +149,11 @@ export default class BuildingManager {
             return;
         }
 
-        console.log('before: build a ' + buildingType);
+        console.log("before: build a " + buildingType);
 
         scene.selectedBuyBuilding = buildingType;
         GameUtils.clearTintArray(scene.uiVillage);
-        gameSprite.setTint('0x00ff00');
+        gameSprite.setTint("0x00ff00");
 
         scene.possibleMoves = scene.buildingManager.getVillageBuildings(village);
         scene.possibleMoves = scene.buildingManager.getBuildableNeighbors(scene.possibleMoves);
@@ -169,9 +169,9 @@ export default class BuildingManager {
      */
     placeBuilding(selectedVillage, terrainSprite, buildingType) {
         let scene = this.scene;
-        let board = scene.board
-        let row = terrainSprite.getData('row');
-        let col = terrainSprite.getData('col');
+        let board = scene.board;
+        let row = terrainSprite.getData("row");
+        let col = terrainSprite.getData("col");
         let x = terrainSprite.x;
         let y = terrainSprite.y;
 
@@ -179,7 +179,7 @@ export default class BuildingManager {
         if (board.boardBuildings[row][col] != null)
             return;
 
-        let village = selectedVillage.getData('data');
+        let village = selectedVillage.getData("data");
 
         //TODO: change this later to reflect 'final' building costs
         if (village.amountWood < 100)
@@ -190,15 +190,15 @@ export default class BuildingManager {
         let building = BuildingFactory
             .getVillageBuilding(buildingType, row, col, x, y, village);
 
-        let tempSprite = scene.add.sprite(x, y, 'build' + buildingType)
+        let tempSprite = scene.add.sprite(x, y, "build" + buildingType)
             .setInteractive()
             .setDataEnabled()
             .setDepth(1)
-            .on('pointerdown', scene.clickedBuilding);
+            .on("pointerdown", scene.clickedBuilding);
 
-        tempSprite.data.set('row', row);
-        tempSprite.data.set('col', col);
-        tempSprite.data.set('data', building);
+        tempSprite.data.set("row", row);
+        tempSprite.data.set("col", col);
+        tempSprite.data.set("data", building);
 
         board.boardBuildings[row][col] = tempSprite;
         scene.playerBuildings[village.player].push(tempSprite);
@@ -208,8 +208,8 @@ export default class BuildingManager {
         let scene = this.scene;
         let board = scene.board;
 
-        let row = terrainSprite.data.get('row');
-        let col = terrainSprite.data.get('col');
+        let row = terrainSprite.data.get("row");
+        let col = terrainSprite.data.get("col");
 
         if (scene.selectedBuyBuilding == null)
             return;
@@ -256,19 +256,19 @@ export default class BuildingManager {
             let row = tile.row;
             let col = tile.col;
 
-            visited.add(row + ',' + col);
+            visited.add(row + "," + col);
 
             for (let d = 0; d < board.directions.length; d++) {
                 let i = board.directions[d][0];
                 let j = board.directions[d][1];
 
-                let key = (row + i) + ',' + (col + j);
+                let key = (row + i) + "," + (col + j);
 
                 if (!board.isWithinBounds(row + i, col + j))
                     continue;
 
                 if (!board.isBuildable(row + i, col + j)) {
-                    continue
+                    continue;
                 }
 
                 if (visited.has(key))

@@ -32,7 +32,7 @@ export default class Ai {
     calculateTurn() { }
 
     isAlive() {
-        if (armies.length == 0 && buildings.length == 0)
+        if (this.armies.length == 0 && this.buildings.length == 0)
             return false;
 
         return true;
