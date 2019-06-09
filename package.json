@@ -8,15 +8,18 @@
     "dev": "webpack --mode=development --watch",
     "build": "webpack --mode=production",
     "start:dev": "webpack-dev-server --mode=development --port=8888 --host 0.0.0.0",
-    "start": "npm run start:dev",
-    "ngrok": "ngrok http --host-header=rewrite 8888"
+    "start": "npm-run-all --parallel dev start:dev lint:watch",
+    "ngrok": "ngrok http --host-header=rewrite 8888",
+    "lint": "esw ./src/** ./test/** --color",
+    "lint:watch": "esw ./src/** ./test/** --watch --color",
+    "lint:fix": "esw --fix ./src/** ./test/**"
   },
   "author": "L. Keh: LK00100100@gmail.com",
   "devDependencies": {
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
-    "eslint": "^5.16.0",
+    "eslint-watch": "^5.1.2",
     "jest": "^24.7.1",
     "ngrok": "^3.1.1",
+    "npm-run-all": "^4.1.5",
     "webpack": "^4.29.0",
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14"

@@ -2,7 +2,7 @@
 import Army from "./Army.js";
 import Caveman from "./unit/Caveman.js";
 
-import UnitFactory from "./unit/UnitFactory"
+import UnitFactory from "./unit/UnitFactory";
 import GameUtils from "../utils/GameUtils.js";
 
 /**
