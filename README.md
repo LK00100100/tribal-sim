@@ -19,15 +19,11 @@ This game uses Phaser 3.
 ```
 npm install 
 ```
-2) Open up a terminal and type the following to do the initial build and to allow automatic code building whenever code changes:
+2) Open up a terminal and type the following to do: automatic code building on changes; automatic code checks through ESLint; deploy for browser use:
 ```
-npm run dev
+npm start
 ```
-3) Open up another terminal and type the following to run a local server:
-```
-npm run start
-```
-4) Open up a browser and go here:
+3) Open up a browser and go here:
 ```
 http://localhost:8888/dist/
 ```
