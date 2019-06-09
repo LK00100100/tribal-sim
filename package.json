@@ -11,7 +11,7 @@
     "start": "npm-run-all --parallel dev start:dev lint:watch",
     "ngrok": "ngrok http --host-header=rewrite 8888",
     "lint": "esw ./src/** ./test/** --color",
-    "lint:watch": "esw ./src/** ./test/** --watch --color",
+    "lint:watch": "npm run lint -- --watch",
     "lint:fix": "esw --fix ./src/** ./test/**"
   },
   "author": "L. Keh: LK00100100@gmail.com",
