@@ -12,7 +12,7 @@
     "ngrok": "ngrok http --host-header=rewrite 8888",
     "lint": "esw ./src/** ./test/** --color",
     "lint:watch": "npm run lint -- --watch",
-    "lint:fix": "esw --fix ./src/** ./test/**"
+    "lint:fix": "npm run lint -- --fix"
   },
   "author": "L. Keh: LK00100100@gmail.com",
   "devDependencies": {
