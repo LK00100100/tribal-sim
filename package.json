@@ -16,6 +16,7 @@
   },
   "author": "L. Keh: LK00100100@gmail.com",
   "devDependencies": {
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.2",
     "eslint-watch": "^5.1.2",
     "jest": "^24.7.1",
     "ngrok": "^3.1.1",
