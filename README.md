@@ -4,6 +4,8 @@
 [![Build Status](https://travis-ci.org/LK00100100/tribal-sim.svg?branch=master)](https://travis-ci.org/LK00100100/tribal-sim)
 ![GitHub stars](https://img.shields.io/github/stars/LK00100100/tribal-sim.svg?style=social)
 
+[Play here](https://tribal-sim.firebaseapp.com/)
+
 A strategy game that simulates tribes.
 
 This game uses Phaser 3.
