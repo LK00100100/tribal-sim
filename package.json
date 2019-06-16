@@ -9,11 +9,12 @@
     "build:dev": "webpack --mode=development --watch",
     "build": "webpack --mode=production",
     "start:dev": "webpack-dev-server --mode=development --port=8888 --host 0.0.0.0",
-    "start": "webpack-dev-server --mode=production",
+    "start": "node server.js",
     "ngrok": "ngrok http --host-header=rewrite 8888",
     "lint": "esw ./src/** ./test/** --color",
     "lint:watch": "npm run lint -- --watch",
-    "lint:fix": "npm run lint -- --fix"
+    "lint:fix": "npm run lint -- --fix",
+    "heroku-postbuild": "webpack -p"
   },
   "author": "L. Keh: LK00100100@gmail.com",
   "devDependencies": {
