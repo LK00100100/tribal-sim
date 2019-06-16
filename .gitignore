@@ -6,3 +6,4 @@ TODO-notes.txt
 package-lock.json
 dist/main.js
 TODO-completed.txt
+/.firebase
