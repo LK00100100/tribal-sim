@@ -1,6 +1,7 @@
 # tribal-sim
 ![GitHub](https://img.shields.io/github/license/LK00100100/tribal-sim.svg)
 ![RepoSize](https://img.shields.io/github/repo-size/LK00100100/tribal-sim.svg)
+[![Build Status](https://travis-ci.org/LK00100100/tribal-sim.svg?branch=master)](https://travis-ci.org/LK00100100/tribal-sim)
 ![GitHub stars](https://img.shields.io/github/stars/LK00100100/tribal-sim.svg?style=social)
 
 A strategy game that simulates tribes.
