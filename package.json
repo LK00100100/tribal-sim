@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "test": "jest",
-    "dev": "npm-run-all --parallel dev start:dev lint:watch",
+    "dev": "npm-run-all --parallel build:dev start:dev lint:watch",
     "build:dev": "webpack --mode=development --watch",
     "build": "webpack --mode=production",
     "start:dev": "webpack-dev-server --mode=development --port=8888 --host 0.0.0.0",
