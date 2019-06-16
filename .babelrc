@@ -1,7 +1,10 @@
+//we need this for jest to run
 {
-    "env": {
-      "test": {
-        "plugins": ["transform-es2015-modules-commonjs"]
-      }
+  "env": {
+    "test": {
+      "plugins": [
+        "transform-es2015-modules-commonjs"
+      ]
     }
   }
+}

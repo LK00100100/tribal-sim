@@ -5,10 +5,11 @@
   "private": true,
   "scripts": {
     "test": "jest",
-    "dev": "webpack --mode=development --watch",
+    "dev": "npm-run-all --parallel dev start:dev lint:watch",
+    "build:dev": "webpack --mode=development --watch",
     "build": "webpack --mode=production",
     "start:dev": "webpack-dev-server --mode=development --port=8888 --host 0.0.0.0",
-    "start": "npm-run-all --parallel dev start:dev lint:watch",
+    "start": "webpack-dev-server --mode=production",
     "ngrok": "ngrok http --host-header=rewrite 8888",
     "lint": "esw ./src/** ./test/** --color",
     "lint:watch": "npm run lint -- --watch",
