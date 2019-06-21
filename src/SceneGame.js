@@ -133,7 +133,6 @@ export default class SceneGame extends Phaser.Scene {
 
     preload() {
         //terrain
-        this.load.image("grid", "assets/uv-grid-4096-ian-maclachlan.png");
         this.load.image(this.board.terrainType[0], "assets/tile-grass.png");
         this.load.image(this.board.terrainType[1], "assets/tile-ocean.png");
         this.load.image(this.board.terrainType[2], "assets/tile-hill.png");
@@ -198,9 +197,6 @@ export default class SceneGame extends Phaser.Scene {
 
         let x, y;
         let tempImage, tempSprite, tempText;
-
-        //draw checkerboard
-        this.add.image(0, 0, "grid").setOrigin(0);
 
         /**
         * draw the terrain
