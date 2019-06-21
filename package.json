@@ -14,7 +14,8 @@
     "lint": "esw ./src/** ./test/** --color",
     "lint:watch": "npm run lint -- --watch",
     "lint:fix": "npm run lint -- --fix",
-    "heroku-postbuild": "webpack -p"
+    "heroku-postbuild": "webpack -p",
+    "deploy": "firebase deploy"
   },
   "author": "L. Keh: LK00100100@gmail.com",
   "devDependencies": {
