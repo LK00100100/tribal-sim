@@ -10,8 +10,18 @@ firebase login
 npm i -g firebase-tools
 
 # you should be able to get a list of your projects
-# otherwise your certificate may have expired
 firebase list
+
+# if you have a "certificate problem," you may be using an old version of firebase.
+firebase logout
+firebase login
+
+# you should be able to use our command
+npm run deploy
+
+----------
+
+# alternative steps. Although you shouldn't need this.
 
 # try to get the token
 # log into google, get the token.
