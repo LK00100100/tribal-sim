@@ -2,6 +2,8 @@ import GameUtils from "../../utils/GameUtils";
 
 export default class Unit {
 
+    //TODO: implement vision
+
     constructor(health) {
         this.health = health;
         this.healthMax = health;

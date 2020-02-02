@@ -1,4 +1,4 @@
-import Village from "./village_buildings/Village";
+import Village from "./villageBuildings/Village";
 import BuildingFactory from "./BuildingFactory";
 
 import GameUtils from "../utils/GameUtils";

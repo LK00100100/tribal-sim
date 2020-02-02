@@ -170,6 +170,7 @@ export default class ArmyManager {
      * @param {*} player 
      * @param {*} village 
      */
+    //TODO: rename createArmyFromVillage
     createArmy(player, village) {
 
         let scene = this.scene;
@@ -202,6 +203,57 @@ export default class ArmyManager {
         let armySprite = UnitFactory.getUnitSprite(scene, village, race);
 
         let army = new Army(player, village);
+        //TODO: set army moveAmount dynamically
+        army.moveAmount = 0;
+        army.moveMax = 3;
+        army.amountFood += 10;
+
+        //TODO: generate random name
+
+        //TODO: change this later
+        for (let i = 0; i < 10; i++) {
+            let unit = UnitFactory.getUnit(race);
+            army.addUnit(unit);
+        }
+
+        armySprite.data.set("data", army);
+        scene.playerArmies[player].push(armySprite);
+        this.addArmyToBoard(row, col, armySprite);
+
+        return armySprite;
+    }
+
+    //TODO: createArmy() and then placeArmy(row, col)
+    /**
+     * Creates an army and places it on the board
+     * @param {Number} player player number
+     * @param {Number} row 
+     * @param {Number} col 
+     */
+    createArmyFromCoordinate(player, row, col) {
+
+        let scene = this.scene;
+        let race = scene.playerRace[player];
+
+        //space already occupied
+        if (scene.board.boardUnits[row][col] != null) {
+            console.log("already occupied");
+            return;
+        }
+        
+        //TODO: fix
+        let y = 512 + (row * 256);
+        let x = 512 + (col * 256);
+        let village = {
+            x: x,
+            y: y,
+            row: row,
+            col: col,
+            race: race
+        };
+        let armySprite = UnitFactory.getUnitSprite(scene, village, race);
+
+        let army = new Army(player, village, row, col);
         //TODO: set army moveAmount dynamically
         army.moveAmount = 0;
         army.moveMax = 3;

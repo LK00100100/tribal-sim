@@ -1,4 +1,4 @@
-import Village from "../buildings/village_buildings/Village.js";
+import Village from "../buildings/villageBuildings/Village.js";
 import GameUtils from "../utils/GameUtils.js";
 import GameUtilsArmy from "../utils/GameUtilsArmy.js";
 import Rat from "../army/unit/Rat.js";

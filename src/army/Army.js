@@ -1,12 +1,38 @@
+// eslint-disable-next-line no-unused-vars
+import Village from "../buildings/villageBuildings/Village";
 
+/**
+ * Holds a group of Individual Units
+ */
 export default class Army {
 
-    constructor(player, village) {
+    /**
+     * Either set the army's starting coordinates to village or row/col
+     * @param {Number} player playerNumber
+     * @param {Village} village 
+     * @param {Number} row 
+     * @param {Number} col 
+     */
+    //TODO: remove village
+    constructor(player, village, row, col) {
 
-        this.row = village.row;
-        this.col = village.col;
+        //set starting coordinates and starting village (if applicable)
+        if(village != null){
+            this.village = village;
+            this.row = village.row;
+            this.col = village.col;
+        }
+        else{
+            if(row != null)
+                this.row = row;
+
+            if(col != null)
+                this.col = col;
+
+            this.village = null;
+        }
+
         this.player = player;   //player number
-        this.village = village;
         this.name;
 
         this.moveMax;

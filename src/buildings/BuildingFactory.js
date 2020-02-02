@@ -1,8 +1,8 @@
-import Farm from "./village_buildings/Farm.js";
-import LumberMill from "./village_buildings/LumberMill.js";
-import Quarry from "./village_buildings/Quarry.js";
-import Housing from "./village_buildings/Housing.js";
-import Village from "./village_buildings/Village.js";
+import Farm from "./villageBuildings/Farm.js";
+import LumberMill from "./villageBuildings/LumberMill.js";
+import Quarry from "./villageBuildings/Quarry.js";
+import Housing from "./villageBuildings/Housing.js";
+import Village from "./villageBuildings/Village.js";
 
 export default class BuildingFactory {
 

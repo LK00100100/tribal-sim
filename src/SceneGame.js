@@ -3,14 +3,16 @@ import GameUtils from "./utils/GameUtils";
 import GameUtilsBuilding from "./utils/GameUtilsBuilding";
 
 import Board from "./board/Board";
-import Village from "./buildings/village_buildings/Village";
+import Village from "./buildings/villageBuildings/Village";
 
 import ArmyManager from "./army/ArmyManager";
 
 import Races from "./Races";
 
-import RatsAi from "./ai/RatsAi";
 import CavemenAi from "./ai/CavemenAi";
+import GorillaAi from "./ai/GorillaAi";
+import RatsAi from "./ai/RatsAi";
+
 import BuildingManager from "./buildings/BuildingManager";
 
 import Phaser from "phaser";
@@ -22,8 +24,11 @@ export default class SceneGame extends Phaser.Scene {
 
         super("SceneGame");
 
+        //TODO: separate scene from game info
+
         this.board = new Board();
-        this.playerRace = ["", "cavemen", "cavemen", "rats", "rats", "cavemen"];
+        //TODO: enum
+        this.playerRace = ["", "cavemen", "cavemen", "rats", "rats", "cavemen", "gorilla"]; //1-indexed
         this.numPlayers = this.playerRace.length - 1;
 
         this.playerHuman = 1;   //this is you
@@ -95,7 +100,7 @@ export default class SceneGame extends Phaser.Scene {
         //for input and camera
         this.controls;
 
-        this.day;
+        this.day;   //what day on earth it is. ex: Day 100
 
         this.gameOver = false;
 
@@ -173,16 +178,14 @@ export default class SceneGame extends Phaser.Scene {
 
         //armies
         this.load.image("armyCaveman", "assets/army-caveman.png");
+        this.load.image("armyGorilla", "assets/army-gorilla.png");
         this.load.image("armyRat", "assets/army-rat.png");
-
     }
 
     create() {
-
         /**
          * pre init
          */
-
         this.playerBuildings = [];
         this.playerArmies = [];
         for (let playerNum = 0; playerNum <= this.numPlayers; playerNum++) {
@@ -331,6 +334,11 @@ export default class SceneGame extends Phaser.Scene {
          * UI - village
          */
         //TODO: pull this out to a scene on top of another scene.
+        
+        //TODO: temporary, place gorillas
+        let gorillaPlayerNumber = 6;
+        let armySprite = this.armyManager.createArmyFromCoordinate(gorillaPlayerNumber, 3, 5);
+        armySprite.getData("data").name = "Atomrilla";
 
         y = -120;
 
@@ -645,6 +653,7 @@ export default class SceneGame extends Phaser.Scene {
         this.playersAi[3] = new RatsAi(this, 3);
         this.playersAi[4] = new RatsAi(this, 4);
         this.playersAi[5] = new CavemenAi(this, 5);
+        this.playersAi[6] = new GorillaAi(this, 6);
 
         this.updateUI();
     }

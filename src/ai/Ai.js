@@ -1,6 +1,9 @@
 
 export default class Ai {
 
+    //TODO: enemies and hate-points itemized calculation
+    //TODO: and neutral...
+    //TODO: friends and like-points itemized calculation
     /**
      * @param {*} scene game
      * @param {*} playerNumber 

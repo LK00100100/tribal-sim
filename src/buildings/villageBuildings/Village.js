@@ -5,6 +5,7 @@ import GameUtils from "../../utils/GameUtils";
 
 export default class Village extends VillageBuilding {
 
+    //TODO: take out x, y
     constructor(row, col, x, y, player, name) {
         super(row, col, x, y, player);
         this.village = this;
