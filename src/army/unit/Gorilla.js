@@ -2,7 +2,7 @@ import Unit from "./Unit.js";
 
 export default class Gorilla extends Unit {
 
-    constructor(){
+    constructor() {
         super(250);
 
         this.cost = 0;  //they feast off of the land
@@ -11,7 +11,7 @@ export default class Gorilla extends Unit {
         this.attackBase = 15;
         this.attackBonusMin = 0;
         this.attackBonusMax = 10;
-        
+
         this.defenseBase = 10;
         this.defenseBonusMin = 3;
         this.defenseBonusMax = 10;

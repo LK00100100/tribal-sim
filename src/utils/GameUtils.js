@@ -32,8 +32,8 @@ export default class GameUtils {
 
     /**
      * returns a new list of intersecting coordinates.
-     * @param {*} coordinates1 an array of {row, col}
-     * @param {*} coordinates2 an array of {row, col}
+     * @param {Array} coordinates1 an array of {row, col}
+     * @param {Array} coordinates2 an array of {row, col}
      * @returns coordinate1's intersecting objects
      */
     static getIntersectionCoordinates(coordinates1, coordinates2) {

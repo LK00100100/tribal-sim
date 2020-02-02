@@ -244,6 +244,7 @@ export default class ArmyManager {
         //TODO: fix
         let y = 512 + (row * 256);
         let x = 512 + (col * 256);
+        //TODO: make a NoVillage class?
         let village = {
             x: x,
             y: y,
@@ -256,8 +257,8 @@ export default class ArmyManager {
         let army = new Army(player, village, row, col);
         //TODO: set army moveAmount dynamically
         army.moveAmount = 0;
-        army.moveMax = 3;
-        army.amountFood += 10;
+        army.moveMax = 1;
+        army.amountFood += 1; //0 food = starvation
 
         //TODO: generate random name
 

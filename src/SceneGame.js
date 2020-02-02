@@ -36,7 +36,7 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: temporary. do fix
         this.buildings = [
             {
-                row: 2, col: 2,
+                row: 5, col: 2,
                 name: "mad katz",
                 type: "village",
                 player: 1,
@@ -46,7 +46,7 @@ export default class SceneGame extends Phaser.Scene {
                 amountWood: 500
             },
             {
-                row: 13, col: 10,
+                row: 16, col: 10,
                 name: "stompers",
                 type: "village",
                 player: 2,
@@ -56,7 +56,7 @@ export default class SceneGame extends Phaser.Scene {
                 amountWood: 50
             },
             {
-                row: 3, col: 7,
+                row: 6, col: 7,
                 name: "rabid rats",
                 type: "village",
                 player: 3,
@@ -66,7 +66,7 @@ export default class SceneGame extends Phaser.Scene {
                 amountWood: 0
             },
             {
-                row: 9, col: 1,
+                row: 12, col: 1,
                 name: "desert rats",
                 type: "village",
                 player: 4,
@@ -76,7 +76,7 @@ export default class SceneGame extends Phaser.Scene {
                 amountWood: 0
             },
             {
-                row: 8, col: 7,
+                row: 11, col: 7,
                 name: "crazy rats",
                 type: "village",
                 player: 3,
@@ -86,7 +86,7 @@ export default class SceneGame extends Phaser.Scene {
                 amountWood: 0
             },
             {
-                row: 7, col: 13,
+                row: 10, col: 13,
                 name: "clubbers",
                 type: "village",
                 player: 5,
@@ -337,7 +337,7 @@ export default class SceneGame extends Phaser.Scene {
         
         //TODO: temporary, place gorillas
         let gorillaPlayerNumber = 6;
-        let armySprite = this.armyManager.createArmyFromCoordinate(gorillaPlayerNumber, 3, 5);
+        let armySprite = this.armyManager.createArmyFromCoordinate(gorillaPlayerNumber, 4, 13);
         armySprite.getData("data").name = "Atomrilla";
 
         y = -120;
@@ -656,6 +656,9 @@ export default class SceneGame extends Phaser.Scene {
         this.playersAi[6] = new GorillaAi(this, 6);
 
         this.updateUI();
+        
+        //TODO:center to player 1 center. remove? make more dynamic?
+        this.cam.pan(1000, 2000, 1000);
     }
 
     update(time, delta) {

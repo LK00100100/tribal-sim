@@ -1,4 +1,5 @@
 
+//TODO: make board (holds data) and boardManager (does stuff with the board)
 export default class Board {
 
     constructor() {
@@ -28,8 +29,11 @@ export default class Board {
         //TODO: replace this hardcoded board. research tilemaps
         this.boardTerrain = [
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 2, 4, 4, 4, 1, 1, 1, 1, 1, 1, 1, 1, 1],
-            [1, 0, 0, 0, 2, 4, 4, 4, 4, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 4, 4, 1, 1, 4, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 4, 4, 1, 4, 4, 4, 1, 1, 1, 1],
+            [1, 0, 0, 0, 2, 4, 4, 4, 1, 1, 4, 1, 4, 4, 0, 1, 1],
+            [1, 0, 0, 0, 2, 4, 4, 4, 4, 0, 4, 1, 1, 4, 1, 1, 1],
             [1, 0, 0, 0, 0, 4, 4, 0, 4, 0, 0, 1, 1, 1, 1, 1, 1],
             [1, 0, 0, 0, 1, 2, 4, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1],
             [1, 1, 3, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
@@ -396,9 +400,10 @@ export default class Board {
         });
     }
 
+    //TODO: rename terrainSprite
     /**
-     * @param {*} row 
-     * @param {*} col 
+     * @param {Number} row 
+     * @param {Number} col 
      * @returns terrainSprite or null
      */
     getTerrain(row, col) {
@@ -412,8 +417,8 @@ export default class Board {
     /**
      * get the surrounding area (water and impassable land included)
      * breadth-first search (BFS) of distance
-     * @param {*} row 
-     * @param {*} col 
+     * @param {Number} row 
+     * @param {Number} col 
      * @param {*} distance 
      */
     getTerritory(row, col, distance) {
