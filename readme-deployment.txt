@@ -16,6 +16,8 @@ firebase list
 firebase logout
 firebase login
 
+# look at the package.json for the production 'build' command.
+# build the app so that it goes into the dist folder.
 # you should be able to use our command
 npm run deploy
 
