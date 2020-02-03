@@ -24,7 +24,7 @@ npm install
 ```
 2) Open up a terminal and type the following to do: automatic code building on changes; automatic code checks through ESLint; deploy for browser use:
 ```
-npm start
+npm run dev
 ```
 3) Open up a browser and go here:
 ```
@@ -33,6 +33,6 @@ http://localhost:8888/dist/
 Note: Whenever you makes changes to your code, save the file, then refresh your browser when ready.
 If you want more ideas on how to use Phaser 3, clone the following repo [link](https://github.com/photonstorm/phaser3-examples), run it locally using:
 ```
-npm run dev
+npm start
 ```
 Side Note: I use Visual Studio Code. I also use the ESLint extension turned to autofix on save.
