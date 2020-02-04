@@ -47,7 +47,7 @@ export default class GorillaAi extends Ai {
             if (reproduce == 1) {
                 console.log("reproducing at: " + armyData.row + "," + armyData.col);
 
-                if (armyData.size() <= 20) {
+                if (armyData.size() < 20) {
                     for (let i = 0; i < this.reproduceAmount; i++) {
                         let rat = new Gorilla();
                         armyData.addUnit(rat);

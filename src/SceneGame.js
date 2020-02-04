@@ -337,7 +337,7 @@ export default class SceneGame extends Phaser.Scene {
         
         //TODO: temporary, place gorillas
         let gorillaPlayerNumber = 6;
-        let armySprite = this.armyManager.createArmyFromCoordinate(gorillaPlayerNumber, 4, 13);
+        let armySprite = this.armyManager.createArmyFromCoordinate(gorillaPlayerNumber, 3, 10);
         armySprite.getData("data").name = "Atomrilla";
 
         y = -120;
