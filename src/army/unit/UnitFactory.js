@@ -1,17 +1,22 @@
-import Races from "../../Races.js";
+import Races from "../../Races";
 
-import Caveman from "./Caveman.js";
+import Caveman from "./Caveman";
 import Gorilla from "./Gorilla";
 import Rat from "./Rat.js";
+import Tiger from "./Tiger";
+// eslint-disable-next-line no-unused-vars
+import Unit from "./Unit";
 
 export default class UnitFactory {
 
     /**
      * Get specific Unit object from race
      * @param {Races} race 
+     * @returns {Unit}
      */
     static getUnit(race) {
 
+        //TODO: singular noun
         switch (race) {
         case Races.CAVEMEN:
             return new Caveman();
@@ -19,6 +24,8 @@ export default class UnitFactory {
             return new Gorilla();
         case Races.RATS:
             return new Rat();
+        case Races.TIGER:
+            return new Tiger();
         default:
             throw "no such race: " + race;
         }
@@ -37,6 +44,7 @@ export default class UnitFactory {
         //TODO: shove in unit?
         //TODO: remove card code stuff
         //TODO: repeat code
+        //TODO: handle no villages
         let armySprite;
         switch (race) {
         case Races.CAVEMEN:
@@ -51,6 +59,11 @@ export default class UnitFactory {
             break;
         case Races.RATS:
             armySprite = scene.add.sprite(village.x, village.y, "armyRat")
+                .setInteractive()
+                .on("pointerdown", scene.armyManager.clickedArmy);
+            break;
+        case Races.TIGER:
+            armySprite = scene.add.sprite(village.x, village.y, "armyTiger")
                 .setInteractive()
                 .on("pointerdown", scene.armyManager.clickedArmy);
             break;

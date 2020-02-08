@@ -11,6 +11,7 @@ import Races from "./Races";
 
 import CavemenAi from "./ai/CavemenAi";
 import GorillaAi from "./ai/GorillaAi";
+import TigerAi from "./ai/TigerAi";
 import RatsAi from "./ai/RatsAi";
 
 import BuildingManager from "./buildings/BuildingManager";
@@ -28,7 +29,8 @@ export default class SceneGame extends Phaser.Scene {
 
         this.board = new Board();
         //TODO: enum
-        this.playerRace = ["", "cavemen", "cavemen", "rats", "rats", "cavemen", "gorilla"]; //1-indexed
+        //1-indexed
+        this.playerRace = ["", "cavemen", "cavemen", "rats", "rats", "cavemen", "gorilla", "tiger"];
         this.numPlayers = this.playerRace.length - 1;
 
         this.playerHuman = 1;   //this is you
@@ -137,6 +139,9 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     preload() {
+        //TODO: pull out into own class
+        //TODO: make a ton of enums for the keys
+
         //terrain
         this.load.image(this.board.terrainType[0], "assets/tile-grass.png");
         this.load.image(this.board.terrainType[1], "assets/tile-ocean.png");
@@ -177,9 +182,11 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image("btnArmyCancel", "assets/btn-army-cancel.png");
 
         //armies
+        //TODO: Singular noun
         this.load.image("armyCaveman", "assets/army-caveman.png");
         this.load.image("armyGorilla", "assets/army-gorilla.png");
         this.load.image("armyRat", "assets/army-rat.png");
+        this.load.image("armyTiger", "assets/army-tiger.png");
     }
 
     create() {
@@ -339,6 +346,11 @@ export default class SceneGame extends Phaser.Scene {
         let gorillaPlayerNumber = 6;
         let armySprite = this.armyManager.createArmyFromCoordinate(gorillaPlayerNumber, 3, 10);
         armySprite.getData("data").name = "Atomrilla";
+
+        //TODO: temporary, place tigers
+        let tigerPlayerNumber = 7;
+        armySprite = this.armyManager.createArmyFromCoordinate(tigerPlayerNumber, 6, 12);
+        armySprite.getData("data").name = "Mad Katz";
 
         y = -120;
 
@@ -612,7 +624,7 @@ export default class SceneGame extends Phaser.Scene {
         this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(controlConfig);
         this.cam = this.cameras.main;
         var zoomLevel = 0.5;
-        this.cam.setBounds(0, 0, 4800, 4800).setZoom(zoomLevel);
+        this.cam.setBounds(0, 0, 5000, 6000).setZoom(zoomLevel);
 
         /**
          * keyboard
@@ -654,6 +666,7 @@ export default class SceneGame extends Phaser.Scene {
         this.playersAi[4] = new RatsAi(this, 4);
         this.playersAi[5] = new CavemenAi(this, 5);
         this.playersAi[6] = new GorillaAi(this, 6);
+        this.playersAi[7] = new TigerAi(this, 7);
 
         this.updateUI();
         

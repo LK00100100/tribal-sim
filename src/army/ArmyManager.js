@@ -255,18 +255,21 @@ export default class ArmyManager {
         let armySprite = UnitFactory.getUnitSprite(scene, village, race);
 
         let army = new Army(player, village, row, col);
-        //TODO: set army moveAmount dynamically
-        army.moveAmount = 0;
-        army.moveMax = 1;
-        army.amountFood += 1; //0 food = starvation
 
         //TODO: generate random name
 
-        //TODO: change this later
+        let maxMove = 0;
         for (let i = 0; i < 10; i++) {
             let unit = UnitFactory.getUnit(race);
             army.addUnit(unit);
+
+            maxMove = unit.moveMax;
         }
+
+        //TODO: set army moveAmount dynamically
+        army.moveAmount = 0;
+        army.moveMax = maxMove;
+        army.amountFood += 1; //0 food = starvation
 
         armySprite.data.set("data", army);
         scene.playerArmies[player].push(armySprite);

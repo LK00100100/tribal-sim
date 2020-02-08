@@ -4,7 +4,10 @@ import GameUtilsArmy from "../utils/GameUtilsArmy";
 import GameUtilsBuilding from "../utils/GameUtilsBuilding.js";
 import Ai from "./Ai.js";
 
+//TODO: Singular noun
+
 /**
+ * 
  * defensive AI
  * does not expand.
  * defends territory

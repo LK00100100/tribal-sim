@@ -15,7 +15,8 @@
     "lint:watch": "npm run lint -- --watch",
     "lint:fix": "npm run lint -- --fix",
     "heroku-postbuild": "webpack -p",
-    "deploy": "firebase deploy"
+    "deploy:firebase": "firebase deploy",
+    "deploy": "npm-run-all build deploy:firebase"
   },
   "author": "L. Keh: LK00100100@gmail.com",
   "devDependencies": {

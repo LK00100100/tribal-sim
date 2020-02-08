@@ -4,6 +4,7 @@ import GameUtilsArmy from "../utils/GameUtilsArmy.js";
 import Rat from "../army/unit/Rat.js";
 import Ai from "./Ai.js";
 
+//TODO: Singular noun
 export default class RatsAi extends Ai {
 
     constructor(scene, playerNumber) {

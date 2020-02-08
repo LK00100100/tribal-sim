@@ -17,7 +17,7 @@ export default class Gorilla extends Unit {
         this.defenseBonusMax = 10;
 
         this.healBase = 3;
-        this.healBonusMin = 1;
+        this.healBonusMin = 2;
         this.healBonusMax = 5;
     }
 

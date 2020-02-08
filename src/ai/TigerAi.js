@@ -1,17 +1,18 @@
 
 import GameUtils from "../utils/GameUtils";
-import Gorilla from "../army/unit/Gorilla";
-import Ai from "./Ai.js";
+import Tiger from "../army/unit/Tiger";
+import Ai from "./Ai";
 
 /**
- * Gorilla
+ * Tiger
  * 
- * Heavy units with a friendly disposition. 
+ * Medium units with a semi-hostile disposition.
+ * Will not attack armies with a stronger base.
  * Wanders jungles.
  * Never attacks unless provoked
  * No buildings
  */
-export default class GorillaAi extends Ai {
+export default class TigerAi extends Ai {
 
     //TODO: separate scene and the blob of game data
     /**
@@ -22,13 +23,13 @@ export default class GorillaAi extends Ai {
     constructor(scene, playerNumber) {
         super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
 
-        this.reproductionChance = 0.05; //TODO: should be dependent on the population. more = high chance
+        this.reproductionChance = 0.1; //TODO: should be dependent on the population. more = high chance
         this.reproduceAmount = 1;
     }
 
     calculateTurn() {
         let scene = this.scene;
-        console.log("gorillas doing gorilla stuff...");
+        console.log("tigers doing tiger stuff...");
 
         //let scene = this.scene;
 
@@ -47,14 +48,18 @@ export default class GorillaAi extends Ai {
             if (reproduce == 1) {
                 console.log("reproducing at: " + armyData.row + "," + armyData.col);
 
-                if (armyData.size() < 20) {
+                if (armyData.size() < 40) {
                     for (let i = 0; i < this.reproduceAmount; i++) {
-                        let gorilla = new Gorilla();
-                        armyData.addUnit(gorilla);
+                        let tiger = new Tiger();
+                        armyData.addUnit(tiger);
                     }
                 }
                 return;
             }
+
+            //TODO: move 
+
+            //TODO: attack all weaker armies (if they randomly feel like it.)
 
             let possibleMovesArmy = scene.armyManager.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
 
