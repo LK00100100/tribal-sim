@@ -352,6 +352,9 @@ export default class SceneGame extends Phaser.Scene {
         armySprite = this.armyManager.createArmyFromCoordinate(tigerPlayerNumber, 6, 12);
         armySprite.getData("data").name = "Mad Katz";
 
+        armySprite = this.armyManager.createArmyFromCoordinate(tigerPlayerNumber, 14, 4);
+        armySprite.getData("data").name = "Tree Katz";
+
         y = -120;
 
         this.txtVillagePopulation = this.add.text(-375, y)
