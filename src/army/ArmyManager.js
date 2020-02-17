@@ -203,18 +203,23 @@ export default class ArmyManager {
         let armySprite = UnitFactory.getUnitSprite(scene, village, race);
 
         let army = new Army(player, village);
-        //TODO: set army moveAmount dynamically
-        army.moveAmount = 0;
-        army.moveMax = 3;
-        army.amountFood += 10;
+        
 
         //TODO: generate random name
 
         //TODO: change this later
+        let maxMove = 0;
         for (let i = 0; i < 10; i++) {
             let unit = UnitFactory.getUnit(race);
             army.addUnit(unit);
+
+            if(unit.moveMax > maxMove)
+                maxMove = unit.moveMax;
         }
+        //set army properties
+        army.moveAmount = 0;    //you should not be able to move on the first turn
+        army.amountFood += 10;
+        army.moveMax = maxMove;
 
         armySprite.data.set("data", army);
         scene.playerArmies[player].push(armySprite);
