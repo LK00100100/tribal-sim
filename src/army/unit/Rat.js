@@ -6,7 +6,7 @@ export default class Rat extends Unit {
         super(20);
 
         this.cost = 0;  //they feast off of the land
-        this.moveMax = 2;
+        this.moveMax = 2;   //TODO: check movement
 
         this.attackBase = 1;
         this.attackBonusMin = 0;

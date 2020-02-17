@@ -23,7 +23,9 @@ export default class GorillaAi extends Ai {
         super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
 
         this.reproductionChance = 0.05; //TODO: should be dependent on the population. more = high chance
-        this.reproduceAmount = 1;
+        this.reproduceAmount = 1;   //TODO: research reproduction rate
+
+        this.maxGroupSize = 20;
     }
 
     calculateTurn() {
@@ -47,10 +49,10 @@ export default class GorillaAi extends Ai {
             if (reproduce == 1) {
                 console.log("reproducing at: " + armyData.row + "," + armyData.col);
 
-                if (armyData.size() < 20) {
+                if (armyData.size() < this.maxGroupSize) {
                     for (let i = 0; i < this.reproduceAmount; i++) {
-                        let gorilla = new Gorilla();
-                        armyData.addUnit(gorilla);
+                        let unit = new Gorilla();
+                        armyData.addUnit(unit);
                     }
                 }
                 return;

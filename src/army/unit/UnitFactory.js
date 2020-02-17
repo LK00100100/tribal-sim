@@ -2,6 +2,7 @@ import Races from "../../Races";
 
 import Caveman from "./Caveman";
 import Gorilla from "./Gorilla";
+import Meerkat from "./Meerkat";
 import Rat from "./Rat.js";
 import Tiger from "./Tiger";
 // eslint-disable-next-line no-unused-vars
@@ -17,11 +18,14 @@ export default class UnitFactory {
     static getUnit(race) {
 
         //TODO: singular noun
+        //TODO: array? or map?
         switch (race) {
         case Races.CAVEMEN:
             return new Caveman();
         case Races.GORILLA:
             return new Gorilla();
+        case Races.MEERKAT:
+            return new Meerkat();
         case Races.RATS:
             return new Rat();
         case Races.TIGER:
@@ -54,6 +58,11 @@ export default class UnitFactory {
             break;
         case Races.GORILLA:
             armySprite = scene.add.sprite(village.x, village.y, "armyGorilla")
+                .setInteractive()
+                .on("pointerdown", scene.armyManager.clickedArmy);
+            break;
+        case Races.MEERKAT:
+            armySprite = scene.add.sprite(village.x, village.y, "armyMeerkat")
                 .setInteractive()
                 .on("pointerdown", scene.armyManager.clickedArmy);
             break;

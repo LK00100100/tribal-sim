@@ -1,18 +1,17 @@
 
 import GameUtils from "../utils/GameUtils";
-import Tiger from "../army/unit/Tiger";
+import Meerkat from "../army/unit/Meerkat";
 import Ai from "./Ai";
 
 /**
- * Tiger
+ * Meerkat
  * 
- * Medium units with a semi-hostile disposition.
- * Will not attack armies with a stronger base.
- * Wanders jungles.
- * Never attacks unless provoked
- * No buildings
+ * Lives in a burrow.
+ * Non-Hostile Defensive unit
+ * Normally in groups of 3 to 50
+ * Immune to poison
  */
-export default class TigerAi extends Ai {
+export default class MeerkatAi extends Ai {
 
     //TODO: separate scene and the blob of game data
     /**
@@ -23,22 +22,22 @@ export default class TigerAi extends Ai {
     constructor(scene, playerNumber) {
         super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
 
-        this.reproductionChance = 0.1; //TODO: should be dependent on the population. more = high chance
-        this.reproduceAmount = 1;   //TODO: research reproduction rate
+        this.reproductionChance = 0.3; //TODO: should be dependent on the population. more = high chance
+        this.reproduceAmount = 1;
 
-        this.maxGroupSize = 30;
+        this.maxGroupSize = 50;
     }
 
     calculateTurn() {
         let scene = this.scene;
-        console.log("tigers doing tiger stuff...");
+        console.log("meerkats doing stuff...");
 
         //let scene = this.scene;
 
         //TODO: complete
 
         /**
-         * wander the jungle or the land until you land in a jungle.
+         * wander the desert or the land until you land in a desert.
          * only attack hostiles
          */
         this.armies.forEach(armySprite => {
@@ -50,10 +49,11 @@ export default class TigerAi extends Ai {
             if (reproduce == 1) {
                 console.log("reproducing at: " + armyData.row + "," + armyData.col);
 
+                //TODO: take out actual unit creation here. for tiger and gorilla
                 if (armyData.size() < this.maxGroupSize) {
                     for (let i = 0; i < this.reproduceAmount; i++) {
-                        let tiger = new Tiger();
-                        armyData.addUnit(tiger);
+                        let unit = new Meerkat();
+                        armyData.addUnit(unit);
                     }
                 }
                 return;
@@ -66,17 +66,17 @@ export default class TigerAi extends Ai {
             let possibleMovesArmy = scene.armyManager.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
 
             //TODO: hard hack reeeee
-            //move in forests only
-            let possibleMovesForest = possibleMovesArmy.filter((coordinate) => {
-                return scene.board.boardTerrain[coordinate.row][coordinate.col] == 4;
+            //move in deserts only
+            let possibleMovesDesert = possibleMovesArmy.filter((coordinate) => {
+                return scene.board.boardTerrain[coordinate.row][coordinate.col] == 3;
             });
 
             //pick a random square to move to
-            let pickedIndex = GameUtils.getRandomInt(possibleMovesForest.length);
-            let pickedCoordinate = possibleMovesForest[pickedIndex];
+            let pickedIndex = GameUtils.getRandomInt(possibleMovesDesert.length);
+            let pickedCoordinate = possibleMovesDesert[pickedIndex];
 
             let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
-            scene.armyManager.moveArmy(armySprite, terrainSprite, possibleMovesForest);
+            scene.armyManager.moveArmy(armySprite, terrainSprite, possibleMovesDesert);
         });
     }
 

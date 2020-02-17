@@ -11,6 +11,7 @@ import Races from "./Races";
 
 import CavemenAi from "./ai/CavemenAi";
 import GorillaAi from "./ai/GorillaAi";
+import MeerkatAi from "./ai/MeerkatAi";
 import TigerAi from "./ai/TigerAi";
 import RatsAi from "./ai/RatsAi";
 
@@ -30,7 +31,7 @@ export default class SceneGame extends Phaser.Scene {
         this.board = new Board();
         //TODO: enum
         //1-indexed
-        this.playerRace = ["", "cavemen", "cavemen", "rats", "rats", "cavemen", "gorilla", "tiger"];
+        this.playerRace = ["", "cavemen", "cavemen", "rats", "rats", "cavemen", "gorilla", "tiger", "meerkat"];
         this.numPlayers = this.playerRace.length - 1;
 
         this.playerHuman = 1;   //this is you
@@ -185,6 +186,7 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: Singular noun
         this.load.image("armyCaveman", "assets/army-caveman.png");
         this.load.image("armyGorilla", "assets/army-gorilla.png");
+        this.load.image("armyMeerkat", "assets/army-meerkat.png");
         this.load.image("armyRat", "assets/army-rat.png");
         this.load.image("armyTiger", "assets/army-tiger.png");
     }
@@ -354,6 +356,11 @@ export default class SceneGame extends Phaser.Scene {
 
         armySprite = this.armyManager.createArmyFromCoordinate(tigerPlayerNumber, 14, 4);
         armySprite.getData("data").name = "Tree Katz";
+
+        //TODO: temporary, place meerkats
+        let meerkatPlayerNumber = 8;
+        armySprite = this.armyManager.createArmyFromCoordinate(meerkatPlayerNumber, 9, 3);
+        armySprite.getData("data").name = "Timons";
 
         y = -120;
 
@@ -670,6 +677,7 @@ export default class SceneGame extends Phaser.Scene {
         this.playersAi[5] = new CavemenAi(this, 5);
         this.playersAi[6] = new GorillaAi(this, 6);
         this.playersAi[7] = new TigerAi(this, 7);
+        this.playersAi[8] = new MeerkatAi(this, 8);
 
         this.updateUI();
         

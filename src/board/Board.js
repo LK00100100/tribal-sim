@@ -154,6 +154,7 @@ export default class Board {
      */
     isBuildable(row, col) {
 
+        //TODO: make terrain enums
         if (this.isWithinBounds(row, col) == false)
             return false;
 
@@ -188,6 +189,7 @@ export default class Board {
 
         let terrainType = this.boardTerrain[row][col];
 
+        //TODO: make enums
         //TODO: replace with array?
         switch (terrainType) {
         //grass
