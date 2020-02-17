@@ -362,6 +362,9 @@ export default class SceneGame extends Phaser.Scene {
         armySprite = this.armyManager.createArmyFromCoordinate(meerkatPlayerNumber, 9, 3);
         armySprite.getData("data").name = "Timons";
 
+        armySprite = this.armyManager.createArmyFromCoordinate(meerkatPlayerNumber, 13, 5);
+        armySprite.getData("data").name = "Pumbas";
+
         y = -120;
 
         this.txtVillagePopulation = this.add.text(-375, y)
@@ -670,6 +673,7 @@ export default class SceneGame extends Phaser.Scene {
 
         this.playerBuildings;
 
+        //TODO: initial inputs
         //TODO: make dynamic-y
         this.playersAi[2] = new CavemenAi(this, 2);
         this.playersAi[3] = new RatsAi(this, 3);
