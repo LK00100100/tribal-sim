@@ -1,5 +1,6 @@
 import Races from "../../Races";
 
+import Cat from "./Cat";
 import Caveman from "./Caveman";
 import Gorilla from "./Gorilla";
 import Meerkat from "./Meerkat";
@@ -20,6 +21,8 @@ export default class UnitFactory {
         //TODO: singular noun
         //TODO: array? or map?
         switch (race) {
+        case Races.CAT:
+            return new Cat();
         case Races.CAVEMEN:
             return new Caveman();
         case Races.GORILLA:
@@ -51,6 +54,11 @@ export default class UnitFactory {
         //TODO: handle no villages
         let armySprite;
         switch (race) {
+        case Races.CAT:
+            armySprite = scene.add.sprite(village.x, village.y, "armyCat")
+                .setInteractive()
+                .on("pointerdown", scene.armyManager.clickedArmy);
+            break;
         case Races.CAVEMEN:
             armySprite = scene.add.sprite(village.x, village.y, "armyCaveman")
                 .setInteractive()

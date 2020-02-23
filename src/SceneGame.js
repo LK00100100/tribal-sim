@@ -9,6 +9,7 @@ import ArmyManager from "./army/ArmyManager";
 
 import Races from "./Races";
 
+import CatAi from "./ai/CatAi";
 import CavemenAi from "./ai/CavemenAi";
 import GorillaAi from "./ai/GorillaAi";
 import MeerkatAi from "./ai/MeerkatAi";
@@ -31,7 +32,7 @@ export default class SceneGame extends Phaser.Scene {
         this.board = new Board();
         //TODO: enum
         //1-indexed
-        this.playerRace = ["", "cavemen", "cavemen", "rats", "rats", "cavemen", "gorilla", "tiger", "meerkat"];
+        this.playerRace = ["", "cavemen", "cavemen", "rats", "rats", "cavemen", "gorilla", "tiger", "meerkat", "cat"];
         this.numPlayers = this.playerRace.length - 1;
 
         this.playerHuman = 1;   //this is you
@@ -184,6 +185,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //armies
         //TODO: Singular noun
+        this.load.image("armyCat", "assets/army-cat.png");
         this.load.image("armyCaveman", "assets/army-caveman.png");
         this.load.image("armyGorilla", "assets/army-gorilla.png");
         this.load.image("armyMeerkat", "assets/army-meerkat.png");
@@ -364,6 +366,11 @@ export default class SceneGame extends Phaser.Scene {
 
         armySprite = this.armyManager.createArmyFromCoordinate(meerkatPlayerNumber, 13, 5);
         armySprite.getData("data").name = "Pumbas";
+
+        //TODO: temporary, place cats
+        let catPlayerNumber = 9;
+        armySprite = this.armyManager.createArmyFromCoordinate(catPlayerNumber, 4, 13);
+        armySprite.getData("data").name = "Krazy Kats";
 
         y = -120;
 
@@ -682,6 +689,7 @@ export default class SceneGame extends Phaser.Scene {
         this.playersAi[6] = new GorillaAi(this, 6);
         this.playersAi[7] = new TigerAi(this, 7);
         this.playersAi[8] = new MeerkatAi(this, 8);
+        this.playersAi[9] = new CatAi(this, 9);
 
         this.updateUI();
         
