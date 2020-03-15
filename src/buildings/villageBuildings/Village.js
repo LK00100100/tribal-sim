@@ -56,7 +56,7 @@ export default class Village extends VillageBuilding {
             this.amountFood = 0;
 
         //rats cant gather wood and stone
-        if (this.race == Races.RATS)
+        if (this.race == Races.RAT)
             return;
 
         this.amountStone += this.incomeStone;

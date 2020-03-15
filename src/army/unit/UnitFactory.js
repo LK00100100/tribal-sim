@@ -23,13 +23,13 @@ export default class UnitFactory {
         switch (race) {
         case Races.CAT:
             return new Cat();
-        case Races.CAVEMEN:
+        case Races.CAVEMAN:
             return new Caveman();
         case Races.GORILLA:
             return new Gorilla();
         case Races.MEERKAT:
             return new Meerkat();
-        case Races.RATS:
+        case Races.RAT:
             return new Rat();
         case Races.TIGER:
             return new Tiger();
@@ -59,7 +59,7 @@ export default class UnitFactory {
                 .setInteractive()
                 .on("pointerdown", scene.armyManager.clickedArmy);
             break;
-        case Races.CAVEMEN:
+        case Races.CAVEMAN:
             armySprite = scene.add.sprite(village.x, village.y, "armyCaveman")
                 .setInteractive()
                 .on("pointerdown", scene.armyManager.clickedArmy);
@@ -74,7 +74,7 @@ export default class UnitFactory {
                 .setInteractive()
                 .on("pointerdown", scene.armyManager.clickedArmy);
             break;
-        case Races.RATS:
+        case Races.RAT:
             armySprite = scene.add.sprite(village.x, village.y, "armyRat")
                 .setInteractive()
                 .on("pointerdown", scene.armyManager.clickedArmy);

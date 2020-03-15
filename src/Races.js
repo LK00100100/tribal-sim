@@ -1,9 +1,8 @@
 
 const Races = {
-    //TODO: singular noun
     CAT: "cat",
-    CAVEMEN: "cavemen",
-    RATS: "rats",
+    CAVEMAN: "caveman",
+    RAT: "rat",
     MEERKAT: "meerkat",
     TIGER: "tiger",
     GORILLA: "gorilla"

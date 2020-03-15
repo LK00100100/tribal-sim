@@ -1,5 +1,6 @@
 
 import GameUtils from "./utils/GameUtils";
+import GameUtilsUi from "./utils/GameUtilsUi";
 import GameUtilsBuilding from "./utils/GameUtilsBuilding";
 
 import Board from "./board/Board";
@@ -277,10 +278,10 @@ export default class SceneGame extends Phaser.Scene {
             switch (building.type) {
             case "village":
                 switch (race) {
-                case Races.CAVEMEN:
+                case Races.CAVEMAN:
                     imageName = "buildVillage";
                     break;
-                case Races.RATS:
+                case Races.RAT:
                     imageName = "buildRatCave";
                     break;
                 default:
@@ -745,7 +746,7 @@ export default class SceneGame extends Phaser.Scene {
 
             //show village buttons
             GameUtils.clearTintArray(scene.uiVillage);
-            GameUtils.showGameObjects(scene.uiVillage);
+            GameUtilsUi.showGameObjects(scene.uiVillage);
 
             let village = scene.selectedVillage.data.get("data");
 
@@ -783,7 +784,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //building UI
         if (scene.selectedBuilding != null) {
-            GameUtils.showGameObjects(scene.uiBuilding);
+            GameUtilsUi.showGameObjects(scene.uiBuilding);
 
             let building = scene.selectedBuilding.getData("data");
             scene.txtBuildName.setText(building.name);
@@ -798,12 +799,12 @@ export default class SceneGame extends Phaser.Scene {
             scene.updateTextArmy(army);
 
             //display army texts
-            GameUtils.showGameObjects(scene.uiArmy);
+            GameUtilsUi.showGameObjects(scene.uiArmy);
 
             scene.showUiArmyButtons(army);
 
             //if you're standing on an enemy building
-            GameUtils.hideGameObjects(scene.uiArmyEnemyBuilding);
+            GameUtilsUi.hideGameObjects(scene.uiArmyEnemyBuilding);
             let building = scene.board.getBuilding(row, col);
             if (building != null) {
                 let buildingData = building.getData("data");
@@ -993,7 +994,7 @@ export default class SceneGame extends Phaser.Scene {
         this.txtArmyEnemyAttackBase.setText(enemyArmy.calculateAttackBase() + " :Attack Base");
         this.txtArmyEnemyDefenseBase.setText(enemyArmy.calculateDefenseBase() + " :Defense Base");
 
-        GameUtils.showGameObjects(this.uiArmyEnemy);
+        GameUtilsUi.showGameObjects(this.uiArmyEnemy);
 
         //TODO: if not enough moves left, highlight attack red
     }
@@ -1016,11 +1017,11 @@ export default class SceneGame extends Phaser.Scene {
      */
     deselectEverything() {
 
-        GameUtils.hideGameObjects(this.uiVillage);
-        GameUtils.hideGameObjects(this.uiBuilding);
-        GameUtils.hideGameObjects(this.uiArmy);
-        GameUtils.hideGameObjects(this.uiArmyEnemy);
-        GameUtils.hideGameObjects(this.uiArmyEnemyBuilding);
+        GameUtilsUi.hideGameObjects(this.uiVillage);
+        GameUtilsUi.hideGameObjects(this.uiBuilding);
+        GameUtilsUi.hideGameObjects(this.uiArmy);
+        GameUtilsUi.hideGameObjects(this.uiArmyEnemy);
+        GameUtilsUi.hideGameObjects(this.uiArmyEnemyBuilding);
 
         //TODO: remove if-statements
         if (this.selectedBuyBuilding != null) {
@@ -1222,6 +1223,6 @@ export default class SceneGame extends Phaser.Scene {
 
         scene.txtEnemyBuildingPlayer.setText(buildingData.player + " :Building, Player");
         scene.txtEnemyBuildingHealth.setText(buildingData.health + " :Building, Health");
-        GameUtils.showGameObjects(scene.uiArmyEnemyBuilding);
+        GameUtilsUi.showGameObjects(scene.uiArmyEnemyBuilding);
     }
 }

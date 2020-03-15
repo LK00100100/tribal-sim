@@ -4,6 +4,7 @@ import Caveman from "./unit/Caveman.js";
 
 import UnitFactory from "./unit/UnitFactory";
 import GameUtils from "../utils/GameUtils.js";
+import GameUtilsUi from "../utils/GameUtilsUi";
 // eslint-disable-next-line no-unused-vars
 import SceneGame from "../SceneGame.js";
 import VillageBuilding from "../buildings/villageBuildings/VillageBuilding.js";
@@ -322,7 +323,7 @@ export default class ArmyManager {
         let armyCost = army.getCostDay();
 
         let building = scene.board.getBuildingData(row, col);
-        
+
         if (building == null)
             return;
 
@@ -591,7 +592,7 @@ export default class ArmyManager {
             scene.showUiArmyEnemy(targetRow, targetCol);
 
         if (yourArmy.size() == 0 || enemyArmy.size() == 0) {
-            GameUtils.hideGameObjects(scene.uiArmyEnemy);
+            GameUtilsUi.hideGameObjects(scene.uiArmyEnemy);
             scene.selectedEnemyArmyCoordinates = null;
         }
     }
@@ -823,7 +824,7 @@ export default class ArmyManager {
 
     armyAttackCancel() {
         let scene = this.scene;
-        GameUtils.hideGameObjects(scene.uiArmyEnemy);
+        GameUtilsUi.hideGameObjects(scene.uiArmyEnemy);
     }
 
     /**
