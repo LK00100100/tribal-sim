@@ -4,6 +4,9 @@ import GameUtilsUi from "./utils/GameUtilsUi";
 import GameUtilsBuilding from "./utils/GameUtilsBuilding";
 
 import Board from "./board/Board";
+import TerrainObj from "./board/Terrain";
+const {Terrain, TerrainSpriteName} = TerrainObj;
+
 import Village from "./buildings/villageBuildings/Village";
 
 import ArmyManager from "./army/ArmyManager";
@@ -158,11 +161,11 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: make a ton of enums for the keys
 
         //terrain
-        this.load.image(this.board.terrainType[0], "assets/tile-grass.png");
-        this.load.image(this.board.terrainType[1], "assets/tile-ocean.png");
-        this.load.image(this.board.terrainType[2], "assets/tile-hill.png");
-        this.load.image(this.board.terrainType[3], "assets/tile-desert.png");
-        this.load.image(this.board.terrainType[4], "assets/tile-forest.png");
+        this.load.image(TerrainSpriteName.GRASS , "assets/tile-grass.png");
+        this.load.image(TerrainSpriteName.OCEAN, "assets/tile-ocean.png");
+        this.load.image(TerrainSpriteName.HILL, "assets/tile-hill.png");
+        this.load.image(TerrainSpriteName.DESERT, "assets/tile-desert.png");
+        this.load.image(TerrainSpriteName.FOREST, "assets/tile-forest.png");
         this.load.image("tileGrid", "assets/tile-grid.png");
 
         //buildings
@@ -244,11 +247,11 @@ export default class SceneGame extends Phaser.Scene {
             for (let col = 0; col < this.board.boardTerrain[0].length; col++) {
                 x = topX + (col * 256);
 
-                if (this.board.terrainType[theBoard[row][col]] == undefined) {
+                if (Terrain.getValue(theBoard[row][col])) {
                     throw "terrain type does not exist at: " + row + "," + col;
                 }
 
-                let currentTerrainName = this.board.terrainType[theBoard[row][col]];
+                let currentTerrainName = TerrainSpriteName.getSpriteNameFromNumber(theBoard[row][col]);
 
                 //tile of terrain
                 tempSprite = this.add.sprite(x, y, currentTerrainName)

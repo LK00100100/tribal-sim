@@ -1,5 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import Building from "../buildings/Building";
+import TerrainObj from "./Terrain";
+let { getTerrainMovementCost } = TerrainObj;
 
 //TODO: make board (holds data) and boardManager (does stuff with the board)
 export default class Board {
@@ -17,9 +19,6 @@ export default class Board {
         this.boardBuildings = [];       //holds building sprites
         this.boardText = [];            //holds text
         this.boardUnits = [];           //holds occupying units
-
-        //TODO: make an enums for terrain
-        this.terrainType = ["tileGrass", "tileOcean", "tileHill", "tileDesert", "tileForest"];
 
         //TODO: pull this out completely.
         this.directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
@@ -169,10 +168,10 @@ export default class Board {
         //ocean
         case 1:
             return false;
-        //hill
+            //hill
         case 2:
             return false;
-        //forest
+            //forest
         case 4:
             return false;
         }
@@ -188,28 +187,8 @@ export default class Board {
      * @param {*} col 
      */
     movementCost(row, col) {
-
-        let terrainType = this.boardTerrain[row][col];
-
-        //TODO: make enums
-        //TODO: replace with array?
-        switch (terrainType) {
-        //grass
-        case 0:
-            return 1;
-        //hill
-        case 2:
-            return 2;
-        //desert
-        case 3:
-            return 3;
-        //forest
-        case 4:
-            return 1;
-        }
-
-        return 99999;
-
+        let terrainVal = this.boardTerrain[row][col];
+        return getTerrainMovementCost(terrainVal);
     }
 
     /**
