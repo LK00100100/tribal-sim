@@ -4,15 +4,13 @@ import GameUtilsArmy from "../utils/GameUtilsArmy";
 import GameUtilsBuilding from "../utils/GameUtilsBuilding.js";
 import Ai from "./Ai.js";
 
-//TODO: Singular noun
-
 /**
  * 
  * defensive AI
  * does not expand.
  * defends territory
  */
-export default class CavemenAi extends Ai {
+export default class CavemanAi extends Ai {
 
     constructor(scene, playerNumber) {
         super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);

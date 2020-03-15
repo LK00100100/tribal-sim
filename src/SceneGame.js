@@ -11,11 +11,11 @@ import ArmyManager from "./army/ArmyManager";
 import Races from "./Races";
 
 import CatAi from "./ai/CatAi";
-import CavemenAi from "./ai/CavemenAi";
+import CavemanAi from "./ai/CavemanAi";
 import GorillaAi from "./ai/GorillaAi";
 import MeerkatAi from "./ai/MeerkatAi";
 import TigerAi from "./ai/TigerAi";
-import RatsAi from "./ai/RatsAi";
+import RatsAi from "./ai/RatAi";
 
 import BuildingManager from "./buildings/BuildingManager";
 
@@ -33,9 +33,19 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: separate scene from game info
 
         this.board = new Board();
-        //TODO: enum
+        
         //1-indexed
-        this.playerRace = ["", "cavemen", "cavemen", "rats", "rats", "cavemen", "gorilla", "tiger", "meerkat", "cat"];
+        this.playerRace = [
+            "",
+            Races.CAVEMAN,
+            Races.CAVEMAN,
+            Races.RAT,
+            Races.RAT,
+            Races.CAVEMAN,
+            Races.GORILLA,
+            Races.TIGER,
+            Races.MEERKAT,
+            Races.CAT];
         this.numPlayers = this.playerRace.length - 1;
 
         this.playerHuman = 1;   //this is you
@@ -509,7 +519,7 @@ export default class SceneGame extends Phaser.Scene {
             .setScrollFactor(0)
             .setFontSize(50)
             .setDepth(100)
-            .setShadow(3, 3, "#000000", 3); 
+            .setShadow(3, 3, "#000000", 3);
 
         this.btnArmyGetUnits = this.add.sprite(x, y + 280, "btnArmyGetUnits")
             .setScrollFactor(0)
@@ -710,10 +720,10 @@ export default class SceneGame extends Phaser.Scene {
 
         //TODO: initial inputs
         //TODO: make dynamic-y
-        this.playersAi[2] = new CavemenAi(this, 2);
+        this.playersAi[2] = new CavemanAi(this, 2);
         this.playersAi[3] = new RatsAi(this, 3);
         this.playersAi[4] = new RatsAi(this, 4);
-        this.playersAi[5] = new CavemenAi(this, 5);
+        this.playersAi[5] = new CavemanAi(this, 5);
         this.playersAi[6] = new GorillaAi(this, 6);
         this.playersAi[7] = new TigerAi(this, 7);
         this.playersAi[8] = new MeerkatAi(this, 8);

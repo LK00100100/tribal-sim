@@ -5,7 +5,7 @@ import Rat from "../army/unit/Rat.js";
 import Ai from "./Ai.js";
 
 //TODO: Singular noun
-export default class RatsAi extends Ai {
+export default class RatAi extends Ai {
 
     constructor(scene, playerNumber) {
         super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
