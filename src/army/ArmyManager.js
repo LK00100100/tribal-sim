@@ -212,7 +212,7 @@ export default class ArmyManager {
         village.amountFood -= 10;
         village.population -= 10;
 
-        let armySprite = UnitFactory.getUnitSprite(scene, village, race);
+        let armySprite = UnitFactory.getUnitSprite(scene, row, col, race);
 
         let army = new Army(player, row, col);
         army.setVillage(village);

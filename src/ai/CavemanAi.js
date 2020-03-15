@@ -4,6 +4,9 @@ import GameUtilsArmy from "../utils/GameUtilsArmy";
 import GameUtilsBuilding from "../utils/GameUtilsBuilding.js";
 import Ai from "./Ai.js";
 
+// eslint-disable-next-line no-unused-vars
+import SceneGame from "../SceneGame";
+
 /**
  * 
  * defensive AI
@@ -12,6 +15,11 @@ import Ai from "./Ai.js";
  */
 export default class CavemanAi extends Ai {
 
+    /**
+     * 
+     * @param {SceneGame} scene 
+     * @param {*} playerNumber 
+     */
     constructor(scene, playerNumber) {
         super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
 

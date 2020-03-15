@@ -20,23 +20,24 @@ const Race = {
     GORILLA: 5
 };
 
+//same order as Race
 const RaceSpriteName = [
     "armyCat",
     "armyCaveman",
-    "armyGorilla",
-    "armyMeerkat",
     "armyRat",
-    "armyTiger"
+    "armyMeerkat",
+    "armyTiger",
+    "armyGorilla"
 ];
 
-//the data class
+//the data class. same order as race
 const RaceClass = [
     Cat,
     Caveman,
-    Gorilla,
-    Meerkat,
     Rat,
-    Tiger
+    Meerkat,
+    Tiger,
+    Gorilla
 ];
 
 let getRaceSpriteName = function (race) {
