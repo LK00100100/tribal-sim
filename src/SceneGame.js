@@ -302,7 +302,7 @@ export default class SceneGame extends Phaser.Scene {
                     throw "undefined building type for this race: " + race;
                 }
 
-                data = new Village(row, col, x, y, player, name);
+                data = new Village(row, col, player, name);
                 data.population = building.population;
                 data.amountFood = building.amountFood;
                 data.amountStone = building.amountStone;

@@ -2,6 +2,7 @@ import Village from "./villageBuildings/Village";
 import BuildingFactory from "./BuildingFactory";
 
 import GameUtils from "../utils/GameUtils";
+import GameUtilsBoard from "../utils/GameUtilsBoard";
 
 export default class BuildingManager {
 
@@ -172,8 +173,8 @@ export default class BuildingManager {
         let board = scene.board;
         let row = terrainSprite.getData("row");
         let col = terrainSprite.getData("col");
-        let x = terrainSprite.x;
-        let y = terrainSprite.y;
+        let x = GameUtilsBoard.convertColToPixel(col);
+        let y = GameUtilsBoard.convertRowToPixel(row);
 
         //already occupied
         if (board.boardBuildings[row][col] != null)
@@ -186,10 +187,9 @@ export default class BuildingManager {
             return;
 
         village.amountWood -= 100;
-
-        let building = BuildingFactory
-            .getVillageBuilding(buildingType, row, col, x, y, village);
-
+        
+        let building = BuildingFactory.getVillageBuilding(buildingType, row, col, village);
+        //TODO: move this?
         let tempSprite = scene.add.sprite(x, y, "build" + buildingType)
             .setInteractive()
             .setDataEnabled()
