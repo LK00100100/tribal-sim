@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-unused-vars
+import Building from "../buildings/Building";
 
 //TODO: make board (holds data) and boardManager (does stuff with the board)
 export default class Board {
@@ -252,6 +254,7 @@ export default class Board {
      * returns buildingData. null if nothing
      * @param {*} row 
      * @param {*} col 
+     * @returns {Building}
      */
     getBuildingData(row, col) {
         if (!this.isWithinBounds(row, col))

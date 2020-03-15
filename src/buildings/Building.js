@@ -1,4 +1,7 @@
 
+/**
+ * 
+ */
 export default class Building {
 
     constructor(row, col, x, y, player) {

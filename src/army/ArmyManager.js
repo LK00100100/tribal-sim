@@ -4,12 +4,19 @@ import Caveman from "./unit/Caveman.js";
 
 import UnitFactory from "./unit/UnitFactory";
 import GameUtils from "../utils/GameUtils.js";
+// eslint-disable-next-line no-unused-vars
+import SceneGame from "../SceneGame.js";
+import VillageBuilding from "../buildings/villageBuildings/VillageBuilding.js";
 
 /**
  * Manages army data on the board.
  */
 export default class ArmyManager {
 
+    /**
+     * 
+     * @param {SceneGame} scene 
+     */
     constructor(scene) {
         this.scene = scene;
     }
@@ -203,7 +210,7 @@ export default class ArmyManager {
         let armySprite = UnitFactory.getUnitSprite(scene, village, race);
 
         let army = new Army(player, village);
-        
+
 
         //TODO: generate random name
 
@@ -213,7 +220,7 @@ export default class ArmyManager {
             let unit = UnitFactory.getUnit(race);
             army.addUnit(unit);
 
-            if(unit.moveMax > maxMove)
+            if (unit.moveMax > maxMove)
                 maxMove = unit.moveMax;
         }
         //set army properties
@@ -245,7 +252,7 @@ export default class ArmyManager {
             console.log("already occupied");
             return;
         }
-        
+
         //TODO: fix
         let y = 512 + (row * 256);
         let x = 512 + (col * 256);
@@ -287,7 +294,7 @@ export default class ArmyManager {
         this.scene.board.boardUnits[row][col] = armySprite;
     }
 
-    //TODO: rename prefix to just player.
+    //TODO: rename prefix to just player (for human players).
     /**
      * assumed that the army is on a friendly village.
      * restocks the arny with one day's worth of food
@@ -315,6 +322,7 @@ export default class ArmyManager {
         let armyCost = army.getCostDay();
 
         let building = scene.board.getBuildingData(row, col);
+        
         if (building == null)
             return;
 
@@ -322,14 +330,74 @@ export default class ArmyManager {
         if (building.player != army.player)
             return;
 
+        //not a village building
+        if (!(building instanceof VillageBuilding))
+            return;
+
         //transfer food
         if (building.village.amountFood < armyCost) {
-            console.log("not enough food. need 10");
+            console.log("not enough food. need " + armyCost);
             return;
         }
 
         building.village.amountFood -= armyCost;
         army.amountFood += armyCost;
+    }
+
+    armyGetWood() {
+        let scene = this.scene;
+
+        let army = scene.selectedArmy.data.get("data");
+        scene.armyManager.getWood(army);
+
+        scene.updateUI();
+    }
+
+    /**
+     * Transfers wood from a village building to an army.
+     * @param {Army} army The army to alter
+     */
+    getWood(army) {
+        let scene = this.scene;
+        let row = army.row;
+        let col = army.col;
+
+        let building = scene.board.getBuildingData(row, col);
+
+        if (building == null)
+            return;
+
+        //check if it's your building
+        if (building.player != army.player)
+            return;
+
+        //not a village building
+        if (!(building instanceof VillageBuilding))
+            return;
+
+        //transfer food
+        let numWoodToMove = 10;
+        if (building.village.amountWood < numWoodToMove) {
+            console.log("not enough wood. need " + numWoodToMove);
+            return;
+        }
+
+        building.village.amountWood -= numWoodToMove;
+        army.amountWood += numWoodToMove;
+    }
+
+    armyBuild() {
+        let scene = this.scene;
+
+        let army = scene.selectedArmy.data.get("data");
+        scene.armyManager.doBuild(army);
+
+        scene.updateUI();
+    }
+
+    doBuild() {
+
+
     }
 
     //TODO: separate select and attack

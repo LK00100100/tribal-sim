@@ -39,7 +39,7 @@ export default class Army {
         this.moveAmount;
         this.units = [];
 
-        this.amoundWood = 0;
+        this.amountWood = 0;
         this.amountFood = 0;
         this.amountStone = 0;
 

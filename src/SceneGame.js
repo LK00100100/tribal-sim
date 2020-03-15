@@ -19,6 +19,8 @@ import RatsAi from "./ai/RatsAi";
 import BuildingManager from "./buildings/BuildingManager";
 
 import Phaser from "phaser";
+// eslint-disable-next-line no-unused-vars
+import Army from "./army/Army";
 
 export default class SceneGame extends Phaser.Scene {
 
@@ -179,8 +181,10 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image("btnArmyGetUnits", "assets/btn-army-get-units.png");
         this.load.image("btnArmyDisbandUnits", "assets/btn-army-disband-units.png");
         this.load.image("btnArmyGetFood", "assets/btn-army-get-food.png");
+        this.load.image("btnArmyGetWood", "assets/btn-army-get-wood.png");
         this.load.image("btnArmyAttack", "assets/btn-army-attack.png");
         this.load.image("btnArmyAttackBuilding", "assets/btn-army-attack-building.png");
+        this.load.image("btnArmyBuild", "assets/btn-army-build.png");
         this.load.image("btnArmyCancel", "assets/btn-army-cancel.png");
 
         //armies
@@ -345,7 +349,7 @@ export default class SceneGame extends Phaser.Scene {
          * UI - village
          */
         //TODO: pull this out to a scene on top of another scene.
-        
+
         //TODO: temporary, place gorillas
         let gorillaPlayerNumber = 6;
         let armySprite = this.armyManager.createArmyFromCoordinate(gorillaPlayerNumber, 3, 10);
@@ -500,6 +504,12 @@ export default class SceneGame extends Phaser.Scene {
             .setDepth(100)
             .setShadow(3, 3, "#000000", 3);
 
+        this.txtArmyWood = this.add.text(x, y + 240)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setShadow(3, 3, "#000000", 3); 
+
         this.btnArmyGetUnits = this.add.sprite(x, y + 280, "btnArmyGetUnits")
             .setScrollFactor(0)
             .setInteractive()
@@ -521,13 +531,30 @@ export default class SceneGame extends Phaser.Scene {
             .setOrigin(0)
             .on("pointerdown", this.armyManager.armyGetFood);
 
+        this.btnArmyGetWood = this.add.sprite(x, y + 700, "btnArmyGetWood")
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .setOrigin(0)
+            .on("pointerdown", this.armyManager.armyGetWood);
+
+        this.btnArmyBuild = this.add.sprite(x, y + 840, "btnArmyBuild")
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .setOrigin(0)
+            .on("pointerdown", this.armyManager.armyBuild);
+
         this.uiArmy.push(this.txtArmySize);
         this.uiArmy.push(this.txtArmyVillage);
         this.uiArmy.push(this.txtArmyMoves);
         this.uiArmy.push(this.txtArmyFood);
+        this.uiArmy.push(this.txtArmyWood);
         this.uiArmy.push(this.btnArmyGetUnits);
         this.uiArmy.push(this.btnArmyDisbandUnits);
         this.uiArmy.push(this.btnArmyGetFood);
+        this.uiArmy.push(this.btnArmyGetWood);
+        this.uiArmy.push(this.btnArmyBuild);
 
         /**
          * ui enemy elements
@@ -692,7 +719,7 @@ export default class SceneGame extends Phaser.Scene {
         this.playersAi[9] = new CatAi(this, 9);
 
         this.updateUI();
-        
+
         //TODO:center to player 1 center. remove? make more dynamic?
         this.cam.pan(1000, 2000, 1000);
     }
@@ -971,13 +998,17 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: if not enough moves left, highlight attack red
     }
 
-
+    /**
+     * 
+     * @param {Army} army 
+     */
     updateTextArmy(army) {
         //TODO: refactor and move
         this.txtArmySize.setText("Units: " + army.units.length);
         this.txtArmyVillage.setText("Village: " + army.village.name);
         this.txtArmyMoves.setText("Moves: " + army.moveAmount + "/" + army.moveMax);
         this.txtArmyFood.setText("Food: " + army.amountFood);
+        this.txtArmyWood.setText("Wood: " + army.amountWood);
     }
 
     /**
