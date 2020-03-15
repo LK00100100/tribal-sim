@@ -4,12 +4,20 @@ import GameUtilsArmy from "../utils/GameUtilsArmy.js";
 import Rat from "../army/unit/Rat.js";
 import Ai from "./Ai.js";
 
-//TODO: Singular noun
+// eslint-disable-next-line no-unused-vars
+import SceneGame from "../SceneGame";
+
 export default class RatAi extends Ai {
 
+    /**
+     * 
+     * @param {SceneGame} scene 
+     * @param {*} playerNumber 
+     */
     constructor(scene, playerNumber) {
         super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
 
+        this.scene = scene;
         this.territorySize = 3;
         this.reproductionChance = 0.33;
         this.reproduceAmount = 1;
@@ -17,7 +25,6 @@ export default class RatAi extends Ai {
 
     calculateTurn() {
         console.log("rats doing rat stuff...");
-
         let scene = this.scene;
 
         this.buildings.forEach(building => {
@@ -131,7 +138,7 @@ export default class RatAi extends Ai {
 
                     let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
                     scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
-
+            
                 }
             }
 

@@ -1,20 +1,19 @@
 import VillageBuilding from "./VillageBuilding.js";
-import Races from "../../Races.js";
+import RaceObj from "../../Race.js";
+let { Race } = RaceObj;
 
 import GameUtils from "../../utils/GameUtils";
 
 export default class Village extends VillageBuilding {
 
-    //TODO: take out x, y
-    constructor(row, col, x, y, player, name) {
-        super(row, col, x, y, player);
+    constructor(row, col, player, name) {
+        super(row, col, player);
         this.village = this;
 
         this.name = name;
 
         this.villageId;
 
-        //TODO: cavemen, rats. implement?
         this.race;
 
         this.population;
@@ -56,7 +55,7 @@ export default class Village extends VillageBuilding {
             this.amountFood = 0;
 
         //rats cant gather wood and stone
-        if (this.race == Races.RAT)
+        if (this.race == Race.RAT)
             return;
 
         this.amountStone += this.incomeStone;
@@ -100,7 +99,7 @@ export default class Village extends VillageBuilding {
         if (this.starvationAmount > 0)
             return this.starvationAmount * -1;
 
-        if(this.population == 0)
+        if (this.population == 0)
             return 0;
 
         let populationGrowth = Math.floor(this.population * 0.01);
@@ -120,7 +119,7 @@ export default class Village extends VillageBuilding {
 
     calculateIncome(countsOfBuildings) {
 
-        if(this.population == 0){
+        if (this.population == 0) {
             this.incomeFood = 0;
             this.incomeStone = 0;
             this.incomeWood = 0;

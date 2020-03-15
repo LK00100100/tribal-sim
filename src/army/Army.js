@@ -7,30 +7,16 @@ import Village from "../buildings/villageBuildings/Village";
 export default class Army {
 
     /**
-     * Either set the army's starting coordinates to village or row/col
+     * Either set the army's starting coordinates row/col
      * @param {Number} player playerNumber
-     * @param {Village} village 
-     * @param {Number} row 
-     * @param {Number} col 
+     * @param {Number} row board row
+     * @param {Number} col board col
      */
-    //TODO: remove village
-    constructor(player, village, row, col) {
+    constructor(player, row, col) {
+        this.row = row;
+        this.col = col;
 
-        //set starting coordinates and starting village (if applicable)
-        if(village != null){
-            this.village = village;
-            this.row = village.row;
-            this.col = village.col;
-        }
-        else{
-            if(row != null)
-                this.row = row;
-
-            if(col != null)
-                this.col = col;
-
-            this.village = null;
-        }
+        this.village = null;    //home village
 
         this.player = player;   //player number
         this.name;
@@ -44,6 +30,14 @@ export default class Army {
         this.amountStone = 0;
 
         this.carryingCapcity;
+    }
+
+    /**
+     * set village
+     * @param {Village} village 
+     */
+    setVillage(village) {
+        this.village = village;
     }
 
     addUnit(unit) {

@@ -40,13 +40,17 @@ export default class ArmyManager {
     }
 
     moveArmy(spriteArmy, terrainSprite, possibleMoves) {
-
         let scene = this.scene;
 
         let army = spriteArmy.data.get("data");
 
         let targetRow = terrainSprite.data.get("row");
         let targetCol = terrainSprite.data.get("col");
+
+        //no moves!
+        if(possibleMoves.length == 0){
+            return;
+        }
 
         //move visually and internally (row, col);
         let cost = this.getMovementCost(possibleMoves, targetRow, targetCol);
@@ -210,8 +214,8 @@ export default class ArmyManager {
 
         let armySprite = UnitFactory.getUnitSprite(scene, village, race);
 
-        let army = new Army(player, village);
-
+        let army = new Army(player, row, col);
+        army.setVillage(village);
 
         //TODO: generate random name
 
@@ -238,7 +242,8 @@ export default class ArmyManager {
 
     //TODO: createArmy() and then placeArmy(row, col)
     /**
-     * Creates an army and places it on the board
+     * Creates an army and places it on the board.
+     * Useful if there's no village
      * @param {Number} player player number
      * @param {Number} row 
      * @param {Number} col 
@@ -254,20 +259,9 @@ export default class ArmyManager {
             return;
         }
 
-        //TODO: fix
-        let y = 512 + (row * 256);
-        let x = 512 + (col * 256);
-        //TODO: make a NoVillage class?
-        let village = {
-            x: x,
-            y: y,
-            row: row,
-            col: col,
-            race: race
-        };
-        let armySprite = UnitFactory.getUnitSprite(scene, village, race);
+        let armySprite = UnitFactory.getUnitSprite(scene, row, col, race);
 
-        let army = new Army(player, village, row, col);
+        let army = new Army(player, row, col);
 
         //TODO: generate random name
 
@@ -276,7 +270,8 @@ export default class ArmyManager {
             let unit = UnitFactory.getUnit(race);
             army.addUnit(unit);
 
-            maxMove = unit.moveMax;
+            if (unit.moveMax > maxMove)
+                maxMove = unit.moveMax;
         }
 
         //TODO: set army moveAmount dynamically

@@ -11,7 +11,8 @@ import Village from "./buildings/villageBuildings/Village";
 
 import ArmyManager from "./army/ArmyManager";
 
-import Races from "./Races";
+import RaceObj from "./Race";
+let { Race } = RaceObj;
 
 import CatAi from "./ai/CatAi";
 import CavemanAi from "./ai/CavemanAi";
@@ -40,15 +41,15 @@ export default class SceneGame extends Phaser.Scene {
         //1-indexed
         this.playerRace = [
             "",
-            Races.CAVEMAN,
-            Races.CAVEMAN,
-            Races.RAT,
-            Races.RAT,
-            Races.CAVEMAN,
-            Races.GORILLA,
-            Races.TIGER,
-            Races.MEERKAT,
-            Races.CAT];
+            Race.CAVEMAN,
+            Race.CAVEMAN,
+            Race.RAT,
+            Race.RAT,
+            Race.CAVEMAN,
+            Race.GORILLA,
+            Race.TIGER,
+            Race.MEERKAT,
+            Race.CAT];
         this.numPlayers = this.playerRace.length - 1;
 
         this.playerHuman = 1;   //this is you
@@ -291,10 +292,10 @@ export default class SceneGame extends Phaser.Scene {
             switch (building.type) {
             case "village":
                 switch (race) {
-                case Races.CAVEMAN:
+                case Race.CAVEMAN:
                     imageName = "buildVillage";
                     break;
-                case Races.RAT:
+                case Race.RAT:
                     imageName = "buildRatCave";
                     break;
                 default:
@@ -1013,7 +1014,7 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     /**
-     * 
+     * Updates the ui text to the army
      * @param {Army} army 
      */
     updateTextArmy(army) {

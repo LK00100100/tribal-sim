@@ -64,6 +64,7 @@ export default class CatAi extends Ai {
 
             let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
             scene.armyManager.moveArmy(armySprite, terrainSprite, possibleMovesArmy);
+
         });
     }
 

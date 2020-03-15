@@ -1,98 +1,43 @@
-import Races from "../../Races";
+import RaceObj from "../../Race";
+let {getRaceClass, getRaceSpriteName } = RaceObj;
 
-import Cat from "./Cat";
-import Caveman from "./Caveman";
-import Gorilla from "./Gorilla";
-import Meerkat from "./Meerkat";
-import Rat from "./Rat.js";
-import Tiger from "./Tiger";
 // eslint-disable-next-line no-unused-vars
 import Unit from "./Unit";
+
+import GameUtilsBoard from "../../utils/GameUtilsBoard";
 
 export default class UnitFactory {
 
     /**
      * Get specific Unit object from race
-     * @param {Races} race 
+     * @param {Race} race 
      * @returns {Unit}
      */
     static getUnit(race) {
-
-        //TODO: singular noun
-        //TODO: array? or map?
-        switch (race) {
-        case Races.CAT:
-            return new Cat();
-        case Races.CAVEMAN:
-            return new Caveman();
-        case Races.GORILLA:
-            return new Gorilla();
-        case Races.MEERKAT:
-            return new Meerkat();
-        case Races.RAT:
-            return new Rat();
-        case Races.TIGER:
-            return new Tiger();
-        default:
-            throw "no such race: " + race;
-        }
-
+        return getRaceClass(race);
     }
 
-    //TODO: refactor this to get just the unit sprite
     /**
+     * draws a sprite on the board. does not place the sprite on the game Board
      * 
      * @param {Phaser.Scene} scene 
      * @param {Village} village 
      * @param {Races} race 
+     * @returns Phaser Sprite
      */
-    static getUnitSprite(scene, village, race) {
-
-        //TODO: shove in unit?
-        //TODO: remove card code stuff
-        //TODO: repeat code
-        //TODO: handle no villages
+    static getUnitSprite(scene, row, col, race) {
         let armySprite;
-        switch (race) {
-        case Races.CAT:
-            armySprite = scene.add.sprite(village.x, village.y, "armyCat")
-                .setInteractive()
-                .on("pointerdown", scene.armyManager.clickedArmy);
-            break;
-        case Races.CAVEMAN:
-            armySprite = scene.add.sprite(village.x, village.y, "armyCaveman")
-                .setInteractive()
-                .on("pointerdown", scene.armyManager.clickedArmy);
-            break;
-        case Races.GORILLA:
-            armySprite = scene.add.sprite(village.x, village.y, "armyGorilla")
-                .setInteractive()
-                .on("pointerdown", scene.armyManager.clickedArmy);
-            break;
-        case Races.MEERKAT:
-            armySprite = scene.add.sprite(village.x, village.y, "armyMeerkat")
-                .setInteractive()
-                .on("pointerdown", scene.armyManager.clickedArmy);
-            break;
-        case Races.RAT:
-            armySprite = scene.add.sprite(village.x, village.y, "armyRat")
-                .setInteractive()
-                .on("pointerdown", scene.armyManager.clickedArmy);
-            break;
-        case Races.TIGER:
-            armySprite = scene.add.sprite(village.x, village.y, "armyTiger")
-                .setInteractive()
-                .on("pointerdown", scene.armyManager.clickedArmy);
-            break;
-        default:
-            throw "no such race: " + race;
-        }
+        let x = GameUtilsBoard.convertColToPixel(col);
+        let y = GameUtilsBoard.convertRowToPixel(row);
+        let spriteName = getRaceSpriteName(race);
 
+        armySprite = scene.add.sprite(x, y, spriteName);
         armySprite.setDataEnabled()
+            .setInteractive()
+            .on("pointerdown", scene.armyManager.clickedArmy)
             .setDepth(2);
 
         return armySprite;
-
     }
 
 }
