@@ -66,12 +66,15 @@ export default class GorillaAi extends Ai {
                 return scene.board.boardTerrain[coordinate.row][coordinate.col] == 4;
             });
 
-            //pick a random square to move to
-            let pickedIndex = GameUtils.getRandomInt(possibleMovesForest.length);
-            let pickedCoordinate = possibleMovesForest[pickedIndex];
+            //we have movement
+            if (possibleMovesForest.length > 0) {
+                //pick a random square to move to
+                let pickedIndex = GameUtils.getRandomInt(possibleMovesForest.length);
+                let pickedCoordinate = possibleMovesForest[pickedIndex];
 
-            let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
-            scene.armyManager.moveArmy(armySprite, terrainSprite, possibleMovesForest);
+                let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
+                scene.armyManager.moveArmy(armySprite, terrainSprite, possibleMovesForest);
+            }
         });
     }
 

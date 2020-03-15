@@ -14,7 +14,8 @@ export default class UnitFactory {
      * @returns {Unit}
      */
     static getUnit(race) {
-        return getRaceClass(race);
+        let unitClass = getRaceClass(race);
+        return new unitClass();
     }
 
     /**
