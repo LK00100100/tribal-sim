@@ -382,17 +382,13 @@ export default class ArmyManager {
         army.amountWood += numWoodToMove;
     }
 
-    armyBuild() {
-        let scene = this.scene;
-
-        let army = scene.selectedArmy.data.get("data");
-        scene.armyManager.doBuild(army);
-
-        scene.updateUI();
-    }
-
-    doBuild() {
-
+    /**
+     * 
+     * @param {Army} army 
+     */
+    armyBuildWallWood(army){
+        //TODO: complete
+        return army;
 
     }
 

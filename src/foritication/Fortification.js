@@ -1,6 +1,7 @@
 
 /**
- * A man-made structure with alters the landscape.
+ * A man-made structure which alters the landscape.
+ * Can have several fortifications per Board square
  * No real owners.
  */
 export default class Fortication {

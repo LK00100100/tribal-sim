@@ -5,7 +5,7 @@ import GameUtilsBuilding from "./utils/GameUtilsBuilding";
 
 import Board from "./board/Board";
 import TerrainObj from "./board/Terrain";
-const {Terrain, TerrainSpriteName} = TerrainObj;
+const { Terrain, TerrainSpriteName } = TerrainObj;
 
 import Village from "./buildings/villageBuildings/Village";
 
@@ -23,7 +23,11 @@ import RatsAi from "./ai/RatAi";
 
 import BuildingManager from "./buildings/BuildingManager";
 
+//phaser imports
+//import Phaser from "../node_modules/phaser/dist/phaser";
 import Phaser from "phaser";
+import Preloader from "./scenehelper/Preloader";
+
 // eslint-disable-next-line no-unused-vars
 import Army from "./army/Army";
 
@@ -37,7 +41,7 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: separate scene from game info
 
         this.board = new Board();
-        
+
         //1-indexed
         this.playerRace = [
             "",
@@ -130,12 +134,13 @@ export default class SceneGame extends Phaser.Scene {
         this.playerArmies = [];
         this.playerBuildings = [];
 
-        //ui
-        this.uiVillage = [];
-        this.uiBuilding = [];
-        this.uiArmy = [];
-        this.uiArmyEnemy = [];
-        this.uiArmyEnemyBuilding = [];
+        //ui for the human-player
+        this.uiVillage = [];            //main village actions
+        this.uiBuilding = [];           //main building actions
+        this.uiArmy = [];               //main army actions
+        this.uiArmyBuild = [];          //build options
+        this.uiArmyEnemy = [];          //options against enemy armies
+        this.uiArmyEnemyBuilding = [];  //options against enemy buildings
 
         this.groupTerrain;
         this.groupGrid;
@@ -157,61 +162,18 @@ export default class SceneGame extends Phaser.Scene {
         this.armyManager;
     }
 
+    /**
+     * Phaser function
+     * preload assets that need downloading
+     */
     preload() {
-        //TODO: pull out into own class
-        //TODO: make a ton of enums for the keys
-
-        //terrain
-        this.load.image(TerrainSpriteName.GRASS , "assets/tile-grass.png");
-        this.load.image(TerrainSpriteName.OCEAN, "assets/tile-ocean.png");
-        this.load.image(TerrainSpriteName.HILL, "assets/tile-hill.png");
-        this.load.image(TerrainSpriteName.DESERT, "assets/tile-desert.png");
-        this.load.image(TerrainSpriteName.FOREST, "assets/tile-forest.png");
-        this.load.image("tileGrid", "assets/tile-grid.png");
-
-        //buildings
-        this.load.image("buildVillage", "assets/build-village.png");
-        this.load.image("buildRatCave", "assets/build-rat-cave.png");
-        this.load.image("buildFarm", "assets/build-farm.png");
-        this.load.image("buildLumberMill", "assets/build-lumber-mill.png");
-        this.load.image("buildQuarry", "assets/build-quarry.png");
-        this.load.image("buildHousing", "assets/build-housing.png");
-
-        /**
-         * ui stuff
-         */
-        this.load.image("btnEndTurn", "assets/btn-end-turn.png");
-
-        //ui, village
-        this.load.image("btnCreateArmy", "assets/btn-create-army.png");
-        this.load.image("btnBuildFarm", "assets/btn-build-farm.png");
-        this.load.image("btnBuildQuarry", "assets/btn-build-quarry.png");
-        this.load.image("btnBuildLumberMill", "assets/btn-build-lumber-mill.png");
-        this.load.image("btnBuildHousing", "assets/btn-build-housing.png");
-
-        //ui, buildings
-        this.load.image("btnBuildDestroy", "assets/btn-build-destroy.png");
-
-        //ui, army
-        this.load.image("btnArmyGetUnits", "assets/btn-army-get-units.png");
-        this.load.image("btnArmyDisbandUnits", "assets/btn-army-disband-units.png");
-        this.load.image("btnArmyGetFood", "assets/btn-army-get-food.png");
-        this.load.image("btnArmyGetWood", "assets/btn-army-get-wood.png");
-        this.load.image("btnArmyAttack", "assets/btn-army-attack.png");
-        this.load.image("btnArmyAttackBuilding", "assets/btn-army-attack-building.png");
-        this.load.image("btnArmyBuild", "assets/btn-army-build.png");
-        this.load.image("btnArmyCancel", "assets/btn-army-cancel.png");
-
-        //armies
-        //TODO: Singular noun
-        this.load.image("armyCat", "assets/army-cat.png");
-        this.load.image("armyCaveman", "assets/army-caveman.png");
-        this.load.image("armyGorilla", "assets/army-gorilla.png");
-        this.load.image("armyMeerkat", "assets/army-meerkat.png");
-        this.load.image("armyRat", "assets/army-rat.png");
-        this.load.image("armyTiger", "assets/army-tiger.png");
+        console.log("preload");
+        Preloader.preloadAssets(this);
     }
 
+    /**
+     * Phaser initialization
+     */
     create() {
         /**
          * pre init
@@ -225,8 +187,8 @@ export default class SceneGame extends Phaser.Scene {
 
         this.playersAi = [];
 
-        this.armyManager = new ArmyManager(this);
         this.buildingManager = new BuildingManager(this);
+        this.armyManager = new ArmyManager(this);
 
         let x, y;
         let tempImage, tempSprite, tempText;
@@ -525,41 +487,49 @@ export default class SceneGame extends Phaser.Scene {
             .setDepth(100)
             .setShadow(3, 3, "#000000", 3);
 
-        this.btnArmyGetUnits = this.add.sprite(x, y + 280, "btnArmyGetUnits")
+        this.btnArmyGetUnits = this.add.sprite(x, y + 290, "btnArmyGetUnits")
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
             .setOrigin(0)
             .on("pointerdown", this.armyManager.armyGetUnits);
 
-        this.btnArmyDisbandUnits = this.add.sprite(x, y + 420, "btnArmyDisbandUnits")
+        this.btnArmyDisbandUnits = this.add.sprite(x, y + 430, "btnArmyDisbandUnits")
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
             .setOrigin(0)
             .on("pointerdown", this.armyManager.armyDisbandUnits);
 
-        this.btnArmyGetFood = this.add.sprite(x, y + 560, "btnArmyGetFood")
+        this.btnArmyGetFood = this.add.sprite(x, y + 570, "btnArmyGetFood")
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
             .setOrigin(0)
             .on("pointerdown", this.armyManager.armyGetFood);
 
-        this.btnArmyGetWood = this.add.sprite(x, y + 700, "btnArmyGetWood")
+        this.btnArmyGetWood = this.add.sprite(x, y + 710, "btnArmyGetWood")
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
             .setOrigin(0)
             .on("pointerdown", this.armyManager.armyGetWood);
 
-        this.btnArmyBuild = this.add.sprite(x, y + 840, "btnArmyBuild")
+        this.btnArmyBuild = this.add.sprite(x, y + 850, "btnArmyBuild")
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
             .setOrigin(0)
-            .on("pointerdown", this.armyManager.armyBuild);
+            .on("pointerdown", this.armyBuild);
 
+        this.btnArmyBuildWallWood = this.add.sprite(x + 270, y + 290, "btnArmyBuildWallWood")
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .setOrigin(0)
+            .on("pointerdown", this.armyManager.armyBuildWallWood);
+
+        //TODO: alot of repeated code here and .setscrollfactor, etc
         this.uiArmy.push(this.txtArmySize);
         this.uiArmy.push(this.txtArmyVillage);
         this.uiArmy.push(this.txtArmyMoves);
@@ -570,6 +540,8 @@ export default class SceneGame extends Phaser.Scene {
         this.uiArmy.push(this.btnArmyGetFood);
         this.uiArmy.push(this.btnArmyGetWood);
         this.uiArmy.push(this.btnArmyBuild);
+
+        this.uiArmyBuild.push(this.btnArmyBuildWallWood);
 
         /**
          * ui enemy elements
@@ -782,6 +754,7 @@ export default class SceneGame extends Phaser.Scene {
             if (village.population == 10)
                 scene.btnCreateArmy.setTint("0xffff00");
 
+            //TODO: set red tint variable in some global config file
             //TODO: change this later. more dynamic
             if (village.amountWood < 100) {
                 scene.btnBuildFarm.setTint("0xff0000");
@@ -1183,6 +1156,7 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
+    //TODO: refactor elsewhere
     showUiArmyButtons(armyData) {
         //let scene = this;
 
@@ -1198,7 +1172,14 @@ export default class SceneGame extends Phaser.Scene {
         this.btnArmyGetUnits.visible = false;
         this.btnArmyDisbandUnits.visible = false;
         if (buildingSprite != null) {
+
             let buildingData = buildingSprite.data.get("data");
+
+            /** @type {Village} */
+            let village = buildingData.village;
+
+            if (village == null)
+                return;
 
             //if this is your territory
             if (buildingData.player == armyData.player) {
@@ -1211,21 +1192,31 @@ export default class SceneGame extends Phaser.Scene {
                  */
                 //get food
                 this.btnArmyGetFood.clearTint();
-                if (buildingData.village.amountFood < 10)
+                if (village.amountFood < 10)
                     this.btnArmyGetFood.setTint("0xff0000");
-                else if (buildingData.village.amountFood == 10)
+                else if (village.amountFood == 10)
                     this.btnArmyGetFood.setTint("0xffff00");
 
                 //get units
                 this.btnArmyGetUnits.clearTint();
-                if (buildingData.village.population < 10)
+                if (village.population < 10)
                     this.btnArmyGetUnits.setTint("0xff0000");
-                else if (buildingData.village.population == 10)
+                else if (village.population == 10)
                     this.btnArmyGetUnits.setTint("0xffff00");
-            }
 
+                //get wood
+                this.btnArmyGetUnits.clearTint();
+                if (village.amountWood < 10)
+                    this.btnArmyGetWood.setTint("0xff0000");
+                else if (village.amountWood == 10)
+                    this.btnArmyGetWood.setTint("0xffff00");
+            }
         }
 
+    }
+
+    armyBuild(){
+        
     }
 
     /**

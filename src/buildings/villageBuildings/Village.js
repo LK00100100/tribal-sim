@@ -18,9 +18,9 @@ export default class Village extends VillageBuilding {
 
         this.population;
 
-        this.amountFood;
-        this.amountStone;
-        this.amountWood;
+        this.amountFood = 0;
+        this.amountStone = 0;
+        this.amountWood = 0;
 
         //TODO: remove this hardcoded
         this.incomeFood = 20;
