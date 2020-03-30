@@ -1,5 +1,5 @@
 
-import Phaser from "phaser";
+import Phaser from "../node_modules/phaser/src/phaser";
 import SceneGame from "./SceneGame.js";
 
 var sceneGame = new SceneGame();

@@ -381,6 +381,27 @@ export default class ArmyManager {
         building.village.amountWood -= numWoodToMove;
         army.amountWood += numWoodToMove;
     }
+    
+    /**
+     * human-player clicks "selectedArmy, build."
+     * Should just show stuff that can be built
+     * @param {Phaser.Scene} scene
+     */
+    armyBuild(){
+        this.scene.showUiArmyBuildButtons();
+    }
+
+    /**
+     * human-player clicks "army > build > cancel build"
+     * Should go back to the main army actions
+     * @param {Phaser.Scene} scene
+     */
+    armyBuildCancel(){
+        let scene = this.scene;
+        let armyData = scene.selectedArmy.getData("data");
+
+        scene.showUiArmyButtons(armyData);
+    }
 
     /**
      * 

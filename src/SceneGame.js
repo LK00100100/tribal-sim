@@ -24,8 +24,7 @@ import RatsAi from "./ai/RatAi";
 import BuildingManager from "./buildings/BuildingManager";
 
 //phaser imports
-//import Phaser from "../node_modules/phaser/dist/phaser";
-import Phaser from "phaser";
+import Phaser from "../node_modules/phaser/src/phaser";
 import Preloader from "./scenehelper/Preloader";
 
 // eslint-disable-next-line no-unused-vars
@@ -34,14 +33,13 @@ import Army from "./army/Army";
 export default class SceneGame extends Phaser.Scene {
 
     constructor() {
-        //this = sys
-
         super("SceneGame");
 
         //TODO: separate scene from game info
 
         this.board = new Board();
 
+        //TODO: read all this stuff from external source
         //1-indexed
         this.playerRace = [
             "",
@@ -137,8 +135,9 @@ export default class SceneGame extends Phaser.Scene {
         //ui for the human-player
         this.uiVillage = [];            //main village actions
         this.uiBuilding = [];           //main building actions
-        this.uiArmy = [];               //main army actions
-        this.uiArmyBuild = [];          //build options
+        this.uiArmyText = [];
+        this.uiArmyButtons = [];        //main army actions
+        this.uiArmyBuildButtons = [];   //build options
         this.uiArmyEnemy = [];          //options against enemy armies
         this.uiArmyEnemyBuilding = [];  //options against enemy buildings
 
@@ -147,7 +146,7 @@ export default class SceneGame extends Phaser.Scene {
 
         this.cam;
 
-        //sprites
+        //Phaser sprites, human-player selected
         this.selectedVillage;
         this.selectedBuilding;  //TODO: consolidate this and selectedVillage
         this.selectedArmy;
@@ -167,7 +166,6 @@ export default class SceneGame extends Phaser.Scene {
      * preload assets that need downloading
      */
     preload() {
-        console.log("preload");
         Preloader.preloadAssets(this);
     }
 
@@ -520,28 +518,36 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .setOrigin(0)
-            .on("pointerdown", this.armyBuild);
+            .on("pointerdown", this.armyManager.armyBuild);
 
-        this.btnArmyBuildWallWood = this.add.sprite(x + 270, y + 290, "btnArmyBuildWallWood")
+        //TODO: alot of repeated code here and .setscrollfactor, etc
+        this.uiArmyText.push(this.txtArmySize);
+        this.uiArmyText.push(this.txtArmyVillage);
+        this.uiArmyText.push(this.txtArmyMoves);
+        this.uiArmyText.push(this.txtArmyFood);
+        this.uiArmyText.push(this.txtArmyWood);
+        this.uiArmyButtons.push(this.btnArmyGetUnits);
+        this.uiArmyButtons.push(this.btnArmyDisbandUnits);
+        this.uiArmyButtons.push(this.btnArmyGetFood);
+        this.uiArmyButtons.push(this.btnArmyGetWood);
+        this.uiArmyButtons.push(this.btnArmyBuild);
+
+        this.btnArmyBuildCancel = this.add.sprite(x, y + 290, "btnArmyCancel")
+            .setScrollFactor(0)
+            .setInteractive()
+            .setOrigin(0)
+            .setDepth(100)
+            .on("pointerdown", this.armyManager.armyBuildCancel);
+
+        this.btnArmyBuildWallWood = this.add.sprite(x, y + 430, "btnArmyBuildWallWood")
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
             .setOrigin(0)
             .on("pointerdown", this.armyManager.armyBuildWallWood);
 
-        //TODO: alot of repeated code here and .setscrollfactor, etc
-        this.uiArmy.push(this.txtArmySize);
-        this.uiArmy.push(this.txtArmyVillage);
-        this.uiArmy.push(this.txtArmyMoves);
-        this.uiArmy.push(this.txtArmyFood);
-        this.uiArmy.push(this.txtArmyWood);
-        this.uiArmy.push(this.btnArmyGetUnits);
-        this.uiArmy.push(this.btnArmyDisbandUnits);
-        this.uiArmy.push(this.btnArmyGetFood);
-        this.uiArmy.push(this.btnArmyGetWood);
-        this.uiArmy.push(this.btnArmyBuild);
-
-        this.uiArmyBuild.push(this.btnArmyBuildWallWood);
+        this.uiArmyBuildButtons.push(this.btnArmyBuildCancel);
+        this.uiArmyBuildButtons.push(this.btnArmyBuildWallWood);
 
         /**
          * ui enemy elements
@@ -786,7 +792,7 @@ export default class SceneGame extends Phaser.Scene {
             scene.updateTextArmy(army);
 
             //display army texts
-            GameUtilsUi.showGameObjects(scene.uiArmy);
+            GameUtilsUi.showGameObjects(scene.uiArmyText);
 
             scene.showUiArmyButtons(army);
 
@@ -1003,14 +1009,14 @@ export default class SceneGame extends Phaser.Scene {
      * deselects: army, enemy army and/or the selected building
      */
     deselectEverything() {
-
         GameUtilsUi.hideGameObjects(this.uiVillage);
         GameUtilsUi.hideGameObjects(this.uiBuilding);
-        GameUtilsUi.hideGameObjects(this.uiArmy);
+        GameUtilsUi.hideGameObjects(this.uiArmyText);
+        GameUtilsUi.hideGameObjects(this.uiArmyButtons);
+        GameUtilsUi.hideGameObjects(this.uiArmyBuildButtons);
         GameUtilsUi.hideGameObjects(this.uiArmyEnemy);
         GameUtilsUi.hideGameObjects(this.uiArmyEnemyBuilding);
 
-        //TODO: remove if-statements
         if (this.selectedBuyBuilding != null) {
             this.board.unhighlightTiles(this.possibleMoves);
             this.selectedBuyBuilding = null;
@@ -1157,8 +1163,15 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     //TODO: refactor elsewhere
+
+    /**
+     * shows the ui army main action buttons
+     * hides non-main action buttons
+     * @param {Army} armyData 
+     */
     showUiArmyButtons(armyData) {
-        //let scene = this;
+        //TODO: refactor armyData as just selected
+        GameUtilsUi.hideGameObjects(this.uiArmyBuildButtons);
 
         let row = armyData.row;
         let col = armyData.col;
@@ -1183,9 +1196,7 @@ export default class SceneGame extends Phaser.Scene {
 
             //if this is your territory
             if (buildingData.player == armyData.player) {
-                this.btnArmyGetFood.visible = true;
-                this.btnArmyDisbandUnits.visible = true;
-                this.btnArmyGetUnits.visible = true;
+                GameUtilsUi.showGameObjects(this.uiArmyButtons);
 
                 /**
                  * adequate resources check
@@ -1215,8 +1226,19 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    armyBuild(){
-        
+    //TODO: refactor elsewhere
+    /**
+     * shows the army build buttons.
+     * hides all non army build buttons
+     */
+    showUiArmyBuildButtons() {
+        GameUtilsUi.hideGameObjects(this.uiArmyButtons);
+        GameUtilsUi.showGameObjects(this.uiArmyBuildButtons);
+    }
+
+    //TODO: refactor elsewhere
+    hideUiArmyBuildButtons() {
+        GameUtilsUi.hideGameObjects(this.uiArmyBuildButtons);
     }
 
     /**
