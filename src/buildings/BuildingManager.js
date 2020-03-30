@@ -183,6 +183,7 @@ export default class BuildingManager {
         let village = selectedVillage.getData("data");
 
         //TODO: change this later to reflect 'final' building costs
+        //TODO: put building costs into the building class
         if (village.amountWood < 100)
             return;
 

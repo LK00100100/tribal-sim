@@ -1197,26 +1197,24 @@ export default class SceneGame extends Phaser.Scene {
             //if this is your territory
             if (buildingData.player == armyData.player) {
                 GameUtilsUi.showGameObjects(this.uiArmyButtons);
+                GameUtils.clearTintArray(this.uiArmyButtons);
 
                 /**
                  * adequate resources check
                  */
                 //get food
-                this.btnArmyGetFood.clearTint();
                 if (village.amountFood < 10)
                     this.btnArmyGetFood.setTint("0xff0000");
                 else if (village.amountFood == 10)
                     this.btnArmyGetFood.setTint("0xffff00");
 
                 //get units
-                this.btnArmyGetUnits.clearTint();
                 if (village.population < 10)
                     this.btnArmyGetUnits.setTint("0xff0000");
                 else if (village.population == 10)
                     this.btnArmyGetUnits.setTint("0xffff00");
 
                 //get wood
-                this.btnArmyGetUnits.clearTint();
                 if (village.amountWood < 10)
                     this.btnArmyGetWood.setTint("0xff0000");
                 else if (village.amountWood == 10)
@@ -1234,6 +1232,14 @@ export default class SceneGame extends Phaser.Scene {
     showUiArmyBuildButtons() {
         GameUtilsUi.hideGameObjects(this.uiArmyButtons);
         GameUtilsUi.showGameObjects(this.uiArmyBuildButtons);
+        GameUtils.clearTintArray(this.uiArmyBuildButtons);
+
+        /** @type {Army} */
+        let armyData = this.selectedArmy.getData("data");
+
+        //TODO: remove hardcode. maybe to json file -> load singleton
+        if (armyData.amountWood < 100)
+            this.btnArmyBuildWallWood.setTint("0xff0000");
     }
 
     //TODO: refactor elsewhere
