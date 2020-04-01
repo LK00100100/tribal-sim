@@ -52,8 +52,14 @@ export default class Preloader {
         scene.load.image("btnArmyAttack", "assets/btn-army-attack.png");
         scene.load.image("btnArmyAttackBuilding", "assets/btn-army-attack-building.png");
         scene.load.image("btnArmyBuild", "assets/btn-army-build.png");
-        scene.load.image("btnArmyBuildWallWood", "assets/btn-army-build-wall-wood.png");
+
+        //ui, army build
         scene.load.image("btnArmyCancel", "assets/btn-army-cancel.png");
+        scene.load.image("btnArmyBuildEast", "assets/btn-army-build-east.png");
+        scene.load.image("btnArmyBuildNorth", "assets/btn-army-build-north.png");
+        scene.load.image("btnArmyBuildSouth", "assets/btn-army-build-south.png");
+        scene.load.image("btnArmyBuildWest", "assets/btn-army-build-west.png");
+        scene.load.image("btnArmyBuildWallWood", "assets/btn-army-build-wall-wood.png");
 
         //armies
         scene.load.image("armyCat", "assets/army-cat.png");

@@ -1,4 +1,3 @@
-
 import Army from "./Army.js";
 import Caveman from "./unit/Caveman.js";
 
@@ -48,7 +47,7 @@ export default class ArmyManager {
         let targetCol = terrainSprite.data.get("col");
 
         //no moves!
-        if(possibleMoves.length == 0){
+        if (possibleMoves.length == 0) {
             return;
         }
 
@@ -372,7 +371,8 @@ export default class ArmyManager {
             return;
 
         //transfer food
-        let numWoodToMove = 10;
+        //TODO: dont hardcode
+        let numWoodToMove = 100;
         if (building.village.amountWood < numWoodToMove) {
             console.log("not enough wood. need " + numWoodToMove);
             return;
@@ -381,13 +381,13 @@ export default class ArmyManager {
         building.village.amountWood -= numWoodToMove;
         army.amountWood += numWoodToMove;
     }
-    
+
     /**
      * human-player clicks "selectedArmy, build."
      * Should just show stuff that can be built
      * @param {Phaser.Scene} scene
      */
-    armyBuild(){
+    armyBuild() {
         this.scene.showUiArmyBuildButtons();
     }
 
@@ -396,7 +396,7 @@ export default class ArmyManager {
      * Should go back to the main army actions
      * @param {Phaser.Scene} scene
      */
-    armyBuildCancel(){
+    armyBuildCancel() {
         let scene = this.scene;
         let armyData = scene.selectedArmy.getData("data");
 
@@ -406,11 +406,13 @@ export default class ArmyManager {
     /**
      * 
      * @param {Army} army 
+     * @param {Direction} direction such as Direction.EAST
      */
-    armyBuildWallWood(army){
+    armyBuildWallWood(army, direction) {
+        direction;
+
         //TODO: complete
         return army;
-
     }
 
     //TODO: separate select and attack

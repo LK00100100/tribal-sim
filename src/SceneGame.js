@@ -6,6 +6,8 @@ import GameUtilsBuilding from "./utils/GameUtilsBuilding";
 import Board from "./board/Board";
 import TerrainObj from "./board/Terrain";
 const { Terrain, TerrainSpriteName } = TerrainObj;
+import DirectionObj from "./board/Direction";
+const { Direction } = DirectionObj;
 
 import Village from "./buildings/villageBuildings/Village";
 
@@ -137,7 +139,7 @@ export default class SceneGame extends Phaser.Scene {
         this.uiBuilding = [];           //main building actions
         this.uiArmyText = [];
         this.uiArmyButtons = [];        //main army actions
-        this.uiArmyBuildButtons = [];   //build options
+        this.uiArmyBuildButtons = [];   //army build options
         this.uiArmyEnemy = [];          //options against enemy armies
         this.uiArmyEnemyBuilding = [];  //options against enemy buildings
 
@@ -151,6 +153,9 @@ export default class SceneGame extends Phaser.Scene {
         this.selectedBuilding;  //TODO: consolidate this and selectedVillage
         this.selectedArmy;
         this.selectedBuyBuilding;
+
+        //the human-player desired build function
+        this.selectedArmyBuildFunc;
 
         this.selectedEnemyArmyCoordinates;     //{row, col}
         this.selectedArmyPossibleMoves;
@@ -447,6 +452,7 @@ export default class SceneGame extends Phaser.Scene {
         this.uiBuilding.push(this.txtBuildName);
         this.uiBuilding.push(this.btnBuildDestroy);
 
+        //TODO: buttons have all clickedFunctions 
         /**
          * UI - army
          */
@@ -519,6 +525,7 @@ export default class SceneGame extends Phaser.Scene {
             .setDepth(100)
             .setOrigin(0)
             .on("pointerdown", this.armyManager.armyBuild);
+        //TODO: clicked
 
         //TODO: alot of repeated code here and .setscrollfactor, etc
         this.uiArmyText.push(this.txtArmySize);
@@ -544,10 +551,51 @@ export default class SceneGame extends Phaser.Scene {
             .setInteractive()
             .setDepth(100)
             .setOrigin(0)
-            .on("pointerdown", this.armyManager.armyBuildWallWood);
+            .on("pointerdown", this.clickedBuildWallWood);
 
         this.uiArmyBuildButtons.push(this.btnArmyBuildCancel);
         this.uiArmyBuildButtons.push(this.btnArmyBuildWallWood);
+
+        this.btnArmyBuildEast = this.add.sprite(x + 420, y + 360, "btnArmyBuildEast")
+            .setScrollFactor(0)
+            .setInteractive()
+            .setOrigin(0)
+            .setDepth(100)
+            .on("pointerdown", function () {
+                this.scene.selectedArmyBuildFunc(Direction.EAST);
+            });
+
+        this.btnArmyBuildNorth = this.add.sprite(x + 350, y + 290, "btnArmyBuildNorth")
+            .setScrollFactor(0)
+            .setInteractive()
+            .setOrigin(0)
+            .setDepth(100)
+            .on("pointerdown", function () {
+                this.scene.selectedArmyBuildFunc(Direction.NORTH);
+            });
+
+        this.btnArmyBuildSouth = this.add.sprite(x + 350, y + 430, "btnArmyBuildSouth")
+            .setScrollFactor(0)
+            .setInteractive()
+            .setOrigin(0)
+            .setDepth(100)
+            .on("pointerdown", function () {
+                this.scene.selectedArmyBuildFunc(Direction.SOUTH);
+            });
+
+        this.btnArmyBuildWest = this.add.sprite(x + 280, y + 360, "btnArmyBuildWest")
+            .setScrollFactor(0)
+            .setInteractive()
+            .setOrigin(0)
+            .setDepth(100)
+            .on("pointerdown", function () {
+                this.scene.selectedArmyBuildFunc(Direction.WEST);
+            });
+
+        this.uiArmyBuildButtons.push(this.btnArmyBuildEast);
+        this.uiArmyBuildButtons.push(this.btnArmyBuildNorth);
+        this.uiArmyBuildButtons.push(this.btnArmyBuildSouth);
+        this.uiArmyBuildButtons.push(this.btnArmyBuildWest);
 
         /**
          * ui enemy elements
@@ -977,6 +1025,8 @@ export default class SceneGame extends Phaser.Scene {
 
     /**
      * populates and shows enemy army data
+     * @param {Number} row
+     * @param {Number} col
      */
     showUiArmyEnemy(row, col) {
 
@@ -1172,6 +1222,7 @@ export default class SceneGame extends Phaser.Scene {
     showUiArmyButtons(armyData) {
         //TODO: refactor armyData as just selected
         GameUtilsUi.hideGameObjects(this.uiArmyBuildButtons);
+        this.selectedArmyBuildFunc = null;
 
         let row = armyData.row;
         let col = armyData.col;
@@ -1240,6 +1291,23 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: remove hardcode. maybe to json file -> load singleton
         if (armyData.amountWood < 100)
             this.btnArmyBuildWallWood.setTint("0xff0000");
+
+        this.updateUiArmyBuildDirectionButtons();
+    }
+
+    updateUiArmyBuildDirectionButtons() {
+        this.btnArmyBuildEast.setTint("0x777777");
+        this.btnArmyBuildNorth.setTint("0x777777");
+        this.btnArmyBuildSouth.setTint("0x777777");
+        this.btnArmyBuildWest.setTint("0x777777");
+
+        if (this.selectedArmyBuildFunc != null) {
+            //TODO: grey out non-buildable.
+            this.btnArmyBuildEast.clearTint();
+            this.btnArmyBuildNorth.clearTint();
+            this.btnArmyBuildSouth.clearTint();
+            this.btnArmyBuildWest.clearTint();
+        }
     }
 
     //TODO: refactor elsewhere
@@ -1258,4 +1326,15 @@ export default class SceneGame extends Phaser.Scene {
         scene.txtEnemyBuildingHealth.setText(buildingData.health + " :Building, Health");
         GameUtilsUi.showGameObjects(scene.uiArmyEnemyBuilding);
     }
+
+    //TODO: just bind(this) functions
+    clickedBuildWallWood() {
+        let scene = this.scene;
+        //TODO: activate buttons if you have enough resources. else display warning
+
+        scene.selectedArmyBuildFunc = scene.armyManager.armyBuildWallWood;
+
+        scene.updateUiArmyBuildDirectionButtons();
+    }
+
 }
