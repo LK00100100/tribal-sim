@@ -44,23 +44,6 @@ export default class Preloader {
         //ui, buildings
         scene.load.image("btnBuildDestroy", "assets/btn-build-destroy.png");
 
-        //ui, army
-        scene.load.image("btnArmyGetUnits", "assets/btn-army-get-units.png");
-        scene.load.image("btnArmyDisbandUnits", "assets/btn-army-disband-units.png");
-        scene.load.image("btnArmyGetFood", "assets/btn-army-get-food.png");
-        scene.load.image("btnArmyGetWood", "assets/btn-army-get-wood.png");
-        scene.load.image("btnArmyAttack", "assets/btn-army-attack.png");
-        scene.load.image("btnArmyAttackBuilding", "assets/btn-army-attack-building.png");
-        scene.load.image("btnArmyBuild", "assets/btn-army-build.png");
-
-        //ui, army build
-        scene.load.image("btnArmyCancel", "assets/btn-army-cancel.png");
-        scene.load.image("btnArmyBuildEast", "assets/btn-army-build-east.png");
-        scene.load.image("btnArmyBuildNorth", "assets/btn-army-build-north.png");
-        scene.load.image("btnArmyBuildSouth", "assets/btn-army-build-south.png");
-        scene.load.image("btnArmyBuildWest", "assets/btn-army-build-west.png");
-        scene.load.image("btnArmyBuildWallWood", "assets/btn-army-build-wall-wood.png");
-
         //armies
         scene.load.image("armyCat", "assets/army-cat.png");
         scene.load.image("armyCaveman", "assets/army-caveman.png");

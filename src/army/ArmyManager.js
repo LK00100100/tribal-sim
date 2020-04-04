@@ -415,7 +415,7 @@ export default class ArmyManager {
         return army;
     }
 
-    //TODO: separate select and attack
+    //TODO: separate select and attack. maybe move this
     //TODO: replace inner code with scene.processArmyAction()
     clickedArmy(pointer) {
         let scene = this.scene;
