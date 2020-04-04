@@ -306,12 +306,9 @@ export default class SceneGame extends Phaser.Scene {
         /**
         * draw UI
         */
-        this.txtDay = this.add.text(1180, 980)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setOrigin(1, 0) //right-to-left text
-            .setShadow(1, 1, "#000000", 2);
+
+        this.txtDay = this.createUiTextHelper(1180, 980)
+            .setOrigin(1, 0); //right-to-left text;
 
         //TODO: consolidate texts?
         //TODO: experiment with overlapping scenes
@@ -357,65 +354,28 @@ export default class SceneGame extends Phaser.Scene {
 
         y = -120;
 
-        this.txtVillagePopulation = this.add.text(-375, y)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setShadow(3, 3, "#000000", 3);
+        this.txtVillagePopulation = this.createUiTextHelper(-375, y);
+        this.txtVillageFood = this.createUiTextHelper(-375, y + 60);
+        this.txtVillageStone = this.createUiTextHelper(-375, y + 120);
+        this.txtVillageWood = this.createUiTextHelper(-375, y + 180);
 
-        this.txtVillageFood = this.add.text(-375, y + 60)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setShadow(3, 3, "#000000", 3);
-
-        this.txtVillageStone = this.add.text(-375, y + 120)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setShadow(3, 3, "#000000", 3);
-
-        this.txtVillageWood = this.add.text(-375, y + 180)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setShadow(3, 3, "#000000", 3);
-
-        this.btnCreateArmy = this.add.sprite(-200, y + 300, "btnCreateArmy")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setDepth(100)
-            .on("pointerdown", this.armyManager.createArmyButton);
-
-        //TODO: pull this out to building manager
-        this.btnBuildFarm = this.add.sprite(-200, y + 440, "btnBuildFarm")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setDepth(100)
+        this.btnCreateArmy = this.createUiButtonHelper(-200, y + 300, "btnCreateArmy", this.armyManager.createArmyButton);
+        this.btnBuildFarm = this.createUiButtonHelper(-200, y + 440, "btnBuildFarm")
             .on("pointerdown", function (pointer) {
                 this.scene.buildingManager.clickedBuyBuilding(pointer, this, "Farm");
             });
 
-        this.btnBuildLumberMill = this.add.sprite(-200, y + 580, "btnBuildLumberMill")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setDepth(100)
+        this.btnBuildLumberMill = this.createUiButtonHelper(-200, y + 580, "btnBuildLumberMill")
             .on("pointerdown", function (pointer) {
                 this.scene.buildingManager.clickedBuyBuilding(pointer, this, "LumberMill");
             });
 
-        this.btnBuildQuarry = this.add.sprite(-200, y + 720, "btnBuildQuarry")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setDepth(100)
+        this.btnBuildQuarry = this.createUiButtonHelper(-200, y + 720, "btnBuildQuarry")
             .on("pointerdown", function (pointer) {
                 this.scene.buildingManager.clickedBuyBuilding(pointer, this, "Quarry");
             });
 
-        this.btnBuildHousing = this.add.sprite(-200, y + 860, "btnBuildHousing")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setDepth(100)
+        this.btnBuildHousing = this.createUiButtonHelper(-200, y + 860, "btnBuildHousing")
             .on("pointerdown", function (pointer) {
                 this.scene.buildingManager.clickedBuyBuilding(pointer, this, "Housing");
             });
@@ -436,17 +396,8 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: put in own scene
         y = -120;
 
-        this.txtBuildName = this.add.text(-375, y)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setShadow(3, 3, "#000000", 3);
-
-        this.btnBuildDestroy = this.add.sprite(-200, y + 140, "btnBuildDestroy")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setDepth(100)
-            .on("pointerdown", this.buildingManager.clickedDestroyBuilding);
+        this.txtBuildName = this.createUiTextHelper(-375, y);
+        this.btnBuildDestroy = this.createUiButtonHelper(-200, y + 140, "btnBuildDestroy", this.buildingManager.clickedDestroyBuilding);
 
         this.uiBuilding.push(this.txtBuildName);
         this.uiBuilding.push(this.btnBuildDestroy);
@@ -458,47 +409,23 @@ export default class SceneGame extends Phaser.Scene {
         x = 1150;
         y = -160;
 
-        this.txtArmyEnemyName = this.add.text(x, y + 120)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setOrigin(1, 0) //right-to-left text
-            .setShadow(3, 3, "#000000", 3);
+        this.txtArmyEnemyName = this.createUiTextHelper(x, y + 120)
+            .setOrigin(1, 0); //right-to-left text
 
-        this.txtArmyEnemyUnits = this.add.text(x, y + 180)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setOrigin(1, 0) //right-to-left text
-            .setShadow(3, 3, "#000000", 3);
+        this.txtArmyEnemyUnits = this.createUiTextHelper(x, y + 180)
+            .setOrigin(1, 0); //right-to-left text
 
-        this.txtArmyEnemyAttackBase = this.add.text(x, y + 240)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setOrigin(1, 0) //right-to-left text
-            .setShadow(3, 3, "#000000", 3);
+        this.txtArmyEnemyAttackBase = this.createUiTextHelper(x, y + 240)
+            .setOrigin(1, 0); //right-to-left text
 
-        this.txtArmyEnemyDefenseBase = this.add.text(x, y + 300)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setOrigin(1, 0) //right-to-left text
-            .setShadow(3, 3, "#000000", 3);
+        this.txtArmyEnemyDefenseBase = this.createUiTextHelper(x, y + 300)
+            .setOrigin(1, 0); //right-to-left text
 
-        this.btnArmyEnemyAttack = this.add.sprite(x, y + 360, "btnArmyAttack")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setOrigin(1, 0) //right-to-left text
-            .setDepth(100)
-            .on("pointerdown", this.armyManager.armyAttack);
+        this.btnArmyEnemyAttack = this.createUiButtonHelper(-200, y + 360, "btnArmyAttack", this.armyManager.armyAttack)
+            .setOrigin(1, 0); //right-to-left text
 
-        this.btnArmyEnemyCancel = this.add.sprite(x, y + 500, "btnArmyCancel")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setOrigin(1, 0) //right-to-left text
-            .setDepth(100)
-            .on("pointerdown", this.armyManager.armyAttackCancel);
+        this.btnArmyEnemyCancel = this.createUiButtonHelper(-200, y + 500, "btnArmyCancel", this.armyManager.armyAttackCancel)
+            .setOrigin(1, 0); //right-to-left text
 
         this.uiArmyEnemy.push(this.txtArmyEnemyName);
         this.uiArmyEnemy.push(this.txtArmyEnemyUnits);
@@ -515,27 +442,15 @@ export default class SceneGame extends Phaser.Scene {
         x = 1150;
         y = -160;
 
-        this.txtEnemyBuildingPlayer = this.add.text(x, y + 120 - 120)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setOrigin(1, 0) //right-to-left text
-            .setShadow(3, 3, "#000000", 3);
+        this.txtEnemyBuildingPlayer = this.createUiTextHelper(x, y)
+            .setOrigin(1, 0); //right-to-left text
 
-        this.txtEnemyBuildingHealth = this.add.text(x, y + 180 - 120)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setOrigin(1, 0) //right-to-left text
-            .setShadow(3, 3, "#000000", 3);
+        this.txtEnemyBuildingHealth = this.createUiTextHelper(x, y + 300)
+            .setOrigin(1, 0); //right-to-left text
 
-        //TODO: redo naming
-        this.btnEnemyBuildingAttack = this.add.sprite(x, y + 660, "btnArmyAttackBuilding")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setOrigin(1, 0) //right-to-left text
-            .setDepth(100)
-            .on("pointerdown", this.armyManager.clickedArmyAttackBuilding);
+
+        this.btnEnemyBuildingAttack = this.createUiButtonHelper(-200, y + 660, "btnArmyAttackBuilding", this.armyManager.clickedArmyAttackBuilding)
+            .setOrigin(1, 0); //right-to-left text
 
         this.uiArmyEnemyBuilding.push(this.txtEnemyBuildingPlayer);
         this.uiArmyEnemyBuilding.push(this.txtEnemyBuildingHealth);
@@ -618,14 +533,48 @@ export default class SceneGame extends Phaser.Scene {
         //TODO:center to player 1 center. remove? make more dynamic?
         this.cam.pan(1000, 2000, 1000);
 
-        var handle = "armyinfoscene";
+        //TODO: remove
+        var handle = "ArmyInfoScene";
         var demo = new ArmyInfoScene(this);
-
-        //this.input.setDraggable(win);
-
         this.scene.add(handle, demo, true);
     }
 
+    /**
+     * a helper method to create a standard UI text element for this scene.
+     * @param {Number} x 
+     * @param {Number} y 
+     */
+    createUiTextHelper(x, y) {
+        let uiTextElement = this.add.text(x, y)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setShadow(3, 3, "#000000", 3);
+
+        return uiTextElement;
+    }
+
+    /**
+     * a helper method to create a standard UI button element for this scene.
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {String} buttonName
+     * @param {Function} buttonFunc optional function
+     */
+    createUiButtonHelper(x, y, buttonName, buttonFunc) {
+        let uiButtonElement = this.add.sprite(x, y, buttonName)
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .setOrigin(0);
+
+        if (buttonFunc)
+            uiButtonElement.on("pointerdown", this.gameScene.armyManager.armyGetUnits);
+
+        return uiButtonElement;
+    }
+
+    //@Override
     update(time, delta) {
         this.controls.update(delta);
     }
