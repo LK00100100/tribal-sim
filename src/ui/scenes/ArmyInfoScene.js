@@ -20,9 +20,6 @@ export default class ArmyInfoScene extends Phaser.Scene {
     preload() {
         let scene = this;
 
-        scene.scale.resize(800, 800);
-
-
         //ui, army
         scene.load.image("btnArmyGetUnits", "assets/btn-army-get-units.png");
         scene.load.image("btnArmyDisbandUnits", "assets/btn-army-disband-units.png");
@@ -41,12 +38,12 @@ export default class ArmyInfoScene extends Phaser.Scene {
         scene.load.image("btnArmyBuildWallWood", "assets/btn-army-build-wall-wood.png");
     }
 
-    create(){
+    create() {
 
         this.uiArmyText = [];
         this.uiArmyButtons = [];
         this.uiArmyBuildButtons = [];
-        
+
         //TODO: buttons have all clickedFunctions 
         /**
          * UI - army
@@ -56,136 +53,57 @@ export default class ArmyInfoScene extends Phaser.Scene {
         let x = 20;
         let y = 20;
 
-        this.txtArmySize = this.add.text(x, y)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setShadow(3, 3, "#000000", 3);
+        this.txtArmySize = this.createUiTextHelper(x, y);
+        this.txtArmyVillage = this.createUiTextHelper(x, y + 60);
+        this.txtArmyMoves = this.createUiTextHelper(x, y + 120);
+        this.txtArmyFood = this.createUiTextHelper(x, y + 180);
+        this.txtArmyWood = this.createUiTextHelper(x, y + 240);
 
-        this.txtArmyVillage = this.add.text(x, y + 60)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setShadow(3, 3, "#000000", 3);
-
-        this.txtArmyMoves = this.add.text(x, y + 120)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setShadow(3, 3, "#000000", 3);
-
-        this.txtArmyFood = this.add.text(x, y + 180)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setShadow(3, 3, "#000000", 3);
-
-        this.txtArmyWood = this.add.text(x, y + 240)
-            .setScrollFactor(0)
-            .setFontSize(50)
-            .setDepth(100)
-            .setShadow(3, 3, "#000000", 3);
-
-        //army buttons
-
-        this.btnArmyGetUnits = this.add.sprite(x, y + 290, "btnArmyGetUnits")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setDepth(100)
-            .setOrigin(0)
-            .on("pointerdown", this.gameScene.armyManager.armyGetUnits);
-
-        this.btnArmyDisbandUnits = this.add.sprite(x, y + 430, "btnArmyDisbandUnits")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setDepth(100)
-            .setOrigin(0)
-            .on("pointerdown", this.gameScene.armyManager.armyDisbandUnits);
-
-        this.btnArmyGetFood = this.add.sprite(x, y + 570, "btnArmyGetFood")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setScale(.5)
-            .setDepth(100)
-            .setOrigin(0)
-            .on("pointerdown", this.gameScene.armyManager.armyGetFood);
-
-        this.btnArmyGetWood = this.add.sprite(x, y + 710, "btnArmyGetWood")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setDepth(100)
-            .setOrigin(0)
-            .on("pointerdown", this.gameScene.armyManager.armyGetWood);
-
-        this.btnArmyBuild = this.add.sprite(x, y + 850, "btnArmyBuild")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setDepth(100)
-            .setOrigin(0)
-            .on("pointerdown", this.gameScene.armyManager.armyBuild);
-        //TODO: clicked
-
-        //TODO: alot of repeated code here and .setscrollfactor, etc
         this.uiArmyText.push(this.txtArmySize);
         this.uiArmyText.push(this.txtArmyVillage);
         this.uiArmyText.push(this.txtArmyMoves);
         this.uiArmyText.push(this.txtArmyFood);
         this.uiArmyText.push(this.txtArmyWood);
+
+        //TODO: create enums
+        //army buttons
+        this.btnArmyGetUnits = this.createUiButtonHelper(x, y + 290, "btnArmyGetUnits", this.gameScene.armyManager.armyGetUnits);
+        this.btnArmyDisbandUnits = this.createUiButtonHelper(x, y + 430, "btnArmyDisbandUnits", this.gameScene.armyManager.armyDisbandUnits);
+        this.btnArmyGetFood = this.createUiButtonHelper(x, y + 570, "btnArmyGetFood", this.gameScene.armyManager.armyGetFood);
+        this.btnArmyGetWood = this.createUiButtonHelper(x, y + 710, "btnArmyGetWood", this.gameScene.armyManager.armyGetWood);
+        this.btnArmyBuild = this.createUiButtonHelper(x, y + 850, "btnArmyBuild", this.gameScene.armyManager.armyBuild);
+
+        //TODO: clickedSomething functions
         this.uiArmyButtons.push(this.btnArmyGetUnits);
         this.uiArmyButtons.push(this.btnArmyDisbandUnits);
         this.uiArmyButtons.push(this.btnArmyGetFood);
         this.uiArmyButtons.push(this.btnArmyGetWood);
         this.uiArmyButtons.push(this.btnArmyBuild);
 
-        this.btnArmyBuildCancel = this.add.sprite(x, y + 290, "btnArmyCancel")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setOrigin(0)
-            .setDepth(100)
-            .on("pointerdown", this.gameScene.armyManager.armyBuildCancel);
+        //army, build buttons
 
-        this.btnArmyBuildWallWood = this.add.sprite(x, y + 430, "btnArmyBuildWallWood")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setDepth(100)
-            .setOrigin(0)
-            .on("pointerdown", this.gameScene.clickedBuildWallWood);
+        this.btnArmyBuildCancel = this.createUiButtonHelper(x, y + 290, "btnArmyCancel", this.gameScene.armyManager.armyBuildCancel);
+        this.btnArmyBuildWallWood = this.createUiButtonHelper(x, y + 430, "btnArmyBuildWallWood", this.gameScene.clickedBuildWallWood);
 
         this.uiArmyBuildButtons.push(this.btnArmyBuildCancel);
         this.uiArmyBuildButtons.push(this.btnArmyBuildWallWood);
 
-        this.btnArmyBuildEast = this.add.sprite(x + 420, y + 360, "btnArmyBuildEast")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setOrigin(0)
-            .setDepth(100)
+        this.btnArmyBuildEast = this.createUiButtonHelper(x + 420, y + 360, "btnArmyBuildEast")
             .on("pointerdown", function () {
                 this.gameScene.scene.selectedArmyBuildFunc(Direction.EAST);
             });
 
-        this.btnArmyBuildNorth = this.add.sprite(x + 350, y + 290, "btnArmyBuildNorth")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setOrigin(0)
-            .setDepth(100)
+        this.btnArmyBuildNorth = this.createUiButtonHelper(x + 350, y + 290, "btnArmyBuildNorth")
             .on("pointerdown", function () {
                 this.gameScene.scene.selectedArmyBuildFunc(Direction.NORTH);
             });
 
-        this.btnArmyBuildSouth = this.add.sprite(x + 350, y + 430, "btnArmyBuildSouth")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setOrigin(0)
-            .setDepth(100)
+        this.btnArmyBuildSouth = this.createUiButtonHelper(x + 350, y + 430, "btnArmyBuildSouth")
             .on("pointerdown", function () {
                 this.gameScene.scene.selectedArmyBuildFunc(Direction.SOUTH);
             });
 
-        this.btnArmyBuildWest = this.add.sprite(x + 280, y + 360, "btnArmyBuildWest")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setOrigin(0)
-            .setDepth(100)
+        this.btnArmyBuildWest = this.createUiButtonHelper(x + 280, y + 360, "btnArmyBuildWest")
             .on("pointerdown", function () {
                 this.gameScene.scene.selectedArmyBuildFunc(Direction.WEST);
             });
@@ -197,7 +115,43 @@ export default class ArmyInfoScene extends Phaser.Scene {
 
     }
 
-    
+    /**
+     * a helper method to create a standard UI text element for this scene.
+     * @param {Number} x 
+     * @param {Number} y 
+     */
+    createUiTextHelper(x, y) {
+        let uiTextElement = this.add.text(x, y)
+            .setScrollFactor(0)
+            .setFontSize(50)
+            .setDepth(100)
+            .setScale(.5)
+            .setShadow(3, 3, "#000000", 3);
+
+        return uiTextElement;
+    }
+
+    /**
+     * a helper method to create a standard UI button element for this scene.
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {String} buttonName
+     * @param {Function} buttonFunc optional function
+     */
+    createUiButtonHelper(x, y, buttonName, buttonFunc) {
+        let uiButtonElement = this.add.sprite(x, y, buttonName)
+            .setScrollFactor(0)
+            .setInteractive()
+            .setDepth(100)
+            .setScale(.5)
+            .setOrigin(0);
+
+        if (buttonFunc)
+            uiButtonElement.on("pointerdown", this.gameScene.armyManager.armyGetUnits);
+
+        return uiButtonElement;
+    }
+
     //TODO: refactor elsewhere
 
     /**
@@ -206,7 +160,7 @@ export default class ArmyInfoScene extends Phaser.Scene {
      * @param {Army} armyData 
      */
     showUiArmyButtons(armyData) {
-        
+
         //TODO: refactor armyData as just selected
         GameUtilsUi.hideGameObjects(this.uiArmyBuildButtons);
         this.selectedArmyBuildFunc = null;
