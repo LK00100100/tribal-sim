@@ -13,12 +13,16 @@ export default class ArmyInfoScene extends Phaser.Scene {
         super("ArmyInfoScene");
 
         this.gameScene = gameScene;
-
     }
 
     //preload assets
     preload() {
         let scene = this;
+
+        //set cam
+        var zoomLevel = 0.5;
+
+        this.cam = this.cameras.main.setZoom(zoomLevel);
 
         //ui, army
         scene.load.image("btnArmyGetUnits", "assets/btn-army-get-units.png");
@@ -50,8 +54,8 @@ export default class ArmyInfoScene extends Phaser.Scene {
          */
         //TODO: pull this out to a scene on top of another scene.
 
-        let x = 20;
-        let y = 20;
+        let x = -350;
+        let y = -100;
 
         this.txtArmySize = this.createUiTextHelper(x, y);
         this.txtArmyVillage = this.createUiTextHelper(x, y + 60);
@@ -125,7 +129,6 @@ export default class ArmyInfoScene extends Phaser.Scene {
             .setScrollFactor(0)
             .setFontSize(50)
             .setDepth(100)
-            .setScale(.5)
             .setShadow(3, 3, "#000000", 3);
 
         return uiTextElement;
@@ -143,7 +146,6 @@ export default class ArmyInfoScene extends Phaser.Scene {
             .setScrollFactor(0)
             .setInteractive()
             .setDepth(100)
-            .setScale(.5)
             .setOrigin(0);
 
         if (buttonFunc)
