@@ -173,8 +173,8 @@ export default class SceneGame extends Phaser.Scene {
         this.armyManager = new ArmyManager(this);
 
         //sub-ui scenes
-        this.armyInfoScene = new ArmyInfoScene(this);
-        this.humanVillageInfoScene = new HumanVillageInfoScene(this);
+        this.armyInfoScene;
+        this.humanVillageInfoScene;
     }
 
     /**
@@ -566,11 +566,6 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: replace with icons later
         this.txtDay.setText("Day: " + gameScene.day);
 
-        //village UI
-        if (this.selectedVillage != null) {
-            this.turnOnScene(this.humanVillageInfoScene);
-        }
-
         //building UI
         if (this.selectedBuilding != null) {
             GameUtilsUi.showGameObjects(this.uiBuilding);
@@ -583,6 +578,7 @@ export default class SceneGame extends Phaser.Scene {
         if (this.selectedArmy != null) {
 
             //turn on scene
+            this.armyInfoScene = new ArmyInfoScene(this);
             this.turnOnScene(this.armyInfoScene);
         }
 
@@ -596,10 +592,10 @@ export default class SceneGame extends Phaser.Scene {
     turnOnScene(subScene) {
         let handle = subScene.handle;
         let autoStart = true;
-        try{
+        try {
             this.scene.add(handle, subScene, autoStart);
         }
-        catch(err){
+        catch (err) {
             console.log("can't turn on scene: " + err);
         }
     }
@@ -610,7 +606,11 @@ export default class SceneGame extends Phaser.Scene {
      */
     turnOffScene(scene) {
         let handle = scene.handle;
-        this.scene.remove(handle);
+        //this.scene.remove(handle);
+        this.time.addEvent({
+            // eslint-disable-next-line no-unused-vars
+            callback: e => window.game.scene.remove(handle), delay: 1000
+        });
     }
 
     clickedEndTurn(pointer) {
@@ -620,6 +620,7 @@ export default class SceneGame extends Phaser.Scene {
         this.scene.endTurn(this.scene);
     }
 
+    //TODO: move to BuildingManager later
     clickedVillage(pointer) {
         let gameScene = this.scene;
 
@@ -650,6 +651,12 @@ export default class SceneGame extends Phaser.Scene {
 
         gameScene.deselectEverything();
         gameScene.selectedVillage = this;
+
+        //turn on human village info screen
+        if (gameScene.humanVillageInfoScene == null) {
+            gameScene.humanVillageInfoScene = new HumanVillageInfoScene(this);
+            gameScene.turnOnScene(gameScene.humanVillageInfoScene);
+        }
 
         gameScene.updateUi();
     }
@@ -692,6 +699,7 @@ export default class SceneGame extends Phaser.Scene {
             this.selectedVillage = null;
 
             this.turnOffScene(this.humanVillageInfoScene);
+            this.humanVillageInfoScene = null;
         }
 
         if (this.selectedBuilding != null) {
@@ -705,6 +713,7 @@ export default class SceneGame extends Phaser.Scene {
             this.selectedArmy = null;
 
             this.turnOffScene(this.armyInfoScene);
+            this.armyInfoScene = null;
         }
 
         if (this.possibleMoves != null) {

@@ -11,4 +11,4 @@ var config = {
     scene: [sceneGame]  //TODO: put more scenes here
 };
 
-new Phaser.Game(config);
+window.game = new Phaser.Game(config);
