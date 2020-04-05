@@ -173,6 +173,7 @@ export default class SceneGame extends Phaser.Scene {
         this.armyManager = new ArmyManager(this);
 
         //sub-ui scenes
+        this.alreadyOnScenes = new Set(); //unique handle strings.
         this.armyInfoScene;
         this.humanVillageInfoScene;
     }
@@ -561,10 +562,8 @@ export default class SceneGame extends Phaser.Scene {
      * updates and shows relevant UI
      */
     updateUi() {
-        let gameScene = this;
-
         //TODO: replace with icons later
-        this.txtDay.setText("Day: " + gameScene.day);
+        this.txtDay.setText("Day: " + this.day);
 
         //building UI
         if (this.selectedBuilding != null) {
@@ -576,41 +575,45 @@ export default class SceneGame extends Phaser.Scene {
 
         //army UI
         if (this.selectedArmy != null) {
-
-            //turn on scene
             this.armyInfoScene = new ArmyInfoScene(this);
-            this.turnOnScene(this.armyInfoScene);
+            this.turnOnSubSceneOnce(this.armyInfoScene);
         }
 
     }
 
     /**
-     * Resets the scene to its original state
-     * Turns on visibility of scene from the gameScene
+     * Turns on a brand new scene. makes sure there's only one scene.
      * @param {Phaser.Scene} subScene
      */
-    turnOnScene(subScene) {
+    turnOnSubSceneOnce(subScene) {
         let handle = subScene.handle;
+        let gameScene = subScene.gameScene;
+
+        if(gameScene.alreadyOnScenes.has(handle))
+            return;
+
         let autoStart = true;
         try {
-            this.scene.add(handle, subScene, autoStart);
+            gameScene.scene.add(handle, subScene, autoStart);
+            gameScene.alreadyOnScenes.add(handle);
         }
         catch (err) {
-            console.log("can't turn on scene: " + err);
+            console.log("shouldn't be here... can't turn on scene: " + err);
         }
     }
 
     /**
-     * Turns off visibility of scene from the gameScene
+     * Turns off a subScene from the gameScene
      * @param {Phaser.Scene} scene 
      */
-    turnOffScene(scene) {
+    turnOffSubScene(scene) {
         let handle = scene.handle;
-        //this.scene.remove(handle);
-        this.time.addEvent({
-            // eslint-disable-next-line no-unused-vars
-            callback: e => window.game.scene.remove(handle), delay: 1000
-        });
+
+        if(!this.alreadyOnScenes.has(handle))
+            return;
+
+        this.scene.remove(handle);
+        this.alreadyOnScenes.delete(handle);
     }
 
     clickedEndTurn(pointer) {
@@ -654,8 +657,8 @@ export default class SceneGame extends Phaser.Scene {
 
         //turn on human village info screen
         if (gameScene.humanVillageInfoScene == null) {
-            gameScene.humanVillageInfoScene = new HumanVillageInfoScene(this);
-            gameScene.turnOnScene(gameScene.humanVillageInfoScene);
+            gameScene.humanVillageInfoScene = new HumanVillageInfoScene(gameScene);
+            gameScene.turnOnSubSceneOnce(gameScene.humanVillageInfoScene);
         }
 
         gameScene.updateUi();
@@ -698,7 +701,7 @@ export default class SceneGame extends Phaser.Scene {
             this.selectedVillage.clearTint();
             this.selectedVillage = null;
 
-            this.turnOffScene(this.humanVillageInfoScene);
+            this.turnOffSubScene(this.humanVillageInfoScene);
             this.humanVillageInfoScene = null;
         }
 
@@ -712,7 +715,7 @@ export default class SceneGame extends Phaser.Scene {
             this.board.unhighlightTiles(this.selectedArmyPossibleMoves);
             this.selectedArmy = null;
 
-            this.turnOffScene(this.armyInfoScene);
+            this.turnOffSubScene(this.armyInfoScene);
             this.armyInfoScene = null;
         }
 
