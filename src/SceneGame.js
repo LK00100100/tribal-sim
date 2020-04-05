@@ -153,9 +153,6 @@ export default class SceneGame extends Phaser.Scene {
         this.selectedArmy;
         this.selectedBuyBuilding;
 
-        //the human-player desired build function
-        this.selectedArmyBuildFunc;
-
         this.selectedEnemyArmyCoordinates;     //{row, col}
         this.selectedArmyPossibleMoves;
         this.selectedVillageBuildings;
@@ -535,7 +532,7 @@ export default class SceneGame extends Phaser.Scene {
         this.playersAi[8] = new MeerkatAi(this, 8);
         this.playersAi[9] = new CatAi(this, 9);
 
-        this.updateUI();
+        this.updateUi();
 
         //TODO:center to player 1 center. remove? make more dynamic?
         this.cam.pan(1000, 2000, 1000);
@@ -588,7 +585,7 @@ export default class SceneGame extends Phaser.Scene {
     /**
      * updates and shows relevant UI
      */
-    updateUI() {
+    updateUi() {
         let gameScene = this;
 
         //TODO: replace with icons later
@@ -713,7 +710,7 @@ export default class SceneGame extends Phaser.Scene {
         gameScene.deselectEverything();
         gameScene.selectedVillage = this;
 
-        gameScene.updateUI();
+        gameScene.updateUi();
     }
 
     /**
@@ -823,7 +820,7 @@ export default class SceneGame extends Phaser.Scene {
             if (building.player == scene.playerHuman)
                 scene.selectedBuilding = this;
 
-            scene.updateUI();
+            scene.updateUi();
         }
 
         if (pointer.rightButtonDown()) {

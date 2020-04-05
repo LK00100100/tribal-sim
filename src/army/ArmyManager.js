@@ -84,7 +84,7 @@ export default class ArmyManager {
 
         this.addArmyToBoard(targetRow, targetCol, spriteArmy);
 
-        scene.updateUI();
+        scene.updateUi();
 
     }
 
@@ -175,7 +175,7 @@ export default class ArmyManager {
 
         gameScene.armyManager.createArmy(1, village);
 
-        gameScene.updateUI();
+        gameScene.updateUi();
 
     }
 
@@ -294,20 +294,6 @@ export default class ArmyManager {
     }
 
     //TODO: rename prefix to just player (for human players).
-    /**
-     * assumed that the army is on a friendly village.
-     * restocks the arny with one day's worth of food
-     * @param {*} pointer 
-     */
-    armyGetFood() {
-
-        let scene = this.gameScene;
-
-        let army = scene.selectedArmy.data.get("data");
-        scene.armyManager.getFood(army);
-
-        scene.updateUI();
-    }
 
     //TODO: variable food amount
     /**
@@ -343,15 +329,6 @@ export default class ArmyManager {
         army.amountFood += armyCost;
     }
 
-    armyGetWood() {
-        let scene = this.gameScene;
-
-        let army = scene.selectedArmy.data.get("data");
-        scene.armyManager.getWood(army);
-
-        scene.updateUI();
-    }
-
     /**
      * Transfers wood from a village building to an army.
      * @param {Army} army The army to alter
@@ -384,15 +361,6 @@ export default class ArmyManager {
 
         building.village.amountWood -= numWoodToMove;
         army.amountWood += numWoodToMove;
-    }
-
-    /**
-     * human-player clicks "selectedArmy, build."
-     * Should just show stuff that can be built
-     * @param {Phaser.Scene} scene
-     */
-    armyBuild() {
-        this.gameScene.showUiArmyBuildButtons();
     }
 
     /**
@@ -475,7 +443,7 @@ export default class ArmyManager {
 
         this.showPossibleArmyMoves(army);
 
-        gameScene.updateUI();
+        gameScene.updateUi();
     }
 
     //TODO: make compatible with rats
@@ -539,7 +507,7 @@ export default class ArmyManager {
         //update your ui
         if (yourArmy.size() > 0) {
             scene.armyManager.showPossibleArmyMoves(yourArmy);
-            scene.updateUI();
+            scene.updateUi();
         }
 
         //update enemy ui
@@ -724,7 +692,7 @@ export default class ArmyManager {
 
         scene.armyManager.armyAttackBuilding(armySprite, buildingSprite);
 
-        scene.updateUI();
+        scene.updateUi();
     }
 
     /**
