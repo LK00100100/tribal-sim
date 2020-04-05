@@ -1,13 +1,16 @@
-
 import Phaser from "phaser";
 
 import GameUtils from "../../utils/GameUtils";
 import GameUtilsBuilding from "../../utils/GameUtilsBuilding";
 import GameUtilsUi from "../../utils/GameUtilsUi";
+// eslint-disable-next-line no-unused-vars
+import Village from "../../buildings/villageBuildings/Village";
 
 
 /**
- * Ui that displays a human-player's village information and actions
+ * Ui that displays a human-player's village information and actions.
+ * 
+ * Opens when the human-player selects his village.
  */
 export default class HumanVillageInfoScene extends Phaser.Scene {
 
@@ -17,7 +20,8 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
 
         this.gameScene = gameScene;
 
-        this.selectedBuyBuilding;
+        /** @type {String} */
+        this.selectedBuyBuilding; //TODO: should be enum
 
         //ui elements
         this.uiVillageText = [];
@@ -34,8 +38,6 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
     }
 
     create() {
-        let gameScene = this.gameScene;
-
         let x, y;
 
         //set cam
@@ -52,38 +54,25 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         this.txtVillageFood = this.createUiTextHelper(x, y + 60);
         this.txtVillageStone = this.createUiTextHelper(x, y + 120);
         this.txtVillageWood = this.createUiTextHelper(x, y + 180);
+        
+        this.uiVillageText.push(this.txtVillagePopulation);
+        this.uiVillageText.push(this.txtVillageFood);
+        this.uiVillageText.push(this.txtVillageStone);
+        this.uiVillageText.push(this.txtVillageWood);
 
-        this.btnCreateArmy = this.createUiButtonHelper(x, y + 300, "btnCreateArmy", gameScene.armyManager.createArmyButton);
-        this.btnBuildFarm = this.createUiButtonHelper(x, y + 440, "btnBuildFarm")
-            .on("pointerdown", function (pointer) {
-                gameScene.buildingManager.clickedBuyBuilding(pointer, this, "Farm");
-            }, this);
+        this.btnCreateArmy = this.createUiButtonHelper(x, y + 300, "btnCreateArmy", this.clickedCreateArmyButton);
+        this.btnBuildFarm = this.createUiButtonHelper(x, y + 440, "btnBuildFarm", this.clickedBuyFarm);
+        this.btnBuildLumberMill = this.createUiButtonHelper(x, y + 580, "btnBuildLumberMill", this.clickedBuyLumberMill);
+        this.btnBuildQuarry = this.createUiButtonHelper(x, y + 720, "btnBuildQuarry", this.clickedBuyQuarry);
+        this.btnBuildHousing = this.createUiButtonHelper(x, y + 860, "btnBuildHousing", this.clickedBuyHousing);
 
-        this.btnBuildLumberMill = this.createUiButtonHelper(x, y + 580, "btnBuildLumberMill")
-            .on("pointerdown", function (pointer) {
-                gameScene.buildingManager.clickedBuyBuilding(pointer, this, "LumberMill");
-            }, this);
+        this.uiVillageButtons.push(this.btnCreateArmy);
+        this.uiVillageButtons.push(this.btnBuildFarm);
+        this.uiVillageButtons.push(this.btnBuildLumberMill);
+        this.uiVillageButtons.push(this.btnBuildQuarry);
+        this.uiVillageButtons.push(this.btnBuildHousing);
 
-        this.btnBuildQuarry = this.createUiButtonHelper(x, y + 720, "btnBuildQuarry")
-            .on("pointerdown", function (pointer) {
-                gameScene.buildingManager.clickedBuyBuilding(pointer, this, "Quarry");
-            }, this);
-
-        this.btnBuildHousing = this.createUiButtonHelper(x, y + 860, "btnBuildHousing")
-            .on("pointerdown", function (pointer) {
-                gameScene.buildingManager.clickedBuyBuilding(pointer, this, "Housing");
-            }, this);
-
-        this.uiVillageButtons.push(this.txtVillagePopulation);
-        this.uiVillageButtons.push(this.txtVillageFood);
-        this.uiVillageButtons.push(this.txtVillageStone);
-        this.uiVillageButtons.push(this.txtVillageWood);
-
-        this.uiVillageText.push(this.btnCreateArmy);
-        this.uiVillageText.push(this.btnBuildFarm);
-        this.uiVillageText.push(this.btnBuildLumberMill);
-        this.uiVillageText.push(this.btnBuildQuarry);
-        this.uiVillageText.push(this.btnBuildHousing);
+        this.resetUi();
     }
 
     //TODO: refactor to gameutils for this, army infoscene, and gamescene
@@ -124,9 +113,11 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         return uiButtonElement;
     }
 
-    resetUi(){
+    resetUi() {
         let gameScene = this.gameScene;
         gameScene.selectedVillage.setTint("0xffff00");
+        
+        this.selectedBuyBuilding = null;
 
         //show village ui
         GameUtils.clearTintArray(this.uiVillageButtons);
@@ -134,19 +125,7 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         GameUtilsUi.showGameObjects(this.uiVillageButtons);
 
         let village = gameScene.selectedVillage.data.get("data");
-
-        //TODO: put this in some sort of village manager. updateUi should do no calcs
-        let coordinates = gameScene.buildingManager.getVillageBuildings(village);
-        let buildingsData = gameScene.board.getBuildingsData(coordinates);
-        let countsOfBuildings = GameUtilsBuilding.countBuildings(buildingsData);
-        village.calculateIncome(countsOfBuildings);
-
-        let populationGrowth = village.getPopulationGrowthDay(countsOfBuildings.countHousing);
-
-        this.txtVillagePopulation.setText("Population: " + village.population + " (" + populationGrowth + ")");
-        this.txtVillageFood.setText("Food: " + village.amountFood + " (" + village.incomeFood + ")");
-        this.txtVillageStone.setText("Stone: " + village.amountStone + " (" + village.incomeStone + ")");
-        this.txtVillageWood.setText("Wood: " + village.amountWood + " (" + village.incomeWood + ")");
+        this.updateUiVillageText(village);
 
         //depopulation warning 
         this.btnCreateArmy.clearTint();
@@ -162,24 +141,100 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
             this.btnBuildQuarry.setTint("0xff0000");
         }
 
-        if (this.selectedBuyBuilding != null) {
-            this.selectedBuyBuilding = null;
-            this.board.unhighlightTiles(this.possibleMoves);
-        }
     }
 
     /**
      * main village actions
      */
-     
-    clickedBuyBuilding(pointer, gameSprite, buildingType) {
-        let scene = gameSprite.scene;
 
+
+    clickedCreateArmyButton(pointer) {
         if (pointer.rightButtonDown())
             return;
 
+        let gameScene = this.gameScene;
+        let village = gameScene.selectedVillage.data.get("data");
 
-        let village = scene.selectedVillage.data.get("data");
+        gameScene.board.unhighlightTiles(gameScene.possibleMoves);
+
+        gameScene.armyManager.createArmy(1, village);
+
+        gameScene.updateUi();
+    }
+
+    clickedBuyFarm(pointer) {
+        if (pointer.rightButtonDown())
+            return;
+
+        this.deselectBuyBuilding();
+
+        this.selectedBuyBuilding = "Farm";
+        this.btnBuildFarm.setTint("0x00ff00");
+
+        this.preBuyBuilding();
+    }
+
+    clickedBuyQuarry(pointer) {
+        if (pointer.rightButtonDown())
+            return;
+
+        this.deselectBuyBuilding();
+
+        this.selectedBuyBuilding = "Quuary";
+        this.btnBuildQuarry.setTint("0x00ff00");
+
+        this.preBuyBuilding();
+    }
+
+    clickedBuyLumberMill(pointer) {
+        if (pointer.rightButtonDown())
+            return;
+
+        this.deselectBuyBuilding();
+
+        this.selectedBuyBuilding = "LumberMill";
+        this.btnBuildLumberMill.setTint("0x00ff00");
+
+        this.preBuyBuilding();
+    }
+
+    clickedBuyHousing(pointer) {
+        if (pointer.rightButtonDown())
+            return;
+
+        this.deselectBuyBuilding();
+
+        this.selectedBuyBuilding = "Housing";
+        this.btnBuildHousing.setTint("0x00ff00");
+
+        this.preBuyBuilding();
+    }
+
+    /**
+     * deselect the pre-buy-build phase
+     */
+    deselectBuyBuilding() {
+        let gameScene = this.gameScene;
+
+        GameUtils.clearTintArray(this.uiVillageButtons);
+
+        gameScene.board.unhighlightTiles(gameScene.possibleMoves);
+        gameScene.possibleMoves = null;
+
+        this.selectedBuyBuilding = null;
+    }
+
+    //TODO: use building enum instead
+    /**
+     * Show the user build options
+     * @param {String} buildingType 
+     */
+    preBuyBuilding() {
+        let gameScene = this.gameScene;
+
+        let buildingType = this.selectedBuyBuilding;
+
+        let village = gameScene.selectedVillage.data.get("data");
 
         //TODO: ensure enough resources from this specific building
         if (village.amountWood < 100) {
@@ -187,25 +242,34 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
             return;
         }
 
-        //deselect
-        if (gameSprite.isTinted) {
-            gameSprite.clearTint();
-            scene.board.unhighlightTiles(scene.possibleMoves);
-            scene.possibleMoves = null;
-            scene.selectedBuyBuilding = null;
-            return;
-        }
-
         console.log("before: build a " + buildingType);
 
-        scene.selectedBuyBuilding = buildingType;
-        GameUtils.clearTintArray(scene.uiVillage);
-        gameSprite.setTint("0x00ff00");
+        gameScene.possibleMoves = gameScene.buildingManager.getVillageBuildings(village);
+        gameScene.possibleMoves = gameScene.buildingManager.getBuildableNeighbors(gameScene.possibleMoves);
 
-        scene.possibleMoves = scene.buildingManager.getVillageBuildings(village);
-        scene.possibleMoves = scene.buildingManager.getBuildableNeighbors(scene.possibleMoves);
+        gameScene.board.highlightTiles(gameScene.possibleMoves);
+    }
 
-        scene.board.highlightTiles(scene.possibleMoves);
+    /**
+     * 
+     * @param {Village} village 
+     */
+    updateUiVillageText(village){
+        //TODO: put this in some sort of village manager. updateUi should do no calcs
+
+        let gameScene = this.gameScene;
+        
+        let coordinates = gameScene.buildingManager.getVillageBuildings(village);
+        let buildingsData = gameScene.board.getBuildingsData(coordinates);
+        let countsOfBuildings = GameUtilsBuilding.countBuildings(buildingsData);
+        village.calculateIncome(countsOfBuildings);
+
+        let populationGrowth = village.getPopulationGrowthDay(countsOfBuildings.countHousing);
+
+        this.txtVillagePopulation.setText("Population: " + village.population + " (" + populationGrowth + ")");
+        this.txtVillageFood.setText("Food: " + village.amountFood + " (" + village.incomeFood + ")");
+        this.txtVillageStone.setText("Stone: " + village.amountStone + " (" + village.incomeStone + ")");
+        this.txtVillageWood.setText("Wood: " + village.amountWood + " (" + village.incomeWood + ")");
     }
 
 }

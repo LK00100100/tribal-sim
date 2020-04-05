@@ -175,8 +175,6 @@ export default class SceneGame extends Phaser.Scene {
         //sub-ui scenes
         this.armyInfoScene = new ArmyInfoScene(this);
         this.humanVillageInfoScene = new HumanVillageInfoScene(this);
-
-        console.log("REE");
     }
 
     /**
@@ -228,12 +226,6 @@ export default class SceneGame extends Phaser.Scene {
          */
         let x, y;
         let tempImage, tempSprite, tempText;
-
-        /**
-         * init scenes
-         */
-        this.initSubScene(this.armyInfoScene);
-        this.initSubScene(this.humanVillageInfoScene);
 
         /**
         * draw the terrain
@@ -522,18 +514,6 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     /**
-     * init a sub scene for possible future use. hidden at first
-     * should only be used by create()
-     * @param {Phaser.Scene} scene scene object
-     */
-    initSubScene(subScene) {
-        let handle = subScene.handle;
-        let autoStart = true;
-        this.scene.add(handle, subScene, autoStart);
-        this.scene.setVisible(false, handle);
-    }
-
-    /**
      * a helper method to create a standard UI text element for this scene.
      * @param {Number} x 
      * @param {Number} y 
@@ -588,7 +568,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //village UI
         if (this.selectedVillage != null) {
-            this.resetAndTurnOnScene(this.humanVillageInfoScene);
+            this.turnOnScene(this.humanVillageInfoScene);
         }
 
         //building UI
@@ -603,7 +583,7 @@ export default class SceneGame extends Phaser.Scene {
         if (this.selectedArmy != null) {
 
             //turn on scene
-            this.resetAndTurnOnScene(this.armyInfoScene);
+            this.turnOnScene(this.armyInfoScene);
         }
 
     }
@@ -611,12 +591,17 @@ export default class SceneGame extends Phaser.Scene {
     /**
      * Resets the scene to its original state
      * Turns on visibility of scene from the gameScene
-     * @param {Phaser.Scene} scene
+     * @param {Phaser.Scene} subScene
      */
-    resetAndTurnOnScene(scene) {
-        let handle = scene.handle;
-        scene.resetUi();
-        scene.scene.setVisible(true, handle);
+    turnOnScene(subScene) {
+        let handle = subScene.handle;
+        let autoStart = true;
+        try{
+            this.scene.add(handle, subScene, autoStart);
+        }
+        catch(err){
+            console.log("can't turn on scene: " + err);
+        }
     }
 
     /**
@@ -625,7 +610,7 @@ export default class SceneGame extends Phaser.Scene {
      */
     turnOffScene(scene) {
         let handle = scene.handle;
-        scene.scene.setVisible(false, handle);
+        this.scene.remove(handle);
     }
 
     clickedEndTurn(pointer) {
@@ -705,6 +690,8 @@ export default class SceneGame extends Phaser.Scene {
         if (this.selectedVillage != null) {
             this.selectedVillage.clearTint();
             this.selectedVillage = null;
+
+            this.turnOffScene(this.humanVillageInfoScene);
         }
 
         if (this.selectedBuilding != null) {

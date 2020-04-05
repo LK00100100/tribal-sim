@@ -162,22 +162,6 @@ export default class ArmyManager {
 
     }
 
-    //TODO: rename clickedButton...
-    createArmyButton(pointer) {
-
-        if (pointer.rightButtonDown())
-            return;
-
-        let gameScene = this.scene;
-        let village = gameScene.selectedVillage.data.get("data");
-
-        gameScene.board.unhighlightTiles(gameScene.possibleMoves);
-
-        gameScene.armyManager.createArmy(1, village);
-
-        gameScene.updateUi();
-
-    }
 
     /**
      * creates an army from a village.
@@ -385,6 +369,8 @@ export default class ArmyManager {
      */
     clickedArmy(pointer) {
         let gameScene = this.scene;
+        gameScene.deselectEverything();
+
         let otherArmy = this.data.get("data");
         let targetRow = otherArmy.row;
         let targetCol = otherArmy.col;

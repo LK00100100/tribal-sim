@@ -9,6 +9,8 @@ import GameUtilsUi from "../../utils/GameUtilsUi";
 
 /**
  * Contains the Ui that displays the human-player's army info and actions
+ * 
+ * Opens when the human-player selects his army.
  */
 //TODO: rename HumanArmyInfoScene
 export default class ArmyInfoScene extends Phaser.Scene {
@@ -122,6 +124,8 @@ export default class ArmyInfoScene extends Phaser.Scene {
         this.uiArmyBuildButtons.push(this.btnArmyBuildNorth);
         this.uiArmyBuildButtons.push(this.btnArmyBuildSouth);
         this.uiArmyBuildButtons.push(this.btnArmyBuildWest);
+
+        this.resetUi();
     }
 
     /**
