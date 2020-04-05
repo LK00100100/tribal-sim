@@ -29,6 +29,7 @@ import Phaser from "../node_modules/phaser/src/phaser";
 
 // eslint-disable-next-line no-unused-vars
 import Army from "./army/Army";
+import GameEngine from "./engine/GameEngine";
 
 /**
  * This scene draws out the board and players.
@@ -42,6 +43,8 @@ export default class SceneGame extends Phaser.Scene {
 
         //TODO: separate scene from game info
 
+        //TODO: singleton for gameengine
+        this.gameEngine = new GameEngine(this);
         this.board = new Board();
 
         //TODO: read all this stuff from external source
@@ -227,7 +230,6 @@ export default class SceneGame extends Phaser.Scene {
          */
         let x, y;
         let tempImage, tempSprite, tempText;
-
         /**
         * draw the terrain
         */
@@ -475,13 +477,13 @@ export default class SceneGame extends Phaser.Scene {
 
         this.input.keyboard.on("keydown_ENTER", function () {
             console.log("enter key!");
-            this.scene.endTurn(this.scene);
-        });
+            this.gameEngine.endTurn();
+        }, this);
 
         this.input.keyboard.on("keydown_SHIFT", function () {
             console.log("shift key!");
-            this.scene.endTurn(this.scene);
-        });
+            this.gameEngine.endTurn();
+        }, this);
 
         /**
         * mouse
@@ -620,7 +622,7 @@ export default class SceneGame extends Phaser.Scene {
         if (pointer != null && pointer.rightButtonDown())
             return;
 
-        this.scene.endTurn(this.scene);
+        this.gameEngine.endTurn();
     }
 
     //TODO: move to BuildingManager later

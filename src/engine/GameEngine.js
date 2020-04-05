@@ -8,6 +8,7 @@ import Village from "../buildings/villageBuildings/Village";
 export default class GameEngine {
 
     constructor(gameScene){
+        //TODO: put all game info here. remove from gameScene
         this.gameScene = gameScene;
     }
 
@@ -25,12 +26,12 @@ export default class GameEngine {
             gameScene.selectedArmyPossibleMoves = null;
         }
 
-        gameScene.postTurnPhase(gameScene.turnOfPlayer);
+        this.postTurnPhase(gameScene.turnOfPlayer);
 
         //TODO: fix this later
         for (let i = 2; i <= gameScene.numPlayers; i++) {
             gameScene.turnOfPlayer = i;
-            gameScene.calculateTurnAiPlayer(gameScene.turnOfPlayer);
+            this.calculateTurnAiPlayer(gameScene.turnOfPlayer);
         }
 
         //TODO: disable button when needed
@@ -38,7 +39,7 @@ export default class GameEngine {
 
         //now player 1's turn
         gameScene.turnOfPlayer = 1;
-        gameScene.preTurnPhase(gameScene.turnOfPlayer);
+        this.preTurnPhase(gameScene.turnOfPlayer);
 
         if (gameScene.selectedArmy != null)
             gameScene.armyManager.showPossibleArmyMoves(gameScene.selectedArmy.data.get("data"));
@@ -47,7 +48,7 @@ export default class GameEngine {
 
         console.log("===================================");
         console.log("\nstart of your turn: ");
-        gameScene.updateUI();
+        gameScene.updateUi();
     }
 
     /**
@@ -55,27 +56,30 @@ export default class GameEngine {
      * @param {Number} player 
      */
     calculateTurnAiPlayer(player) {
+        let gameScene = this.gameScene;
+
         console.log("calculating turn: player: " + player);
 
         this.preTurnPhase(player);
 
-        let ai = this.playersAi[player];
+        let ai = gameScene.playersAi[player];
 
         //TODO: replace this function with more functions
         ai.calculateTurn();
 
         this.postTurnPhase(player);
 
-        console.log("ending turn: player2...");
+        console.log("ending turn: player " + player);
     }
 
     //replenishment
     preTurnPhase(playerNumber) {
+        let gameScene = this.gameScene;
 
         /**
          * army stuff
          */
-        let armies = this.playerArmies[playerNumber];
+        let armies = gameScene.playerArmies[playerNumber];
 
         if (armies != null) {
             armies.forEach(army => {
@@ -88,14 +92,14 @@ export default class GameEngine {
          * village stuff
          */
 
-        let buildings = this.playerBuildings[playerNumber];
+        let buildings = gameScene.playerBuildings[playerNumber];
 
         buildings.forEach(building => {
             let data = building.data.get("data");
 
             if (data instanceof Village) {
-                let coordinates = this.buildingManager.getVillageBuildings(data);
-                let buildingsData = this.board.getBuildingsData(coordinates);
+                let coordinates = gameScene.buildingManager.getVillageBuildings(data);
+                let buildingsData = gameScene.board.getBuildingsData(coordinates);
                 let countsOfBuildings = GameUtilsBuilding.countBuildings(buildingsData);
 
                 data.calculateIncome(countsOfBuildings);
@@ -106,10 +110,12 @@ export default class GameEngine {
     }
 
     postTurnPhase(playerNumber) {
+        let gameScene = this.gameScene;
+
         /**
          * army stuff
          */
-        let armies = this.playerArmies[playerNumber];
+        let armies = gameScene.playerArmies[playerNumber];
 
         if (armies != null) {
             armies.forEach((army) => {
@@ -122,14 +128,14 @@ export default class GameEngine {
 
                 //killed through attrition
                 if (army.size() == 0) {
-                    this.armyManager.destroyArmy(army);
+                    gameScene.armyManager.destroyArmy(army);
                 }
             });
         }
 
         //if we're selecting nothing, turn off
-        if (!this.selectedArmy == null && !this.selectedVillage && !this.selectedBuilding) {
-            this.deselectEverything();
+        if (!gameScene.selectedArmy == null && !gameScene.selectedVillage && !gameScene.selectedBuilding) {
+            gameScene.deselectEverything();
         }
 
     }
