@@ -7,22 +7,28 @@ const { Direction } = DirectionObj;
 import GameUtils from "../../utils/GameUtils";
 import GameUtilsUi from "../../utils/GameUtilsUi";
 
+/**
+ * Contains the Ui that displays the human-player's army info and actions
+ */
 export default class ArmyInfoScene extends Phaser.Scene {
 
     constructor(gameScene) {
-        super("ArmyInfoScene");
+        super("armyInfoScene");
+        this.handle = "armyInfoScene";
 
         this.gameScene = gameScene;
+        
+        //ui element groupings
+        this.uiArmyText = [];
+        this.uiArmyButtons = [];
+        this.uiArmyBuildButtons = [];
+
+        this.selectedArmyBuildFunc = null;
     }
 
     //preload assets
     preload() {
         let scene = this;
-
-        //set cam
-        var zoomLevel = 0.5;
-
-        this.cam = this.cameras.main.setZoom(zoomLevel);
 
         //ui, army
         scene.load.image("btnArmyGetUnits", "assets/btn-army-get-units.png");
@@ -43,10 +49,9 @@ export default class ArmyInfoScene extends Phaser.Scene {
     }
 
     create() {
-
-        this.uiArmyText = [];
-        this.uiArmyButtons = [];
-        this.uiArmyBuildButtons = [];
+        //set cam
+        var zoomLevel = 0.5;
+        this.cam = this.cameras.main.setZoom(zoomLevel);
 
         //TODO: buttons have all clickedFunctions 
         /**
@@ -116,7 +121,6 @@ export default class ArmyInfoScene extends Phaser.Scene {
         this.uiArmyBuildButtons.push(this.btnArmyBuildNorth);
         this.uiArmyBuildButtons.push(this.btnArmyBuildSouth);
         this.uiArmyBuildButtons.push(this.btnArmyBuildWest);
-
     }
 
     /**
@@ -149,12 +153,22 @@ export default class ArmyInfoScene extends Phaser.Scene {
             .setOrigin(0);
 
         if (buttonFunc)
-            uiButtonElement.on("pointerdown", this.gameScene.armyManager.armyGetUnits);
+            uiButtonElement.on("pointerdown", buttonFunc);
 
         return uiButtonElement;
     }
 
-    //TODO: refactor elsewhere
+    /**
+     * Resets this scene to its original state.
+     */
+    resetUi(){
+        let selectedArmy = this.gameScene.selectedArmy.getData("data");
+
+        GameUtilsUi.showGameObjects(this.uiArmyText);
+
+        this.updateTextArmy(selectedArmy);
+        this.showUiArmyButtons(selectedArmy);
+    }
 
     /**
      * shows the ui army main action buttons
@@ -162,6 +176,7 @@ export default class ArmyInfoScene extends Phaser.Scene {
      * @param {Army} armyData 
      */
     showUiArmyButtons(armyData) {
+        let gameScene = this.gameScene;
 
         //TODO: refactor armyData as just selected
         GameUtilsUi.hideGameObjects(this.uiArmyBuildButtons);
@@ -170,14 +185,10 @@ export default class ArmyInfoScene extends Phaser.Scene {
         let row = armyData.row;
         let col = armyData.col;
 
-        let buildingSprite = this.board.boardBuildings[row][col];
+        let buildingSprite = gameScene.board.boardBuildings[row][col];
 
         //on-top-of-village buttons
         //TODO: be able to replenish in friendly villages through trade.
-        //TODO: buttons in a list. text in a list.
-        this.btnArmyGetFood.visible = false;
-        this.btnArmyGetUnits.visible = false;
-        this.btnArmyDisbandUnits.visible = false;
         if (buildingSprite != null) {
 
             let buildingData = buildingSprite.data.get("data");
@@ -193,6 +204,7 @@ export default class ArmyInfoScene extends Phaser.Scene {
                 GameUtilsUi.showGameObjects(this.uiArmyButtons);
                 GameUtils.clearTintArray(this.uiArmyButtons);
 
+                //TODO: hardcode bad
                 /**
                  * adequate resources check
                  */
@@ -237,5 +249,44 @@ export default class ArmyInfoScene extends Phaser.Scene {
 
         this.updateUiArmyBuildDirectionButtons();
     }
+
+    //TODO: just bind(this) functions
+    clickedBuildWallWood() {
+        let scene = this.scene;
+        //TODO: activate buttons if you have enough resources. else display warning
+
+        scene.selectedArmyBuildFunc = scene.armyManager.armyBuildWallWood;
+
+        scene.updateUiArmyBuildDirectionButtons();
+    }
+
+    updateUiArmyBuildDirectionButtons() {
+        this.btnArmyBuildEast.setTint("0x777777");
+        this.btnArmyBuildNorth.setTint("0x777777");
+        this.btnArmyBuildSouth.setTint("0x777777");
+        this.btnArmyBuildWest.setTint("0x777777");
+
+        if (this.selectedArmyBuildFunc != null) {
+            //TODO: grey out non-buildable.
+            this.btnArmyBuildEast.clearTint();
+            this.btnArmyBuildNorth.clearTint();
+            this.btnArmyBuildSouth.clearTint();
+            this.btnArmyBuildWest.clearTint();
+        }
+    }
+    
+    /**
+     * Updates the ui text to the army
+     * @param {Army} army 
+     */
+    updateTextArmy(army) {
+        //TODO: refactor and move
+        this.txtArmySize.setText("Units: " + army.units.length);
+        this.txtArmyVillage.setText("Village: " + army.village.name);
+        this.txtArmyMoves.setText("Moves: " + army.moveAmount + "/" + army.moveMax);
+        this.txtArmyFood.setText("Food: " + army.amountFood);
+        this.txtArmyWood.setText("Wood: " + army.amountWood);
+    }
+
 
 }
