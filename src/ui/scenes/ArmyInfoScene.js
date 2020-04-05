@@ -17,7 +17,7 @@ export default class ArmyInfoScene extends Phaser.Scene {
         this.handle = "armyInfoScene";
 
         this.gameScene = gameScene;
-        
+
         //ui element groupings
         this.uiArmyText = [];
         this.uiArmyButtons = [];
@@ -49,6 +49,8 @@ export default class ArmyInfoScene extends Phaser.Scene {
     }
 
     create() {
+        let gameScene = this.gameScene;
+
         //set cam
         var zoomLevel = 0.5;
         this.cam = this.cameras.main.setZoom(zoomLevel);
@@ -76,11 +78,11 @@ export default class ArmyInfoScene extends Phaser.Scene {
 
         //TODO: create enums
         //army buttons
-        this.btnArmyGetUnits = this.createUiButtonHelper(x, y + 290, "btnArmyGetUnits", this.gameScene.armyManager.armyGetUnits);
-        this.btnArmyDisbandUnits = this.createUiButtonHelper(x, y + 430, "btnArmyDisbandUnits", this.gameScene.armyManager.armyDisbandUnits);
-        this.btnArmyGetFood = this.createUiButtonHelper(x, y + 570, "btnArmyGetFood", this.gameScene.armyManager.armyGetFood);
-        this.btnArmyGetWood = this.createUiButtonHelper(x, y + 710, "btnArmyGetWood", this.gameScene.armyManager.armyGetWood);
-        this.btnArmyBuild = this.createUiButtonHelper(x, y + 850, "btnArmyBuild", this.gameScene.armyManager.armyBuild);
+        this.btnArmyGetUnits = this.createUiButtonHelper(x, y + 290, "btnArmyGetUnits", gameScene.armyManager.armyGetUnits);
+        this.btnArmyDisbandUnits = this.createUiButtonHelper(x, y + 430, "btnArmyDisbandUnits", this.clickedArmyDisbandUnits);
+        this.btnArmyGetFood = this.createUiButtonHelper(x, y + 570, "btnArmyGetFood", gameScene.armyManager.armyGetFood);
+        this.btnArmyGetWood = this.createUiButtonHelper(x, y + 710, "btnArmyGetWood", gameScene.armyManager.armyGetWood);
+        this.btnArmyBuild = this.createUiButtonHelper(x, y + 850, "btnArmyBuild", gameScene.armyManager.armyBuild);
 
         //TODO: clickedSomething functions
         this.uiArmyButtons.push(this.btnArmyGetUnits);
@@ -91,30 +93,30 @@ export default class ArmyInfoScene extends Phaser.Scene {
 
         //army, build buttons
 
-        this.btnArmyBuildCancel = this.createUiButtonHelper(x, y + 290, "btnArmyCancel", this.gameScene.armyManager.armyBuildCancel);
-        this.btnArmyBuildWallWood = this.createUiButtonHelper(x, y + 430, "btnArmyBuildWallWood", this.gameScene.clickedBuildWallWood);
+        this.btnArmyBuildCancel = this.createUiButtonHelper(x, y + 290, "btnArmyCancel", gameScene.armyManager.armyBuildCancel);
+        this.btnArmyBuildWallWood = this.createUiButtonHelper(x, y + 430, "btnArmyBuildWallWood", this.clickedBuildWallWood);
 
         this.uiArmyBuildButtons.push(this.btnArmyBuildCancel);
         this.uiArmyBuildButtons.push(this.btnArmyBuildWallWood);
 
         this.btnArmyBuildEast = this.createUiButtonHelper(x + 420, y + 360, "btnArmyBuildEast")
             .on("pointerdown", function () {
-                this.gameScene.scene.selectedArmyBuildFunc(Direction.EAST);
+                gameScene.scene.selectedArmyBuildFunc(Direction.EAST);
             });
 
         this.btnArmyBuildNorth = this.createUiButtonHelper(x + 350, y + 290, "btnArmyBuildNorth")
             .on("pointerdown", function () {
-                this.gameScene.scene.selectedArmyBuildFunc(Direction.NORTH);
+                gameScene.scene.selectedArmyBuildFunc(Direction.NORTH);
             });
 
         this.btnArmyBuildSouth = this.createUiButtonHelper(x + 350, y + 430, "btnArmyBuildSouth")
             .on("pointerdown", function () {
-                this.gameScene.scene.selectedArmyBuildFunc(Direction.SOUTH);
+                gameScene.scene.selectedArmyBuildFunc(Direction.SOUTH);
             });
 
         this.btnArmyBuildWest = this.createUiButtonHelper(x + 280, y + 360, "btnArmyBuildWest")
             .on("pointerdown", function () {
-                this.gameScene.scene.selectedArmyBuildFunc(Direction.WEST);
+                gameScene.scene.selectedArmyBuildFunc(Direction.WEST);
             });
 
         this.uiArmyBuildButtons.push(this.btnArmyBuildEast);
@@ -161,7 +163,7 @@ export default class ArmyInfoScene extends Phaser.Scene {
     /**
      * Resets this scene to its original state.
      */
-    resetUi(){
+    resetUi() {
         let selectedArmy = this.gameScene.selectedArmy.getData("data");
 
         GameUtilsUi.showGameObjects(this.uiArmyText);
@@ -230,34 +232,142 @@ export default class ArmyInfoScene extends Phaser.Scene {
 
     }
 
-    //TODO: refactor elsewhere
     /**
      * shows the army build buttons.
      * hides all non army build buttons
      */
     showUiArmyBuildButtons() {
+        let gameScene = this.gameScene;
+
         GameUtilsUi.hideGameObjects(this.uiArmyButtons);
         GameUtilsUi.showGameObjects(this.uiArmyBuildButtons);
         GameUtils.clearTintArray(this.uiArmyBuildButtons);
 
-        /** @type {Army} */
-        let armyData = this.selectedArmy.getData("data");
+        let army = gameScene.selectedArmy.getData("data");
+        this.updateUiArmyBuildButtons(army);
+    }
 
-        //TODO: remove hardcode. maybe to json file -> load singleton
-        if (armyData.amountWood < 100)
-            this.btnArmyBuildWallWood.setTint("0xff0000");
+    /**
+     * main button actions
+     */
 
-        this.updateUiArmyBuildDirectionButtons();
+    /**
+     * human-player action
+     * clicked army -> get units 
+     * gets units from a village
+     */
+    clickedArmyGetUnits() {
+        let gameScene = this.gameScene;
+        let army = gameScene.selectedArmy.data.get("data");
+
+        gameScene.armyManager.getUnits(army);
+
+        gameScene.updateUI();
+    }
+
+    
+    /**
+     * puts some people back into their own village
+     * returns the last units in the "units" roster
+     * @param {*} pointer
+     */
+    clickedArmyDisbandUnits() {
+        let gameScene = this.scene.gameScene;
+        let scene = this.scene;
+        
+        let army = gameScene.selectedArmy.getData("data");
+        let row = army.row;
+        let col = army.col;
+
+        let disbandAmount = army.size() >= 10 ? 10 : army.size();
+
+        let buildingSprite = gameScene.board.boardBuildings[row][col];
+        let village;
+
+        if (buildingSprite == null)
+            return;
+
+        let building = buildingSprite.data.get("data");
+
+        //is this our village?
+        if (building.player == army.player)
+            village = building.village;
+        else
+            return;
+
+        for (let i = 0; i < disbandAmount; i++) {
+            army.units.pop();
+        }
+
+        village.population += disbandAmount;
+
+        if (army.size() == 0)
+            gameScene.armyManager.destroyArmy(army);
+
+        gameScene.updateUI();
+        scene.updateUi();
+    }
+
+    /**
+     * build actions
+     */
+
+    /**
+     * human-player clicks "army > build > cancel build"
+     * Should go back to the main army actions
+     * @param {Phaser.Scene} scene
+     */
+    clickedArmyBuildCancel() {
+        let gameScene = this.gameScene;
+        let army = gameScene.selectedArmy.getData("data");
+
+        this.showUiArmyButtons(army);
     }
 
     //TODO: just bind(this) functions
     clickedBuildWallWood() {
         let scene = this.scene;
+        let gameScene = this.gameScene;
         //TODO: activate buttons if you have enough resources. else display warning
 
-        scene.selectedArmyBuildFunc = scene.armyManager.armyBuildWallWood;
+        scene.selectedArmyBuildFunc = gameScene.armyManager.armyBuildWallWood;
 
         scene.updateUiArmyBuildDirectionButtons();
+    }
+
+    /**
+     * updates all elements of the ui for this scene with the correct visualization
+     */
+    updateUi() {
+        let gameScene = this.gameScene;
+        let army = gameScene.selectedArmy.getData("data");
+
+        this.updateTextArmy(army);
+        this.updateUiArmyBuildButtons(army);
+    }
+
+    /**
+     * Updates the ui text of the army
+     * @param {Army} army 
+     */
+    updateTextArmy(army) {
+        this.txtArmySize.setText("Units: " + army.units.length);
+        this.txtArmyVillage.setText("Village: " + army.village.name);
+        this.txtArmyMoves.setText("Moves: " + army.moveAmount + "/" + army.moveMax);
+        this.txtArmyFood.setText("Food: " + army.amountFood);
+        this.txtArmyWood.setText("Wood: " + army.amountWood);
+    }
+
+    /**
+     * Updates the army build buttons tinting
+     * @param {Army} army 
+     */
+    updateUiArmyBuildButtons(army) {
+        //TODO: remove hardcode. maybe to json file -> load singleton
+        if (army.amountWood < 100)
+            this.btnArmyBuildWallWood.setTint("0xff0000");
+
+        this.updateUiArmyBuildDirectionButtons();
     }
 
     updateUiArmyBuildDirectionButtons() {
@@ -273,19 +383,6 @@ export default class ArmyInfoScene extends Phaser.Scene {
             this.btnArmyBuildSouth.clearTint();
             this.btnArmyBuildWest.clearTint();
         }
-    }
-    
-    /**
-     * Updates the ui text to the army
-     * @param {Army} army 
-     */
-    updateTextArmy(army) {
-        //TODO: refactor and move
-        this.txtArmySize.setText("Units: " + army.units.length);
-        this.txtArmyVillage.setText("Village: " + army.village.name);
-        this.txtArmyMoves.setText("Moves: " + army.moveAmount + "/" + army.moveMax);
-        this.txtArmyFood.setText("Food: " + army.amountFood);
-        this.txtArmyWood.setText("Wood: " + army.amountWood);
     }
 
 

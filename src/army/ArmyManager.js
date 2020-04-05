@@ -396,18 +396,6 @@ export default class ArmyManager {
     }
 
     /**
-     * human-player clicks "army > build > cancel build"
-     * Should go back to the main army actions
-     * @param {Phaser.Scene} scene
-     */
-    armyBuildCancel() {
-        let scene = this.gameScene;
-        let armyData = scene.selectedArmy.getData("data");
-
-        scene.showUiArmyButtons(armyData);
-    }
-
-    /**
      * 
      * @param {Army} army 
      * @param {Direction} direction such as Direction.EAST
@@ -490,20 +478,6 @@ export default class ArmyManager {
         gameScene.updateUI();
     }
 
-    /**
-     * get units from a village
-     */
-    armyGetUnits() {
-        let scene = this.gameScene;
-        let army = scene.selectedArmy.data.get("data");
-
-        console.log("get more units");
-
-        scene.armyManager.getUnits(army);
-
-        scene.updateUI();
-    }
-
     //TODO: make compatible with rats
     //TODO: make... not 10
     getUnits(army) {
@@ -540,48 +514,6 @@ export default class ArmyManager {
 
     //TODO: remove prefix army. add "player" vs no prefix
 
-    /**
-     * puts some people back into their own village
-     * returns the last units in the "units" roster
-     * @param {*} pointer
-     */
-    armyDisbandUnits() {
-        console.log("disbanding!");
-
-        let scene = this.gameScene;
-        let army = scene.selectedArmy.getData("data");
-
-        let disbandAmount = army.size() >= 10 ? 10 : army.size();
-
-        let row = army.row;
-        let col = army.col;
-        //TODO: refactor
-        let buildingSprite = scene.board.boardBuildings[row][col];
-        let village;
-
-        if (buildingSprite == null)
-            return;
-
-        let buildingData = buildingSprite.data.get("data");
-
-        //is this our village?
-        if (buildingData.player == army.player)
-            village = buildingData.village;
-        else
-            return;
-
-        for (let i = 0; i < disbandAmount; i++) {
-            army.units.pop();
-        }
-
-        village.population += disbandAmount;
-
-        if (army.size() == 0)
-            scene.armyManager.destroyArmy(army);
-
-        scene.updateUI();
-
-    }
 
 
 
