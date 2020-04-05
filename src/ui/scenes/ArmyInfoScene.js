@@ -51,8 +51,6 @@ export default class ArmyInfoScene extends Phaser.Scene {
     }
 
     create() {
-        let gameScene = this.gameScene;
-
         //set cam
         var zoomLevel = 0.5;
         this.cam = this.cameras.main.setZoom(zoomLevel);
@@ -93,9 +91,10 @@ export default class ArmyInfoScene extends Phaser.Scene {
         this.uiArmyButtons.push(this.btnArmyGetWood);
         this.uiArmyButtons.push(this.btnArmyBuild);
 
-        //army, build buttons
-
-        this.btnArmyBuildCancel = this.createUiButtonHelper(x, y + 290, "btnArmyCancel", gameScene.armyManager.armyBuildCancel);
+        /**
+         * army, build buttons
+         */
+        this.btnArmyBuildCancel = this.createUiButtonHelper(x, y + 290, "btnArmyCancel", this.clickedArmyBuildCancel);
         this.btnArmyBuildWallWood = this.createUiButtonHelper(x, y + 430, "btnArmyBuildWallWood", this.clickedBuildWallWood);
 
         this.uiArmyBuildButtons.push(this.btnArmyBuildCancel);
@@ -103,23 +102,23 @@ export default class ArmyInfoScene extends Phaser.Scene {
 
         this.btnArmyBuildEast = this.createUiButtonHelper(x + 420, y + 360, "btnArmyBuildEast")
             .on("pointerdown", function () {
-                this.scene.selectedArmyBuildFunc(Direction.EAST);
-            });
+                this.clickedBuildDirection(Direction.EAST);
+            }, this);
 
         this.btnArmyBuildNorth = this.createUiButtonHelper(x + 350, y + 290, "btnArmyBuildNorth")
             .on("pointerdown", function () {
-                this.scene.selectedArmyBuildFunc(Direction.NORTH);
-            });
+                this.clickedBuildDirection(Direction.NORTH);
+            }, this);
 
         this.btnArmyBuildSouth = this.createUiButtonHelper(x + 350, y + 430, "btnArmyBuildSouth")
             .on("pointerdown", function () {
-                this.scene.selectedArmyBuildFunc(Direction.SOUTH);
-            });
+                this.clickedBuildDirection(Direction.SOUTH);
+            }, this);
 
         this.btnArmyBuildWest = this.createUiButtonHelper(x + 280, y + 360, "btnArmyBuildWest")
             .on("pointerdown", function () {
-                this.scene.selectedArmyBuildFunc(Direction.WEST);
-            });
+                this.clickedBuildDirection(Direction.WEST);
+            }, this);
 
         this.uiArmyBuildButtons.push(this.btnArmyBuildEast);
         this.uiArmyBuildButtons.push(this.btnArmyBuildNorth);
@@ -156,8 +155,10 @@ export default class ArmyInfoScene extends Phaser.Scene {
             .setDepth(100)
             .setOrigin(0);
 
-        if (buttonFunc)
-            uiButtonElement.on("pointerdown", buttonFunc);
+        if (buttonFunc) {
+            let bindTo = this;
+            uiButtonElement.on("pointerdown", buttonFunc, bindTo);
+        }
 
         return uiButtonElement;
     }
@@ -259,15 +260,14 @@ export default class ArmyInfoScene extends Phaser.Scene {
      * gets units from a village
      */
     clickedArmyGetUnits() {
-        let gameScene = this.scene.gameScene;
-        let scene = this.scene;
+        let gameScene = this.gameScene;
 
         let army = gameScene.selectedArmy.data.get("data");
 
         gameScene.armyManager.getUnits(army);
 
         gameScene.updateUi();
-        scene.updateUi();
+        this.updateUi();
     }
 
     /**
@@ -276,9 +276,8 @@ export default class ArmyInfoScene extends Phaser.Scene {
      * @param {*} pointer
      */
     clickedArmyDisbandUnits() {
-        let gameScene = this.scene.gameScene;
-        let scene = this.scene;
-        
+        let gameScene = this.gameScene;
+
         let army = gameScene.selectedArmy.getData("data");
         let row = army.row;
         let col = army.col;
@@ -309,7 +308,7 @@ export default class ArmyInfoScene extends Phaser.Scene {
             gameScene.armyManager.destroyArmy(army);
 
         gameScene.updateUi();
-        scene.updateUi();
+        this.updateUi();
     }
 
     /**
@@ -318,28 +317,26 @@ export default class ArmyInfoScene extends Phaser.Scene {
      * @param {Phaser.Pointer} pointer 
      */
     clickedArmyGetFood() {
-        let gameScene = this.scene.gameScene;
-        let scene = this.scene;
+        let gameScene = this.gameScene;
 
         let army = gameScene.selectedArmy.data.get("data");
         gameScene.armyManager.getFood(army);
 
         gameScene.updateUi();
-        scene.updateUi();
+        this.updateUi();
     }
 
     /**
      * human-player clicked army -> get wood
      */
     clickedArmyGetWood() {
-        let gameScene = this.scene.gameScene;
-        let scene = this.scene;
+        let gameScene = this.gameScene;
 
         let army = gameScene.selectedArmy.data.get("data");
         gameScene.armyManager.getWood(army);
 
         gameScene.updateUi();
-        scene.updateUi();
+        this.updateUi();
     }
 
     /**
@@ -347,7 +344,7 @@ export default class ArmyInfoScene extends Phaser.Scene {
      * Should just show stuff that can be built
      * @param {Phaser.Scene} scene
      */
-    armyBuild() {
+    clickedArmyBuild() {
         this.showUiArmyBuildButtons();
     }
 
@@ -362,6 +359,7 @@ export default class ArmyInfoScene extends Phaser.Scene {
      */
     clickedArmyBuildCancel() {
         let gameScene = this.gameScene;
+
         let army = gameScene.selectedArmy.getData("data");
 
         this.showUiArmyButtons(army);
@@ -370,21 +368,32 @@ export default class ArmyInfoScene extends Phaser.Scene {
     //TODO: just bind(this) functions
     clickedBuildWallWood() {
         let gameScene = this.gameScene;
-        let scene = this.scene;
         //TODO: activate buttons if you have enough resources. else display warning
 
-        scene.selectedArmyBuildFunc = gameScene.armyManager.armyBuildWallWood;
+        this.selectedArmyBuildFunc = gameScene.armyManager.armyBuildWallWood;
 
-        scene.updateUiArmyBuildDirectionButtons();
+        this.updateUiArmyBuildDirectionButtons();
     }
 
+    /**
+     * build something if we can
+     * @param {Direction} direction 
+     */
+    clickedBuildDirection(direction) {
+        if (this.selectedArmyBuildFunc == null)
+            return;
+
+        //check if we can build there
+
+        this.selectedArmyBuildFunc(direction);
+    }
     /**
      * updates all elements of the ui for this scene with the correct visualization
      */
     updateUi() {
         let gameScene = this.gameScene;
 
-        if(!gameScene.selectedArmy)
+        if (!gameScene.selectedArmy)
             return;
 
         let army = gameScene.selectedArmy.getData("data");
@@ -431,6 +440,5 @@ export default class ArmyInfoScene extends Phaser.Scene {
             this.btnArmyBuildWest.clearTint();
         }
     }
-
 
 }
