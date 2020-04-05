@@ -59,7 +59,9 @@ export default class SceneGame extends Phaser.Scene {
             Race.GORILLA,
             Race.TIGER,
             Race.MEERKAT,
-            Race.CAT];
+            Race.CAT,
+            Race.CAVEMAN
+        ];
         this.numPlayers = this.playerRace.length - 1;
 
         this.playerHuman = 1;   //this is you
@@ -121,6 +123,16 @@ export default class SceneGame extends Phaser.Scene {
                 name: "clubbers",
                 type: "village",
                 player: 5,
+                population: 10,
+                amountFood: 200,
+                amountStone: 0,
+                amountWood: 0
+            },
+            {
+                row: 16, col: 1,
+                name: "grunters",
+                type: "village",
+                player: 10,
                 population: 10,
                 amountFood: 200,
                 amountStone: 0,
@@ -509,6 +521,8 @@ export default class SceneGame extends Phaser.Scene {
         this.playersAi[7] = new TigerAi(this, 7);
         this.playersAi[8] = new MeerkatAi(this, 8);
         this.playersAi[9] = new CatAi(this, 9);
+        this.playersAi[10] = new CavemanAi(this, 10);
+
 
         this.updateUi();
 
