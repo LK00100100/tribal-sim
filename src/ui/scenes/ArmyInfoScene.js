@@ -14,15 +14,15 @@ import GameUtilsUi from "../../utils/GameUtilsUi";
 export default class ArmyInfoScene extends Phaser.Scene {
 
     constructor(gameScene) {
-        super("armyInfoScene");
-        this.handle = "armyInfoScene";
+        super("ArmyInfoScene");
+        this.handle = "ArmyInfoScene";
 
         this.gameScene = gameScene;
 
         //ui element groupings
         this.uiArmyText = [];
-        this.uiArmyButtons = [];
-        this.uiArmyBuildButtons = [];
+        this.uiArmyButtons = [];        //main army actions
+        this.uiArmyBuildButtons = [];   //army build options
 
         //the human-player desired build function
         this.selectedArmyBuildFunc = null;
@@ -30,24 +30,22 @@ export default class ArmyInfoScene extends Phaser.Scene {
 
     //preload assets
     preload() {
-        let scene = this;
-
         //ui, army
-        scene.load.image("btnArmyGetUnits", "assets/btn-army-get-units.png");
-        scene.load.image("btnArmyDisbandUnits", "assets/btn-army-disband-units.png");
-        scene.load.image("btnArmyGetFood", "assets/btn-army-get-food.png");
-        scene.load.image("btnArmyGetWood", "assets/btn-army-get-wood.png");
-        scene.load.image("btnArmyAttack", "assets/btn-army-attack.png");
-        scene.load.image("btnArmyAttackBuilding", "assets/btn-army-attack-building.png");
-        scene.load.image("btnArmyBuild", "assets/btn-army-build.png");
+        this.load.image("btnArmyGetUnits", "assets/btn-army-get-units.png");
+        this.load.image("btnArmyDisbandUnits", "assets/btn-army-disband-units.png");
+        this.load.image("btnArmyGetFood", "assets/btn-army-get-food.png");
+        this.load.image("btnArmyGetWood", "assets/btn-army-get-wood.png");
+        this.load.image("btnArmyAttack", "assets/btn-army-attack.png");
+        this.load.image("btnArmyAttackBuilding", "assets/btn-army-attack-building.png");
+        this.load.image("btnArmyBuild", "assets/btn-army-build.png");
 
         //ui, army build
-        scene.load.image("btnArmyCancel", "assets/btn-army-cancel.png");
-        scene.load.image("btnArmyBuildEast", "assets/btn-army-build-east.png");
-        scene.load.image("btnArmyBuildNorth", "assets/btn-army-build-north.png");
-        scene.load.image("btnArmyBuildSouth", "assets/btn-army-build-south.png");
-        scene.load.image("btnArmyBuildWest", "assets/btn-army-build-west.png");
-        scene.load.image("btnArmyBuildWallWood", "assets/btn-army-build-wall-wood.png");
+        this.load.image("btnArmyCancel", "assets/btn-army-cancel.png");
+        this.load.image("btnArmyBuildEast", "assets/btn-army-build-east.png");
+        this.load.image("btnArmyBuildNorth", "assets/btn-army-build-north.png");
+        this.load.image("btnArmyBuildSouth", "assets/btn-army-build-south.png");
+        this.load.image("btnArmyBuildWest", "assets/btn-army-build-west.png");
+        this.load.image("btnArmyBuildWallWood", "assets/btn-army-build-wall-wood.png");
     }
 
     create() {

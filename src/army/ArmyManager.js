@@ -250,8 +250,9 @@ export default class ArmyManager {
      * @param {Number} player player number
      * @param {Number} row 
      * @param {Number} col 
+     * @param {String} name
      */
-    createArmyFromCoordinate(player, row, col) {
+    createArmyFromCoordinate(player, row, col, name) {
 
         let scene = this.gameScene;
         let race = scene.playerRace[player];
@@ -265,6 +266,7 @@ export default class ArmyManager {
         let armySprite = UnitFactory.getUnitSprite(scene, row, col, race);
 
         let army = new Army(player, row, col);
+        army.name = name;
 
         //TODO: generate random name
 

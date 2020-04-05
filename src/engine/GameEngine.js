@@ -1,7 +1,10 @@
 import GameUtilsBuilding from "../utils/GameUtilsBuilding";
 import Village from "../buildings/villageBuildings/Village";
 
-
+/**
+ * Does the main game logic.
+ * Pre-move, move, post-move.
+ */
 export default class GameEngine {
 
     constructor(gameScene){
@@ -10,41 +13,41 @@ export default class GameEngine {
 
     //TODO: make it for every player
     endTurn() {
-        let scene = this.gameScene;
+        let gameScene = this.gameScene;
 
         //TODO: lock it
         //disable all game controls
-        scene.btnEndTurn.setTint(0xff0000);
+        gameScene.btnEndTurn.setTint(0xff0000);
 
         //unhighlight moves
-        if (scene.selectedArmy != null) {
-            scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves);
-            scene.selectedArmyPossibleMoves = null;
+        if (gameScene.selectedArmy != null) {
+            gameScene.board.unhighlightTiles(gameScene.selectedArmyPossibleMoves);
+            gameScene.selectedArmyPossibleMoves = null;
         }
 
-        scene.postTurnPhase(scene.turnOfPlayer);
+        gameScene.postTurnPhase(gameScene.turnOfPlayer);
 
         //TODO: fix this later
-        for (let i = 2; i <= scene.numPlayers; i++) {
-            scene.turnOfPlayer = i;
-            scene.calculateTurnAiPlayer(scene.turnOfPlayer);
+        for (let i = 2; i <= gameScene.numPlayers; i++) {
+            gameScene.turnOfPlayer = i;
+            gameScene.calculateTurnAiPlayer(gameScene.turnOfPlayer);
         }
 
         //TODO: disable button when needed
-        scene.day++;
+        gameScene.day++;
 
         //now player 1's turn
-        scene.turnOfPlayer = 1;
-        scene.preTurnPhase(scene.turnOfPlayer);
+        gameScene.turnOfPlayer = 1;
+        gameScene.preTurnPhase(gameScene.turnOfPlayer);
 
-        if (scene.selectedArmy != null)
-            scene.armyManager.showPossibleArmyMoves(scene.selectedArmy.data.get("data"));
+        if (gameScene.selectedArmy != null)
+            gameScene.armyManager.showPossibleArmyMoves(gameScene.selectedArmy.data.get("data"));
 
-        scene.btnEndTurn.clearTint();
+        gameScene.btnEndTurn.clearTint();
 
         console.log("===================================");
         console.log("\nstart of your turn: ");
-        scene.updateUI();
+        gameScene.updateUI();
     }
 
     /**
@@ -52,7 +55,6 @@ export default class GameEngine {
      * @param {Number} player 
      */
     calculateTurnAiPlayer(player) {
-
         console.log("calculating turn: player: " + player);
 
         this.preTurnPhase(player);

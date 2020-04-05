@@ -1,8 +1,8 @@
 import ArmyInfoScene from "./ui/scenes/ArmyInfoScene";
+import HumanVillageInfoScene from "./ui/scenes/HumanVillageInfoScene";
 
 import GameUtils from "./utils/GameUtils";
 import GameUtilsUi from "./utils/GameUtilsUi";
-import GameUtilsBuilding from "./utils/GameUtilsBuilding";
 
 import Board from "./board/Board";
 import TerrainObj from "./board/Terrain";
@@ -26,15 +26,19 @@ import BuildingManager from "./buildings/BuildingManager";
 
 //phaser imports
 import Phaser from "../node_modules/phaser/src/phaser";
-import Preloader from "./scenehelper/Preloader";
 
 // eslint-disable-next-line no-unused-vars
 import Army from "./army/Army";
 
+/**
+ * This scene draws out the board and players.
+ * It calls other sub scenes such as UI elements when needed
+ */
 export default class SceneGame extends Phaser.Scene {
 
     constructor() {
         super("SceneGame");
+        this.handle = "SceneGame";
 
         //TODO: separate scene from game info
 
@@ -43,7 +47,7 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: read all this stuff from external source
         //1-indexed
         this.playerRace = [
-            "",
+            "", //no player
             Race.CAVEMAN,
             Race.CAVEMAN,
             Race.RAT,
@@ -132,13 +136,16 @@ export default class SceneGame extends Phaser.Scene {
         //sprites
         this.playerArmies = [];
         this.playerBuildings = [];
+        for (let playerNum = 0; playerNum <= this.numPlayers; playerNum++) {
+            this.playerArmies[playerNum] = [];
+            this.playerBuildings[playerNum] = [];
+        }
+
+        this.playersAi = [];
 
         //ui for the human-player
         this.uiVillage = [];            //main village actions
         this.uiBuilding = [];           //main building actions
-        this.uiArmyText = [];
-        this.uiArmyButtons = [];        //main army actions
-        this.uiArmyBuildButtons = [];   //army build options
         this.uiArmyEnemy = [];          //options against enemy armies
         this.uiArmyEnemyBuilding = [];  //options against enemy buildings
 
@@ -148,22 +155,26 @@ export default class SceneGame extends Phaser.Scene {
         this.cam;
 
         //Phaser sprites, human-player selected
+        //TODO: data to be held in class: GameEngine.
         this.selectedVillage;
-        this.selectedBuilding;  //TODO: consolidate this and selectedVillage
+        this.selectedBuilding;  //TODO: consolidate this and selectedVillage?
         this.selectedArmy;
-        this.selectedBuyBuilding;
 
         this.selectedEnemyArmyCoordinates;     //{row, col}
         this.selectedArmyPossibleMoves;
         this.selectedVillageBuildings;
+
         //TODO: considate army and village moves
         this.possibleMoves;
 
-        this.armyManager;
+        //TODO: move this into gameengine
+        //managers
+        this.buildingManager = new BuildingManager(this);
+        this.armyManager = new ArmyManager(this);
 
         //sub-ui scenes
-        //TODO: clean up later
         this.armyInfoScene = new ArmyInfoScene(this);
+        this.humanVillageInfoScene = new HumanVillageInfoScene(this);
     }
 
     /**
@@ -171,7 +182,39 @@ export default class SceneGame extends Phaser.Scene {
      * preload assets that need downloading
      */
     preload() {
-        Preloader.preloadAssets(this);
+        //TODO: make a ton of enums for the keys
+
+        //terrain
+        this.load.image(TerrainSpriteName.GRASS, "assets/tile-grass.png");
+        this.load.image(TerrainSpriteName.OCEAN, "assets/tile-ocean.png");
+        this.load.image(TerrainSpriteName.HILL, "assets/tile-hill.png");
+        this.load.image(TerrainSpriteName.DESERT, "assets/tile-desert.png");
+        this.load.image(TerrainSpriteName.FOREST, "assets/tile-forest.png");
+        this.load.image("tileGrid", "assets/tile-grid.png");
+
+        //buildings
+        this.load.image("buildVillage", "assets/build-village.png");
+        this.load.image("buildRatCave", "assets/build-rat-cave.png");
+        this.load.image("buildFarm", "assets/build-farm.png");
+        this.load.image("buildLumberMill", "assets/build-lumber-mill.png");
+        this.load.image("buildQuarry", "assets/build-quarry.png");
+        this.load.image("buildHousing", "assets/build-housing.png");
+
+        /**
+         * ui stuff
+         */
+        this.load.image("btnEndTurn", "assets/btn-end-turn.png");
+
+        //ui, buildings
+        this.load.image("btnBuildDestroy", "assets/btn-build-destroy.png");
+
+        //armies
+        this.load.image("armyCat", "assets/army-cat.png");
+        this.load.image("armyCaveman", "assets/army-caveman.png");
+        this.load.image("armyGorilla", "assets/army-gorilla.png");
+        this.load.image("armyMeerkat", "assets/army-meerkat.png");
+        this.load.image("armyRat", "assets/army-rat.png");
+        this.load.image("armyTiger", "assets/army-tiger.png");
     }
 
     /**
@@ -181,25 +224,14 @@ export default class SceneGame extends Phaser.Scene {
         /**
          * pre init
          */
-        this.playerBuildings = [];
-        this.playerArmies = [];
-        for (let playerNum = 0; playerNum <= this.numPlayers; playerNum++) {
-            this.playerBuildings[playerNum] = [];
-            this.playerArmies[playerNum] = [];
-        }
-
-        this.playersAi = [];
-
-        this.buildingManager = new BuildingManager(this);
-        this.armyManager = new ArmyManager(this);
-
         let x, y;
         let tempImage, tempSprite, tempText;
 
-        let handle = this.armyInfoScene.handle;
-        let autoStart = true;
-        this.scene.add(handle, this.armyInfoScene, autoStart);
-        this.scene.setVisible(false, handle);
+        /**
+         * init scenes
+         */
+        this.initSubScene(this.armyInfoScene);
+        this.initSubScene(this.humanVillageInfoScene);
 
         /**
         * draw the terrain
@@ -320,81 +352,30 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: experiment with overlapping scenes
         y = -375;
 
+        //TODO: move to PlayerTimeScene
         //button, end turn
-        this.btnEndTurn = this.add.sprite(1050, 1100, "btnEndTurn")
-            .setScrollFactor(0)
-            .setInteractive()
-            .setDepth(100)
-            .on("pointerdown", this.clickedEndTurn);
+        this.btnEndTurn = this.createUiButtonHelper(1050, 1100, "btnEndTurn", this.clickedEndTurn);
 
         /**
-         * UI - village
+         * placing units
          */
-        //TODO: pull this out to a scene on top of another scene.
-
         //TODO: temporary, place gorillas
         let gorillaPlayerNumber = 6;
-        let armySprite = this.armyManager.createArmyFromCoordinate(gorillaPlayerNumber, 3, 10);
-        armySprite.getData("data").name = "Atomrilla";
+        this.armyManager.createArmyFromCoordinate(gorillaPlayerNumber, 3, 10, "Atomrilla");
 
         //TODO: temporary, place tigers
         let tigerPlayerNumber = 7;
-        armySprite = this.armyManager.createArmyFromCoordinate(tigerPlayerNumber, 6, 12);
-        armySprite.getData("data").name = "Mad Katz";
-
-        armySprite = this.armyManager.createArmyFromCoordinate(tigerPlayerNumber, 14, 4);
-        armySprite.getData("data").name = "Tree Katz";
+        this.armyManager.createArmyFromCoordinate(tigerPlayerNumber, 6, 12, "Mad Katz");
+        this.armyManager.createArmyFromCoordinate(tigerPlayerNumber, 14, 4, "Tree Katz");
 
         //TODO: temporary, place meerkats
         let meerkatPlayerNumber = 8;
-        armySprite = this.armyManager.createArmyFromCoordinate(meerkatPlayerNumber, 9, 3);
-        armySprite.getData("data").name = "Timons";
-
-        armySprite = this.armyManager.createArmyFromCoordinate(meerkatPlayerNumber, 13, 5);
-        armySprite.getData("data").name = "Pumbas";
+        this.armyManager.createArmyFromCoordinate(meerkatPlayerNumber, 9, 3, "Timons");
+        this.armyManager.createArmyFromCoordinate(meerkatPlayerNumber, 13, 5, "Pumbas");
 
         //TODO: temporary, place cats
         let catPlayerNumber = 9;
-        armySprite = this.armyManager.createArmyFromCoordinate(catPlayerNumber, 4, 13);
-        armySprite.getData("data").name = "Krazy Kats";
-
-        y = -120;
-
-        this.txtVillagePopulation = this.createUiTextHelper(-375, y);
-        this.txtVillageFood = this.createUiTextHelper(-375, y + 60);
-        this.txtVillageStone = this.createUiTextHelper(-375, y + 120);
-        this.txtVillageWood = this.createUiTextHelper(-375, y + 180);
-
-        this.btnCreateArmy = this.createUiButtonHelper(-200, y + 300, "btnCreateArmy", this.armyManager.createArmyButton);
-        this.btnBuildFarm = this.createUiButtonHelper(-200, y + 440, "btnBuildFarm")
-            .on("pointerdown", function (pointer) {
-                this.scene.buildingManager.clickedBuyBuilding(pointer, this, "Farm");
-            });
-
-        this.btnBuildLumberMill = this.createUiButtonHelper(-200, y + 580, "btnBuildLumberMill")
-            .on("pointerdown", function (pointer) {
-                this.scene.buildingManager.clickedBuyBuilding(pointer, this, "LumberMill");
-            });
-
-        this.btnBuildQuarry = this.createUiButtonHelper(-200, y + 720, "btnBuildQuarry")
-            .on("pointerdown", function (pointer) {
-                this.scene.buildingManager.clickedBuyBuilding(pointer, this, "Quarry");
-            });
-
-        this.btnBuildHousing = this.createUiButtonHelper(-200, y + 860, "btnBuildHousing")
-            .on("pointerdown", function (pointer) {
-                this.scene.buildingManager.clickedBuyBuilding(pointer, this, "Housing");
-            });
-
-        this.uiVillage.push(this.txtVillagePopulation);
-        this.uiVillage.push(this.txtVillageFood);
-        this.uiVillage.push(this.txtVillageStone);
-        this.uiVillage.push(this.txtVillageWood);
-        this.uiVillage.push(this.btnCreateArmy);
-        this.uiVillage.push(this.btnBuildFarm);
-        this.uiVillage.push(this.btnBuildLumberMill);
-        this.uiVillage.push(this.btnBuildQuarry);
-        this.uiVillage.push(this.btnBuildHousing);
+        this.armyManager.createArmyFromCoordinate(catPlayerNumber, 4, 13, "Krazy Kats");
 
         /**
          * UI - building
@@ -536,8 +517,18 @@ export default class SceneGame extends Phaser.Scene {
 
         //TODO:center to player 1 center. remove? make more dynamic?
         this.cam.pan(1000, 2000, 1000);
+    }
 
-
+    /**
+     * init a sub scene for possible future use. hidden at first
+     * should only be used by create()
+     * @param {Phaser.Scene} scene scene object
+     */
+    initSubScene(subScene) {
+        let handle = subScene.handle;
+        let autoStart = false;
+        this.scene.add(handle, subScene, autoStart);
+        this.scene.setVisible(false, handle);
     }
 
     /**
@@ -569,8 +560,10 @@ export default class SceneGame extends Phaser.Scene {
             .setDepth(100)
             .setOrigin(0);
 
-        if (buttonFunc)
-            uiButtonElement.on("pointerdown", buttonFunc);
+        if (buttonFunc) {
+            let bindTo = this;
+            uiButtonElement.on("pointerdown", buttonFunc, bindTo);
+        }
 
         return uiButtonElement;
     }
@@ -592,59 +585,21 @@ export default class SceneGame extends Phaser.Scene {
         this.txtDay.setText("Day: " + gameScene.day);
 
         //village UI
-        if (gameScene.selectedVillage != null) {
-            gameScene.selectedVillage.setTint("0xffff00");
-
-            //show village buttons
-            GameUtils.clearTintArray(gameScene.uiVillage);
-            GameUtilsUi.showGameObjects(gameScene.uiVillage);
-
-            let village = gameScene.selectedVillage.data.get("data");
-
-            //TODO: put this in some sort of village manager. updateUi should do no calcs
-            let coordinates = gameScene.buildingManager.getVillageBuildings(village);
-            let buildingsData = gameScene.board.getBuildingsData(coordinates);
-            let countsOfBuildings = GameUtilsBuilding.countBuildings(buildingsData);
-            village.calculateIncome(countsOfBuildings);
-
-            let populationGrowth = village.getPopulationGrowthDay(countsOfBuildings.countHousing);
-
-            gameScene.txtVillagePopulation.setText("Population: " + village.population + " (" + populationGrowth + ")");
-            gameScene.txtVillageFood.setText("Food: " + village.amountFood + " (" + village.incomeFood + ")");
-            gameScene.txtVillageStone.setText("Stone: " + village.amountStone + " (" + village.incomeStone + ")");
-            gameScene.txtVillageWood.setText("Wood: " + village.amountWood + " (" + village.incomeWood + ")");
-
-            //depopulation warning 
-            gameScene.btnCreateArmy.clearTint();
-            if (village.population == 10)
-                gameScene.btnCreateArmy.setTint("0xffff00");
-
-            //TODO: set red tint variable in some global config file
-            //TODO: change this later. more dynamic
-            if (village.amountWood < 100) {
-                gameScene.btnBuildFarm.setTint("0xff0000");
-                gameScene.btnBuildHousing.setTint("0xff0000");
-                gameScene.btnBuildLumberMill.setTint("0xff0000");
-                gameScene.btnBuildQuarry.setTint("0xff0000");
-            }
-
-            if (gameScene.selectedBuyBuilding != null) {
-                gameScene.selectedBuyBuilding = null;
-                gameScene.board.unhighlightTiles(gameScene.possibleMoves);
-            }
+        if (this.selectedVillage != null) {
+            this.resetAndTurnOnScene(this.humanVillageInfoScene);
         }
 
         //building UI
-        if (gameScene.selectedBuilding != null) {
-            GameUtilsUi.showGameObjects(gameScene.uiBuilding);
+        if (this.selectedBuilding != null) {
+            GameUtilsUi.showGameObjects(this.uiBuilding);
 
-            let building = gameScene.selectedBuilding.getData("data");
-            gameScene.txtBuildName.setText(building.name);
+            let building = this.selectedBuilding.getData("data");
+            this.txtBuildName.setText(building.name);
         }
 
         //army UI
-        if (gameScene.selectedArmy != null) {
-         
+        if (this.selectedArmy != null) {
+
             //turn on scene
             this.resetAndTurnOnScene(this.armyInfoScene);
         }
@@ -760,7 +715,7 @@ export default class SceneGame extends Phaser.Scene {
             this.selectedArmy.clearTint();
             this.board.unhighlightTiles(this.selectedArmyPossibleMoves);
             this.selectedArmy = null;
-            
+
             this.turnOffScene(this.armyInfoScene);
         }
 

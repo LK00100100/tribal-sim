@@ -1,7 +1,6 @@
 import Village from "./villageBuildings/Village";
 import BuildingFactory from "./BuildingFactory";
 
-import GameUtils from "../utils/GameUtils";
 import GameUtilsBoard from "../utils/GameUtilsBoard";
 
 export default class BuildingManager {
@@ -124,42 +123,6 @@ export default class BuildingManager {
         }
 
         return answer;
-    }
-
-    clickedBuyBuilding(pointer, gameSprite, buildingType) {
-        let scene = gameSprite.scene;
-
-        if (pointer.rightButtonDown())
-            return;
-
-
-        let village = scene.selectedVillage.data.get("data");
-
-        //TODO: ensure enough resources from this specific building
-        if (village.amountWood < 100) {
-            console.log("not enough wood. need 100");
-            return;
-        }
-
-        //deselect
-        if (gameSprite.isTinted) {
-            gameSprite.clearTint();
-            scene.board.unhighlightTiles(scene.possibleMoves);
-            scene.possibleMoves = null;
-            scene.selectedBuyBuilding = null;
-            return;
-        }
-
-        console.log("before: build a " + buildingType);
-
-        scene.selectedBuyBuilding = buildingType;
-        GameUtils.clearTintArray(scene.uiVillage);
-        gameSprite.setTint("0x00ff00");
-
-        scene.possibleMoves = scene.buildingManager.getVillageBuildings(village);
-        scene.possibleMoves = scene.buildingManager.getBuildableNeighbors(scene.possibleMoves);
-
-        scene.board.highlightTiles(scene.possibleMoves);
     }
 
     /**
