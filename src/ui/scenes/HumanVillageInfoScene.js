@@ -20,7 +20,8 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         this.selectedBuyBuilding;
 
         //ui elements
-        this.uiVillage = [];
+        this.uiVillageText = [];
+        this.uiVillageButtons = [];
     }
 
     preload() {
@@ -35,7 +36,7 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
     create() {
         let gameScene = this.gameScene;
 
-        let y;
+        let x, y;
 
         //set cam
         var zoomLevel = 0.5;
@@ -44,42 +45,45 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         /**
          * UI - village
          */
+        x = -350;
         y = -120;
 
-        this.txtVillagePopulation = this.createUiTextHelper(-375, y);
-        this.txtVillageStone = this.createUiTextHelper(-375, y + 120);
-        this.txtVillageWood = this.createUiTextHelper(-375, y + 180);
+        this.txtVillagePopulation = this.createUiTextHelper(x, y);
+        this.txtVillageFood = this.createUiTextHelper(x, y + 60);
+        this.txtVillageStone = this.createUiTextHelper(x, y + 120);
+        this.txtVillageWood = this.createUiTextHelper(x, y + 180);
 
-        this.btnCreateArmy = this.createUiButtonHelper(-200, y + 300, "btnCreateArmy", gameScene.armyManager.createArmyButton);
-        this.btnBuildFarm = this.createUiButtonHelper(-200, y + 440, "btnBuildFarm")
+        this.btnCreateArmy = this.createUiButtonHelper(x, y + 300, "btnCreateArmy", gameScene.armyManager.createArmyButton);
+        this.btnBuildFarm = this.createUiButtonHelper(x, y + 440, "btnBuildFarm")
             .on("pointerdown", function (pointer) {
                 gameScene.buildingManager.clickedBuyBuilding(pointer, this, "Farm");
             }, this);
 
-        this.btnBuildLumberMill = this.createUiButtonHelper(-200, y + 580, "btnBuildLumberMill")
+        this.btnBuildLumberMill = this.createUiButtonHelper(x, y + 580, "btnBuildLumberMill")
             .on("pointerdown", function (pointer) {
                 gameScene.buildingManager.clickedBuyBuilding(pointer, this, "LumberMill");
             }, this);
 
-        this.btnBuildQuarry = this.createUiButtonHelper(-200, y + 720, "btnBuildQuarry")
+        this.btnBuildQuarry = this.createUiButtonHelper(x, y + 720, "btnBuildQuarry")
             .on("pointerdown", function (pointer) {
                 gameScene.buildingManager.clickedBuyBuilding(pointer, this, "Quarry");
             }, this);
 
-        this.btnBuildHousing = this.createUiButtonHelper(-200, y + 860, "btnBuildHousing")
+        this.btnBuildHousing = this.createUiButtonHelper(x, y + 860, "btnBuildHousing")
             .on("pointerdown", function (pointer) {
                 gameScene.buildingManager.clickedBuyBuilding(pointer, this, "Housing");
             }, this);
 
-        this.uiVillage.push(this.txtVillagePopulation);
-        this.uiVillage.push(this.txtVillageFood);
-        this.uiVillage.push(this.txtVillageStone);
-        this.uiVillage.push(this.txtVillageWood);
-        this.uiVillage.push(this.btnCreateArmy);
-        this.uiVillage.push(this.btnBuildFarm);
-        this.uiVillage.push(this.btnBuildLumberMill);
-        this.uiVillage.push(this.btnBuildQuarry);
-        this.uiVillage.push(this.btnBuildHousing);
+        this.uiVillageButtons.push(this.txtVillagePopulation);
+        this.uiVillageButtons.push(this.txtVillageFood);
+        this.uiVillageButtons.push(this.txtVillageStone);
+        this.uiVillageButtons.push(this.txtVillageWood);
+
+        this.uiVillageText.push(this.btnCreateArmy);
+        this.uiVillageText.push(this.btnBuildFarm);
+        this.uiVillageText.push(this.btnBuildLumberMill);
+        this.uiVillageText.push(this.btnBuildQuarry);
+        this.uiVillageText.push(this.btnBuildHousing);
     }
 
     //TODO: refactor to gameutils for this, army infoscene, and gamescene
@@ -124,9 +128,10 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         let gameScene = this.gameScene;
         gameScene.selectedVillage.setTint("0xffff00");
 
-        //show village buttons
-        GameUtils.clearTintArray(this.uiVillage);
-        GameUtilsUi.showGameObjects(this.uiVillage);
+        //show village ui
+        GameUtils.clearTintArray(this.uiVillageButtons);
+        GameUtilsUi.showGameObjects(this.uiVillageText);
+        GameUtilsUi.showGameObjects(this.uiVillageButtons);
 
         let village = gameScene.selectedVillage.data.get("data");
 

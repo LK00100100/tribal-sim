@@ -175,6 +175,8 @@ export default class SceneGame extends Phaser.Scene {
         //sub-ui scenes
         this.armyInfoScene = new ArmyInfoScene(this);
         this.humanVillageInfoScene = new HumanVillageInfoScene(this);
+
+        console.log("REE");
     }
 
     /**
@@ -526,7 +528,7 @@ export default class SceneGame extends Phaser.Scene {
      */
     initSubScene(subScene) {
         let handle = subScene.handle;
-        let autoStart = false;
+        let autoStart = true;
         this.scene.add(handle, subScene, autoStart);
         this.scene.setVisible(false, handle);
     }
@@ -613,7 +615,6 @@ export default class SceneGame extends Phaser.Scene {
      */
     resetAndTurnOnScene(scene) {
         let handle = scene.handle;
-
         scene.resetUi();
         scene.scene.setVisible(true, handle);
     }
@@ -727,7 +728,6 @@ export default class SceneGame extends Phaser.Scene {
 
     //only used for moving armies.
     clickedTerrain(pointer) {
-
         console.log("terrain clicked...");
 
         let scene = this.scene;
@@ -762,27 +762,30 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     clickedBuilding(pointer) {
-        let scene = this.scene;
+        //this = selectedBuildingSprite
+        let gameScene = this.scene;
 
         console.log("building clicked");
 
         let building = this.getData("data");
         console.log(building.health);
 
+        //select
         if (pointer.leftButtonDown()) {
-            scene.deselectEverything();
+            gameScene.deselectEverything();
 
-            if (building.player == scene.playerHuman)
-                scene.selectedBuilding = this;
+            if (building.player == gameScene.playerHuman)
+                gameScene.selectedBuilding = this;
 
-            scene.updateUi();
+            gameScene.updateUi();
         }
 
+        //commit 
         if (pointer.rightButtonDown()) {
-            if (scene.selectedArmy == null)
+            if (gameScene.selectedArmy == null)
                 return;
 
-            scene.processArmyAction(this);
+            gameScene.processArmyAction(this);
             return;
         }
 
@@ -841,11 +844,6 @@ export default class SceneGame extends Phaser.Scene {
 
         }
 
-    }
-
-    //TODO: refactor elsewhere
-    hideUiArmyBuildButtons() {
-        GameUtilsUi.hideGameObjects(this.uiArmyBuildButtons);
     }
 
     /**
