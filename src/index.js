@@ -8,7 +8,7 @@ var config = {
     type: Phaser.AUTO,
     width: 800,
     height: 800,
-    scene: [sceneGame]  //TODO: put more scenes here
+    scene: [sceneGame]  //TODO: put more scenes here. main menu?
 };
 
 window.game = new Phaser.Game(config);

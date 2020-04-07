@@ -1,7 +1,6 @@
 import ArmyInfoScene from "./ui/scenes/ArmyInfoScene";
 import HumanVillageInfoScene from "./ui/scenes/HumanVillageInfoScene";
 
-import GameUtils from "./utils/GameUtils";
 import GameUtilsUi from "./utils/GameUtilsUi";
 
 import Board from "./board/Board";
@@ -142,6 +141,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //for input and camera
         this.controls;
+        this.defaultZoomLevel = 0.5;
 
         this.day;   //what day on earth it is. ex: Day 100
 
@@ -357,8 +357,6 @@ export default class SceneGame extends Phaser.Scene {
         this.txtDay = this.createUiTextHelper(1180, 980)
             .setOrigin(1, 0); //right-to-left text;
 
-        //TODO: consolidate texts?
-        //TODO: experiment with overlapping scenes
         y = -375;
 
         //TODO: move to PlayerTimeScene
@@ -444,7 +442,6 @@ export default class SceneGame extends Phaser.Scene {
         this.txtEnemyBuildingHealth = this.createUiTextHelper(x, y + 300)
             .setOrigin(1, 0); //right-to-left text
 
-
         this.btnEnemyBuildingAttack = this.createUiButtonHelper(-200, y + 660, "btnArmyAttackBuilding", this.armyManager.clickedArmyAttackBuilding)
             .setOrigin(1, 0); //right-to-left text
 
@@ -476,8 +473,7 @@ export default class SceneGame extends Phaser.Scene {
 
         this.controls = new Phaser.Cameras.Controls.SmoothedKeyControl(controlConfig);
         this.cam = this.cameras.main;
-        var zoomLevel = 0.5;
-        this.cam.setBounds(0, 0, 5000, 6000).setZoom(zoomLevel);
+        this.cam.setBounds(0, 0, 5000, 6000).setZoom(this.defaultZoomLevel);
 
         /**
          * keyboard
@@ -496,6 +492,12 @@ export default class SceneGame extends Phaser.Scene {
             console.log("shift key!");
             this.gameEngine.endTurn();
         }, this);
+
+        this.input.keyboard.on("keydown_R", function () {
+            console.log("r!");
+            let gameScene = this.scene;
+            gameScene.cam.setZoom(gameScene.defaultZoomLevel);
+        });
 
         /**
         * mouse
@@ -769,13 +771,6 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    clickedRatCave() {
-
-        //let scene = this.scene;
-        console.log("clicked rat cave");
-
-    }
-
     clickedBuilding(pointer) {
         //this = selectedBuildingSprite
         let gameScene = this.scene;
@@ -806,60 +801,6 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
-    //TODO: move to armyManager
-    /**
-     * process army action such as move to targetSprite
-     * @param {*} targetSprite building or terrain sprite
-     */
-    processArmyAction(targetSprite) {
-
-        let scene = this;
-        let targetRow = targetSprite.data.get("row");
-        let targetCol = targetSprite.data.get("col");
-
-        if (scene.selectedArmy == null)
-            return;
-
-        let armySprite = scene.selectedArmy;
-        let army = armySprite.getData("data");
-
-        let playerOwner = scene.board.getTileOwnership(targetRow, targetCol);
-        let selectedArmyRow = armySprite.data.get("data").row;
-        let selectedArmyCol = armySprite.data.get("data").col;
-
-        //own square
-        if (army.row == targetRow && army.col == targetCol) {
-            return; //do nothing
-        }
-
-        //empty terrain
-        if (playerOwner == 0) {
-            scene.armyManager.moveArmyPlayer(armySprite, targetSprite);
-        }
-        //enemy terrain
-        else {
-            //if adjacent, show attack info screen
-            if (GameUtils.areAdjacent(selectedArmyRow, selectedArmyCol, targetRow, targetCol)) {
-                console.log("attack!");
-
-                scene.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
-                scene.showUiArmyEnemy(targetRow, targetCol);
-                scene.cam.pan(armySprite.x, armySprite.y, 500);
-            }
-            //move closer
-            else {
-                console.log("too far to attack! moving closer!");
-                scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves);
-
-                scene.armyManager.moveArmyCloser(armySprite, targetSprite);
-
-                scene.selectedArmyPossibleMoves = scene.armyManager.getPossibleMovesArmy(armySprite);
-                scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
-            }
-
-        }
-
-    }
 
     /**
      * updates and shows UI

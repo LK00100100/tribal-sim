@@ -858,5 +858,58 @@ export default class ArmyManager {
         return this.getPossibleMoves(army.row, army.col, army.moveAmount);
     }
 
+    
+    /**
+     * process army action such as move to targetSprite
+     * @param {*} targetSprite building or terrain sprite
+     */
+    processArmyAction(targetSprite) {
+        let gameScene = this.gameScene;
+        let targetRow = targetSprite.data.get("row");
+        let targetCol = targetSprite.data.get("col");
+
+        if (gameScene.selectedArmy == null)
+            return;
+
+        let armySprite = gameScene.selectedArmy;
+        let army = armySprite.getData("data");
+
+        let playerOwner = gameScene.board.getTileOwnership(targetRow, targetCol);
+        let selectedArmyRow = armySprite.data.get("data").row;
+        let selectedArmyCol = armySprite.data.get("data").col;
+
+        //own square
+        if (army.row == targetRow && army.col == targetCol) {
+            return; //do nothing
+        }
+
+        //empty terrain
+        if (playerOwner == 0) {
+            gameScene.armyManager.moveArmyPlayer(armySprite, targetSprite);
+        }
+        //enemy terrain
+        else {
+            //if adjacent, show attack info screen
+            if (GameUtils.areAdjacent(selectedArmyRow, selectedArmyCol, targetRow, targetCol)) {
+                console.log("attack!");
+
+                gameScene.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
+                gameScene.showUiArmyEnemy(targetRow, targetCol);
+                gameScene.cam.pan(armySprite.x, armySprite.y, 500);
+            }
+            //move closer
+            else {
+                console.log("too far to attack! moving closer!");
+                gameScene.board.unhighlightTiles(gameScene.selectedArmyPossibleMoves);
+
+                gameScene.armyManager.moveArmyCloser(armySprite, targetSprite);
+
+                gameScene.selectedArmyPossibleMoves = gameScene.armyManager.getPossibleMovesArmy(armySprite);
+                gameScene.board.highlightTiles(gameScene.selectedArmyPossibleMoves);
+            }
+
+        }
+
+    }
 
 }
