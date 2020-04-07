@@ -2,23 +2,24 @@ import Village from "./villageBuildings/Village";
 import BuildingFactory from "./BuildingFactory";
 
 import GameUtilsBoard from "../utils/GameUtilsBoard";
+import SceneGame from "../SceneGame";
 
 export default class BuildingManager {
 
-    constructor(scene) {
-        this.scene = scene;
+    constructor(gameScene) {
+        this.gameScene = gameScene;
     }
 
     //TODO: move to UI manager?
     clickedDestroyBuilding() {
-        let scene = this.scene;
+        let gameScene = this.gameScene;
 
         console.log("destroying building");
 
-        scene.buildingManager.destroyBuilding(scene.selectedBuilding);
+        gameScene.buildingManager.destroyBuilding(gameScene.selectedBuilding);
 
-        scene.deselectEverything();
-        scene.updateUI();
+        gameScene.deselectEverything();
+        gameScene.updateUi();
     }
 
     /**
@@ -28,7 +29,7 @@ export default class BuildingManager {
      * @param {*} buildingSprite 
      */
     addBuildingToBoard(row, col, buildingSprite) {
-        let scene = this.scene;
+        let scene = this.gameScene;
         scene.board.boardBuildings[row][col] = buildingSprite;
     }
 
@@ -37,7 +38,7 @@ export default class BuildingManager {
      * @param {*} buildingSprite 
      */
     destroyBuilding(buildingSprite) {
-        let scene = this.scene;
+        let scene = this.gameScene;
 
         let building = buildingSprite.getData("data");
         let row = building.row;
@@ -79,7 +80,7 @@ export default class BuildingManager {
      * @param {*} visited - a set of visited coordinates 
      */
     getVillageBuildingsHelper(targetVillage, row, col, visited) {
-        let scene = this.scene;
+        let scene = this.gameScene;
         let board = scene.board;
 
         let answer = [];
@@ -132,8 +133,8 @@ export default class BuildingManager {
      * @param {*} buildingType text of building ("Farm", "Quarry")
      */
     placeBuilding(selectedVillage, terrainSprite, buildingType) {
-        let scene = this.scene;
-        let board = scene.board;
+        let gameScene = this.gameScene;
+        let board = gameScene.board;
         let row = terrainSprite.getData("row");
         let col = terrainSprite.getData("col");
         let x = GameUtilsBoard.convertColToPixel(col);
@@ -154,55 +155,57 @@ export default class BuildingManager {
         
         let building = BuildingFactory.getVillageBuilding(buildingType, row, col, village);
         //TODO: move this?
-        let tempSprite = scene.add.sprite(x, y, "build" + buildingType)
+        let tempSprite = gameScene.add.sprite(x, y, "build" + buildingType)
             .setInteractive()
             .setDataEnabled()
             .setDepth(1)
-            .on("pointerdown", scene.clickedBuilding);
+            .on("pointerdown", gameScene.clickedBuilding);
 
         tempSprite.data.set("row", row);
         tempSprite.data.set("col", col);
         tempSprite.data.set("data", building);
 
         board.boardBuildings[row][col] = tempSprite;
-        scene.playerBuildings[village.player].push(tempSprite);
+        gameScene.playerBuildings[village.player].push(tempSprite);
     }
 
     placeBuildingPlayer(pointer, terrainSprite) {
-        let scene = this.scene;
-        let board = scene.board;
+        /** @type {SceneGame} */
+        let gameScene = this.gameScene;
+        let board = gameScene.board;
 
         let row = terrainSprite.data.get("row");
         let col = terrainSprite.data.get("col");
 
-        if (scene.selectedBuyBuilding == null)
+        if (gameScene.selectedBuyBuilding == null)
             return;
 
-        if (scene.possibleMoves == null)
+        if (gameScene.possibleMoves == null)
             return;
 
-        if (scene.selectedVillage == null)
+        if (gameScene.selectedVillage == null)
             return;
 
         //not in possible moves
         let isIn = false;
-        for (let i = 0; i < scene.possibleMoves.length; i++) {
-            if (scene.possibleMoves[i].row == row && scene.possibleMoves[i].col == col)
+        for (let i = 0; i < gameScene.possibleMoves.length; i++) {
+            if (gameScene.possibleMoves[i].row == row && gameScene.possibleMoves[i].col == col)
                 isIn = true;
         }
 
         if (!isIn)
             return false;
 
-        scene.buildingManager.placeBuilding(scene.selectedVillage, terrainSprite, scene.selectedBuyBuilding);
+        gameScene.buildingManager.placeBuilding(gameScene.selectedVillage, terrainSprite, gameScene.selectedBuyBuilding);
 
         //re-calculate income
-        scene.updateUI();
+        gameScene.updateUi();
 
         //we're done here
-        board.unhighlightTiles(scene.possibleMoves);
-        scene.possibleMoves = null;
-        scene.selectedBuyBuilding = null;
+        board.unhighlightTiles(gameScene.possibleMoves);
+        gameScene.possibleMoves = null;
+        gameScene.selectedBuyBuilding = null;
+        gameScene.humanVillageInfoScene.updateUi();
     }
 
     /**
@@ -210,7 +213,7 @@ export default class BuildingManager {
      * @param {*} tiles 
      */
     getBuildableNeighbors(tiles) {
-        let board = this.scene.board;
+        let board = this.gameScene.board;
 
         let answer = [];
 

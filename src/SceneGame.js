@@ -173,6 +173,7 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: data to be held in class: GameEngine.
         this.selectedVillage;
         this.selectedBuilding;  //TODO: consolidate this and selectedVillage?
+        this.selectedBuyBuilding;
         this.selectedArmy;
 
         this.selectedEnemyArmyCoordinates;     //{row, col}
@@ -743,29 +744,33 @@ export default class SceneGame extends Phaser.Scene {
         }
     }
 
-    //only used for moving armies.
+    /**
+     * used for moving armies or placing buildings
+     * @param {Phaser.Pointer} pointer 
+     */
     clickedTerrain(pointer) {
+        let terrainSprite = this;
+        /** @type {SceneGame} */
+        let gameScene = this.scene;
         console.log("terrain clicked...");
-
-        let scene = this.scene;
 
         if (pointer.leftButtonDown()) {
 
             //place building
-            if (scene.selectedBuyBuilding != null) {
+            if (gameScene.selectedBuyBuilding != null) {
                 //TODO: move building stuff
-                scene.buildingManager.placeBuildingPlayer(pointer, this);
+                gameScene.buildingManager.placeBuildingPlayer(pointer, terrainSprite);
                 return;
             }
 
-            this.scene.deselectEverything();
+            gameScene.deselectEverything();
             return;
         }
 
         if (pointer.rightButtonDown()) {
             //process action of army of player 1
-            if (scene.selectedArmy != null) {
-                scene.processArmyAction(this);
+            if (gameScene.selectedArmy != null) {
+                gameScene.armyManager.processArmyAction(this);
             }
         }
 

@@ -20,9 +20,6 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
 
         this.gameScene = gameScene;
 
-        /** @type {String} */
-        this.selectedBuyBuilding; //TODO: should be enum
-
         //ui elements
         this.uiVillageText = [];
         this.uiVillageButtons = [];
@@ -143,6 +140,11 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
 
     }
 
+    //TODO: write more if needed
+    updateUi(){
+        this.resetUi();
+    }
+
     /**
      * main village actions
      */
@@ -162,16 +164,18 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         gameScene.updateUi();
     }
 
+    //TODO: repeated code
+
     clickedBuyFarm(pointer) {
         if (pointer.rightButtonDown())
             return;
 
         this.deselectBuyBuilding();
 
-        this.selectedBuyBuilding = "Farm";
+        let buyBuilding = "Farm";
         this.btnBuildFarm.setTint("0x00ff00");
 
-        this.preBuyBuilding();
+        this.preBuyBuilding(buyBuilding);
     }
 
     clickedBuyQuarry(pointer) {
@@ -180,10 +184,10 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
 
         this.deselectBuyBuilding();
 
-        this.selectedBuyBuilding = "Quuary";
+        let buyBuilding = "Quarry";
         this.btnBuildQuarry.setTint("0x00ff00");
 
-        this.preBuyBuilding();
+        this.preBuyBuilding(buyBuilding);
     }
 
     clickedBuyLumberMill(pointer) {
@@ -192,10 +196,10 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
 
         this.deselectBuyBuilding();
 
-        this.selectedBuyBuilding = "LumberMill";
+        let buyBuilding = "LumberMill";
         this.btnBuildLumberMill.setTint("0x00ff00");
 
-        this.preBuyBuilding();
+        this.preBuyBuilding(buyBuilding);
     }
 
     clickedBuyHousing(pointer) {
@@ -204,10 +208,10 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
 
         this.deselectBuyBuilding();
 
-        this.selectedBuyBuilding = "Housing";
+        let buyBuilding = "Housing";
         this.btnBuildHousing.setTint("0x00ff00");
 
-        this.preBuyBuilding();
+        this.preBuyBuilding(buyBuilding);
     }
 
     /**
@@ -229,10 +233,10 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
      * Show the user build options
      * @param {String} buildingType 
      */
-    preBuyBuilding() {
+    preBuyBuilding(buildingType) {
         let gameScene = this.gameScene;
 
-        let buildingType = this.selectedBuyBuilding;
+        gameScene.selectedBuyBuilding = buildingType;
 
         let village = gameScene.selectedVillage.data.get("data");
 

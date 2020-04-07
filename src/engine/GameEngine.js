@@ -48,7 +48,7 @@ export default class GameEngine {
 
         console.log("===================================");
         console.log("\nstart of your turn: ");
-        gameScene.updateUi();
+        gameScene.deselectEverything();
     }
 
     /**
