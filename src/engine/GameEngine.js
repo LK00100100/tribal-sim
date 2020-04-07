@@ -14,11 +14,13 @@ export default class GameEngine {
 
     //TODO: make it for every player
     endTurn() {
+        /** @type SceneGame */
         let gameScene = this.gameScene;
+        let timeInfoScene = gameScene.timeInfoScene;
 
         //TODO: lock it
         //disable all game controls
-        gameScene.btnEndTurn.setTint(0xff0000);
+        timeInfoScene.btnEndTurn.setTint(0xff0000);
 
         //unhighlight moves
         if (gameScene.selectedArmy != null) {
@@ -44,7 +46,7 @@ export default class GameEngine {
         if (gameScene.selectedArmy != null)
             gameScene.armyManager.showPossibleArmyMoves(gameScene.selectedArmy.data.get("data"));
 
-        gameScene.btnEndTurn.clearTint();
+        timeInfoScene.btnEndTurn.clearTint();
 
         console.log("===================================");
         console.log("\nstart of your turn: ");

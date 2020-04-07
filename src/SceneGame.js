@@ -29,6 +29,7 @@ import Phaser from "../node_modules/phaser/src/phaser";
 // eslint-disable-next-line no-unused-vars
 import Army from "./army/Army";
 import GameEngine from "./engine/GameEngine";
+import TimeInfoScene from "./ui/scenes/TimeInfoScene";
 
 /**
  * This scene draws out the board and players.
@@ -192,6 +193,7 @@ export default class SceneGame extends Phaser.Scene {
         this.alreadyOnScenes = new Set(); //unique handle strings.
         this.armyInfoScene;
         this.humanVillageInfoScene;
+        this.timeInfoScene;
     }
 
     /**
@@ -220,7 +222,6 @@ export default class SceneGame extends Phaser.Scene {
         /**
          * ui stuff
          */
-        this.load.image("btnEndTurn", "assets/btn-end-turn.png");
 
         //ui, buildings
         this.load.image("btnBuildDestroy", "assets/btn-build-destroy.png");
@@ -302,28 +303,28 @@ export default class SceneGame extends Phaser.Scene {
 
             //TODO: pull this out to a building factory
             switch (building.type) {
-            case "village":
-                switch (race) {
-                case Race.CAVEMAN:
-                    imageName = "buildVillage";
-                    break;
-                case Race.RAT:
-                    imageName = "buildRatCave";
+                case "village":
+                    switch (race) {
+                        case Race.CAVEMAN:
+                            imageName = "buildVillage";
+                            break;
+                        case Race.RAT:
+                            imageName = "buildRatCave";
+                            break;
+                        default:
+                            throw "undefined building type for this race: " + race;
+                    }
+
+                    data = new Village(row, col, player, name);
+                    data.population = building.population;
+                    data.amountFood = building.amountFood;
+                    data.amountStone = building.amountStone;
+                    data.amountWood = building.amountWood;
+                    data.race = race;
+
                     break;
                 default:
-                    throw "undefined building type for this race: " + race;
-                }
-
-                data = new Village(row, col, player, name);
-                data.population = building.population;
-                data.amountFood = building.amountFood;
-                data.amountStone = building.amountStone;
-                data.amountWood = building.amountWood;
-                data.race = race;
-
-                break;
-            default:
-                throw "undefined building type loaded";
+                    throw "undefined building type loaded";
             }
 
             tempSprite = this.add.sprite(x, y, imageName)
@@ -354,15 +355,6 @@ export default class SceneGame extends Phaser.Scene {
         /**
         * draw UI
         */
-
-        this.txtDay = this.createUiTextHelper(1180, 980)
-            .setOrigin(1, 0); //right-to-left text;
-
-        y = -375;
-
-        //TODO: move to PlayerTimeScene
-        //button, end turn
-        this.btnEndTurn = this.createUiButtonHelper(1050, 1100, "btnEndTurn", this.clickedEndTurn);
 
         /**
          * placing units
@@ -527,6 +519,12 @@ export default class SceneGame extends Phaser.Scene {
         this.playersAi[10] = new CavemanAi(this, 10);
 
 
+        /**
+         * turn on sub-scenes (ui)
+         */
+        this.timeInfoScene = new TimeInfoScene(this);
+        this.turnOnSubSceneOnce(this.timeInfoScene);
+
         this.updateUi();
 
         //TODO:center to player 1 center. remove? make more dynamic?
@@ -581,8 +579,7 @@ export default class SceneGame extends Phaser.Scene {
      * updates and shows relevant UI
      */
     updateUi() {
-        //TODO: replace with icons later
-        this.txtDay.setText("Day: " + this.day);
+        this.timeInfoScene.updateUi();
 
         //building UI
         if (this.selectedBuilding != null) {
@@ -608,7 +605,7 @@ export default class SceneGame extends Phaser.Scene {
         let handle = subScene.handle;
         let gameScene = subScene.gameScene;
 
-        if(gameScene.alreadyOnScenes.has(handle))
+        if (gameScene.alreadyOnScenes.has(handle))
             return;
 
         let autoStart = true;
@@ -628,18 +625,11 @@ export default class SceneGame extends Phaser.Scene {
     turnOffSubScene(scene) {
         let handle = scene.handle;
 
-        if(!this.alreadyOnScenes.has(handle))
+        if (!this.alreadyOnScenes.has(handle))
             return;
 
         this.scene.remove(handle);
         this.alreadyOnScenes.delete(handle);
-    }
-
-    clickedEndTurn(pointer) {
-        if (pointer != null && pointer.rightButtonDown())
-            return;
-
-        this.gameEngine.endTurn();
     }
 
     //TODO: move to BuildingManager later
