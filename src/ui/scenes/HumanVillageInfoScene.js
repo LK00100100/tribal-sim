@@ -276,10 +276,4 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         this.txtVillageWood.setText("Wood: " + village.amountWood + " (" + village.incomeWood + ")");
     }
 
-    turnOff(){
-        let gameScene = this.gameScene;
-
-        gameScene.turnOffSubScene(this);
-        gameScene.humanVillageInfoScene = null;
-    }
 }

@@ -443,10 +443,4 @@ export default class ArmyInfoScene extends Phaser.Scene {
         }
     }
 
-    turnOff() {
-        let gameScene = this.gameScene;
-
-        gameScene.turnOffSubScene(this);
-        gameScene.ArmyInfoScene = null;
-    }
 }
