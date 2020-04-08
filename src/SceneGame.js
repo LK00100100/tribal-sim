@@ -190,7 +190,7 @@ export default class SceneGame extends Phaser.Scene {
         this.armyManager = new ArmyManager(this);
 
         //sub-ui scenes
-        this.alreadyOnScenes = new Set(); //unique handle strings.
+        this.alreadyLaunched = new Set();
         this.armyInfoScene = new ArmyInfoScene(this);
         this.humanVillageInfoScene = new HumanVillageInfoScene(this);
         this.timeInfoScene = new TimeInfoScene(this);
@@ -607,12 +607,14 @@ export default class SceneGame extends Phaser.Scene {
         let handle = subScene.handle;
         let gameScene = subScene.gameScene;
 
-        if (gameScene.alreadyOnScenes.has(handle))
-            return;
-
         try {
-            gameScene.scene.launch(handle);
-            gameScene.alreadyOnScenes.add(handle);
+            if (gameScene.alreadyLaunched.has(handle)) {
+                gameScene.scene.wake(handle);
+            }
+            else {
+                gameScene.scene.launch(handle);
+                gameScene.alreadyLaunched.add(handle);
+            }
         }
         catch (err) {
             console.log("shouldn't be here... can't turn on scene: " + err);
@@ -626,16 +628,12 @@ export default class SceneGame extends Phaser.Scene {
     turnOffSubScene(scene) {
         let handle = scene.handle;
 
-        if (!this.alreadyOnScenes.has(handle))
-            return;
-
         try {
             this.scene.sleep(handle);
         }
         catch (err) {
             console.log(err);
         }
-        this.alreadyOnScenes.delete(handle);
     }
 
     //TODO: move to BuildingManager later
