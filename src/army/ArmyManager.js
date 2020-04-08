@@ -369,7 +369,7 @@ export default class ArmyManager {
      */
     clickedArmy(pointer) {
         let gameScene = this.scene;
-        gameScene.deselectEverything();
+        let armyManager = gameScene.armyManager;
 
         let otherArmy = this.data.get("data");
         let targetRow = otherArmy.row;
@@ -384,6 +384,8 @@ export default class ArmyManager {
         //clicked another player's army
         else {
             if (pointer.leftButtonDown()) {
+                gameScene.deselectEverything();
+
                 //show basic information
                 console.log("units health: " + otherArmy.getUnitsHealthStatus());
                 console.log("units food: " + otherArmy.amountFood);
@@ -397,7 +399,7 @@ export default class ArmyManager {
                 //TODO: refactor this to be sprite
                 gameScene.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
                 let terrainSprite = gameScene.board.boardTerrainSprites[targetRow][targetCol];
-                gameScene.processArmyAction(terrainSprite);
+                armyManager.processArmyAction(terrainSprite);
             }
         }
     }

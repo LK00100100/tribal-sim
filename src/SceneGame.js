@@ -303,28 +303,28 @@ export default class SceneGame extends Phaser.Scene {
 
             //TODO: pull this out to a building factory
             switch (building.type) {
-                case "village":
-                    switch (race) {
-                        case Race.CAVEMAN:
-                            imageName = "buildVillage";
-                            break;
-                        case Race.RAT:
-                            imageName = "buildRatCave";
-                            break;
-                        default:
-                            throw "undefined building type for this race: " + race;
-                    }
-
-                    data = new Village(row, col, player, name);
-                    data.population = building.population;
-                    data.amountFood = building.amountFood;
-                    data.amountStone = building.amountStone;
-                    data.amountWood = building.amountWood;
-                    data.race = race;
-
+            case "village":
+                switch (race) {
+                case Race.CAVEMAN:
+                    imageName = "buildVillage";
+                    break;
+                case Race.RAT:
+                    imageName = "buildRatCave";
                     break;
                 default:
-                    throw "undefined building type loaded";
+                    throw "undefined building type for this race: " + race;
+                }
+
+                data = new Village(row, col, player, name);
+                data.population = building.population;
+                data.amountFood = building.amountFood;
+                data.amountStone = building.amountStone;
+                data.amountWood = building.amountWood;
+                data.race = race;
+
+                break;
+            default:
+                throw "undefined building type loaded";
             }
 
             tempSprite = this.add.sprite(x, y, imageName)
@@ -518,7 +518,6 @@ export default class SceneGame extends Phaser.Scene {
         this.playersAi[9] = new CatAi(this, 9);
         this.playersAi[10] = new CavemanAi(this, 10);
 
-
         /**
          * turn on sub-scenes (ui)
          */
@@ -589,8 +588,9 @@ export default class SceneGame extends Phaser.Scene {
             this.txtBuildName.setText(building.name);
         }
 
-        //army UI
-        if (this.selectedArmy != null) {
+        //TODO: turn this on directly when needed
+        //turn on army UI
+        if (this.selectedArmy != null && this.armyInfoScene == null) {
             this.armyInfoScene = new ArmyInfoScene(this);
             this.turnOnSubSceneOnce(this.armyInfoScene);
         }
@@ -634,6 +634,7 @@ export default class SceneGame extends Phaser.Scene {
 
     //TODO: move to BuildingManager later
     clickedVillage(pointer) {
+        /** @type {SceneGame} */
         let gameScene = this.scene;
 
         //already selected? center camera
@@ -652,7 +653,7 @@ export default class SceneGame extends Phaser.Scene {
             if (gameScene.selectedArmy == null)
                 return;
 
-            gameScene.processArmyAction(this);
+            gameScene.armyManager.processArmyAction(this);
             return;
         }
 

@@ -15,8 +15,8 @@ import Village from "../../buildings/villageBuildings/Village";
 export default class HumanVillageInfoScene extends Phaser.Scene {
 
     constructor(gameScene) {
-        super("HumanVillageInfoScene");
-        this.handle = "HumanVillageInfoScene";
+        super("HumanVillageInfoScene:" + Date.now());    //has to be same as above"
+        this.handle = "HumanVillageInfoScene:" + Date.now();    //has to be same as above
 
         this.gameScene = gameScene;
 

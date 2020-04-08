@@ -8,8 +8,8 @@ import Phaser from "phaser";
 export default class TimeInfoScene extends Phaser.Scene {
 
     constructor(gameScene) {
-        super("TimeInfoScene");
-        this.handle = "TimeInfoScene";
+        super("TimeInfoScene:" + Date.now());
+        this.handle = "TimeInfoScene:" + Date.now();
 
         this.gameScene = gameScene;
         //TODO: singleton

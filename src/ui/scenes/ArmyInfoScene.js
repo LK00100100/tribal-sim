@@ -16,8 +16,8 @@ import GameUtilsUi from "../../utils/GameUtilsUi";
 export default class ArmyInfoScene extends Phaser.Scene {
 
     constructor(gameScene) {
-        super("ArmyInfoScene");
-        this.handle = "ArmyInfoScene";
+        super("ArmyInfoScene" + Date.now());
+        this.handle = "ArmyInfoScene:" + Date.now();    //has to be same as above
 
         this.gameScene = gameScene;
 

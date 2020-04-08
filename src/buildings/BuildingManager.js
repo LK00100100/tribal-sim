@@ -2,6 +2,7 @@ import Village from "./villageBuildings/Village";
 import BuildingFactory from "./BuildingFactory";
 
 import GameUtilsBoard from "../utils/GameUtilsBoard";
+// eslint-disable-next-line no-unused-vars
 import SceneGame from "../SceneGame";
 
 export default class BuildingManager {
