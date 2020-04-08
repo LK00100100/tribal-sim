@@ -15,8 +15,8 @@ import Village from "../../buildings/villageBuildings/Village";
 export default class HumanVillageInfoScene extends Phaser.Scene {
 
     constructor(gameScene) {
-        super("HumanVillageInfoScene:" + Date.now());    //has to be same as above"
-        this.handle = "HumanVillageInfoScene:" + Date.now();    //has to be same as above
+        super("HumanVillageInfoScene");    //has to be same as above"
+        this.handle = "HumanVillageInfoScene";    //has to be same as above
 
         this.gameScene = gameScene;
 
@@ -276,4 +276,10 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         this.txtVillageWood.setText("Wood: " + village.amountWood + " (" + village.incomeWood + ")");
     }
 
+    turnOff(){
+        let gameScene = this.gameScene;
+
+        gameScene.turnOffSubScene(this);
+        gameScene.humanVillageInfoScene = null;
+    }
 }

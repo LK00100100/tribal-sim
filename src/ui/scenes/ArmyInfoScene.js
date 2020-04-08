@@ -16,8 +16,8 @@ import GameUtilsUi from "../../utils/GameUtilsUi";
 export default class ArmyInfoScene extends Phaser.Scene {
 
     constructor(gameScene) {
-        super("ArmyInfoScene" + Date.now());
-        this.handle = "ArmyInfoScene:" + Date.now();    //has to be same as above
+        super("ArmyInfoScene");
+        this.handle = "ArmyInfoScene";    //has to be same as above
 
         this.gameScene = gameScene;
 
@@ -443,4 +443,10 @@ export default class ArmyInfoScene extends Phaser.Scene {
         }
     }
 
+    turnOff() {
+        let gameScene = this.gameScene;
+
+        gameScene.turnOffSubScene(this);
+        gameScene.ArmyInfoScene = null;
+    }
 }

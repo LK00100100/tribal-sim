@@ -711,8 +711,8 @@ export default class SceneGame extends Phaser.Scene {
             this.selectedVillage.clearTint();
             this.selectedVillage = null;
 
-            this.turnOffSubScene(this.humanVillageInfoScene);
-            this.humanVillageInfoScene = null;
+
+            this.humanVillageInfoScene.turnOff();
         }
 
         if (this.selectedBuilding != null) {
