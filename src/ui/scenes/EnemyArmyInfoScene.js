@@ -111,10 +111,8 @@ export default class EnemyArmyInfoScene extends Phaser.Scene {
     }
 
     updateUi() {
-        //do nothing for now
         this.updateUiText();
     }
-    
 
     updateUiText(){
         let gameScene = this.gameScene;

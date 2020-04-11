@@ -11,18 +11,6 @@ export default class BuildingManager {
         this.gameScene = gameScene;
     }
 
-    //TODO: move to UI manager?
-    clickedDestroyBuilding() {
-        let gameScene = this.gameScene;
-
-        console.log("destroying building");
-
-        gameScene.buildingManager.destroyBuilding(gameScene.selectedBuilding);
-
-        gameScene.deselectEverything();
-        gameScene.updateUi();
-    }
-
     /**
      * adds building to the board
      * @param {*} row 

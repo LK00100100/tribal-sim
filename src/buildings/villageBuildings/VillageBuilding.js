@@ -17,6 +17,8 @@ export default class VillageBuilding extends Building {
         super(row, col, player);
 
         this.village = village;
+
+        this.name = "Village Building";
     }
 
 }

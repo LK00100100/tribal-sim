@@ -3,6 +3,7 @@ import Phaser from "phaser";
 // eslint-disable-next-line no-unused-vars
 import SceneGame from "../../SceneGame";
 
+//TODO: maybe make a village screen separately? for different village-related actions?
 /**
  * Ui that displays information on an enemy building. And actions against the enemy.
  * 
@@ -135,6 +136,5 @@ export default class EnemyBuildingInfoScene extends Phaser.Scene {
 
         gameScene.updateUi();
     }
-
 
 }

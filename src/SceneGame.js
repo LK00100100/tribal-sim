@@ -26,6 +26,7 @@ import Phaser from "../node_modules/phaser/src/phaser";
 // eslint-disable-next-line no-unused-vars
 import Army from "./army/Army";
 import GameEngine from "./engine/GameEngine";
+import HumanBuildingInfoScene from "./ui/scenes/HumanBuildingInfoScene";
 
 /**
  * This scene draws out the board and players.
@@ -155,10 +156,6 @@ export default class SceneGame extends Phaser.Scene {
             this.playerBuildings[playerNum] = [];
         }
 
-        //TODO: separate into another scene
-        //ui for the human-player
-        this.uiBuilding = [];           //main building actions
-
         this.groupTerrain;
         this.groupGrid;
 
@@ -167,7 +164,7 @@ export default class SceneGame extends Phaser.Scene {
         //Phaser sprites, human-player selected
         //TODO: data to be held in class: GameEngine.
         this.selectedVillage;
-        this.selectedBuilding;  //TODO: consolidate this and selectedVillage?
+        this.selectedBuilding;
         this.selectedBuyBuilding;
         this.selectedArmy;
         this.selectedEnemyArmy;
@@ -185,11 +182,15 @@ export default class SceneGame extends Phaser.Scene {
         this.buildingManager = new BuildingManager(this);
         this.armyManager = new ArmyManager(this);
 
-        //sub-ui scenes
+        //sub-ui scenes. 
+        //note: don't forget to add new stuff to the init function in create()
         this.alreadyLaunched = new Set();
         this.armyInfoScene = new ArmyInfoScene(this);
         this.humanVillageInfoScene = new HumanVillageInfoScene(this);
+        this.humanBuildingInfoScene = new HumanBuildingInfoScene(this);
+
         this.timeInfoScene = new TimeInfoScene(this);
+
         this.enemyArmyInfoScene = new EnemyArmyInfoScene(this);
         this.enemyBuildingInfoScene = new EnemyBuildingInfoScene(this);
     }
@@ -220,8 +221,6 @@ export default class SceneGame extends Phaser.Scene {
         /**
          * ui stuff
          */
-        //ui, buildings
-        this.load.image("btnBuildDestroy", "assets/btn-build-destroy.png");
 
         //armies
         this.load.image("armyCat", "assets/army-cat.png");
@@ -374,18 +373,6 @@ export default class SceneGame extends Phaser.Scene {
         let catPlayerNumber = 9;
         this.armyManager.createArmyFromCoordinate(catPlayerNumber, 4, 13, "Krazy Kats");
 
-        /**
-         * UI - building
-         */
-        //TODO: put in own scene
-        y = -120;
-
-        this.txtBuildName = this.createUiTextHelper(-375, y);
-        this.btnBuildDestroy = this.createUiButtonHelper(-200, y + 140, "btnBuildDestroy", this.buildingManager.clickedDestroyBuilding);
-
-        this.uiBuilding.push(this.txtBuildName);
-        this.uiBuilding.push(this.btnBuildDestroy);
-
         //hide some ui elements
         this.deselectEverything();
 
@@ -457,6 +444,7 @@ export default class SceneGame extends Phaser.Scene {
          */
         this.initSubScene(this.timeInfoScene);
         this.initSubScene(this.humanVillageInfoScene);
+        this.initSubScene(this.humanBuildingInfoScene);
         this.initSubScene(this.armyInfoScene);
         this.initSubScene(this.enemyArmyInfoScene);
         this.initSubScene(this.enemyBuildingInfoScene);
@@ -547,7 +535,6 @@ export default class SceneGame extends Phaser.Scene {
         try {
             if (gameScene.alreadyLaunched.has(handle)) {
                 gameScene.scene.wake(handle);
-                subScene.updateUi();
             }
             //first time being on
             else {
@@ -720,6 +707,10 @@ export default class SceneGame extends Phaser.Scene {
 
     }
 
+    /**
+     * clicked a non-village building
+     * @param {*} pointer 
+     */
     clickedBuilding(pointer) {
         //this = selectedBuildingSprite
         /** @type {SceneGame} */
@@ -735,10 +726,13 @@ export default class SceneGame extends Phaser.Scene {
             gameScene.deselectEverything();
 
             if (building.player == gameScene.playerHuman){
+                gameScene.deselectEverything();
                 gameScene.selectedBuilding = this;
+                gameScene.turnOnSubSceneOnce(gameScene.humanBuildingInfoScene);
             }
+            //clicked enemy building
             else{
-                gameScene.selectedBuilding = this;
+                gameScene.selectedEnemyBuilding = this;
 
                 gameScene.turnOnSubSceneOnce(this.enemyBuildingInfoScene);
             }
