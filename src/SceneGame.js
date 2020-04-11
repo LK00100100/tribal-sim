@@ -6,7 +6,6 @@ import HumanVillageInfoScene from "./ui/scenes/HumanVillageInfoScene";
 import TimeInfoScene from "./ui/scenes/TimeInfoScene";
 
 import GameUtilsAi from "./utils/GameUtilsAi";
-import GameUtilsUi from "./utils/GameUtilsUi";
 
 import Board from "./board/Board";
 import TerrainObj from "./board/Terrain";
@@ -176,6 +175,7 @@ export default class SceneGame extends Phaser.Scene {
         this.selectedEnemyArmyCoordinates;     //{row, col} TODO: remove? just get from selected enemyArmy
         this.selectedArmyPossibleMoves;
         this.selectedVillageBuildings;
+        this.selectedEnemyBuilding;
 
         //TODO: considate army and village moves
         this.possibleMoves;
@@ -528,14 +528,6 @@ export default class SceneGame extends Phaser.Scene {
     updateUi() {
         this.timeInfoScene.updateUi();
 
-        //building UI
-        if (this.selectedBuilding != null) {
-            GameUtilsUi.showGameObjects(this.uiBuilding);
-
-            let building = this.selectedBuilding.getData("data");
-            this.txtBuildName.setText(building.name);
-        }
-
         //TODO: turn this on directly when needed
         //turn on army UI
         if (this.selectedArmy != null) {
@@ -555,6 +547,7 @@ export default class SceneGame extends Phaser.Scene {
         try {
             if (gameScene.alreadyLaunched.has(handle)) {
                 gameScene.scene.wake(handle);
+                subScene.updateUi();
             }
             //first time being on
             else {
@@ -582,7 +575,7 @@ export default class SceneGame extends Phaser.Scene {
         }
     }
 
-    //TODO: move to BuildingManager later
+    //TODO: move to BuildingManager later or "SpriteClickActions"
     clickedVillage(pointer) {
         /** @type {SceneGame} */
         let gameScene = this.scene;
@@ -609,8 +602,13 @@ export default class SceneGame extends Phaser.Scene {
 
         let village = this.data.get("data");
 
-        if (village.player != 1)
+        //enemy village. view info
+        if (village.player != 1){
+            gameScene.deselectEverything();
+            gameScene.selectedEnemyBuilding = this;
+            gameScene.turnOnSubSceneOnce(gameScene.enemyBuildingInfoScene);
             return;
+        }
 
         gameScene.deselectEverything();
         gameScene.selectedVillage = this;
@@ -675,9 +673,18 @@ export default class SceneGame extends Phaser.Scene {
             this.possibleMoves = null;
         }
 
+        /**
+         * enemy-related info ui
+         */
+
         if (this.selectedEnemyArmy != null) {
             this.turnOffSubScene(this.enemyArmyInfoScene);
             this.selectedEnemyArmy = null;
+        }
+
+        if (this.selectedEnemyBuilding != null) {
+            this.turnOffSubScene(this.enemyBuildingInfoScene);
+            this.selectedEnemyBuilding = null;
         }
     }
 
@@ -715,6 +722,7 @@ export default class SceneGame extends Phaser.Scene {
 
     clickedBuilding(pointer) {
         //this = selectedBuildingSprite
+        /** @type {SceneGame} */
         let gameScene = this.scene;
 
         console.log("building clicked");
@@ -726,8 +734,14 @@ export default class SceneGame extends Phaser.Scene {
         if (pointer.leftButtonDown()) {
             gameScene.deselectEverything();
 
-            if (building.player == gameScene.playerHuman)
+            if (building.player == gameScene.playerHuman){
                 gameScene.selectedBuilding = this;
+            }
+            else{
+                gameScene.selectedBuilding = this;
+
+                gameScene.turnOnSubSceneOnce(this.enemyBuildingInfoScene);
+            }
 
             gameScene.updateUi();
         }
@@ -741,19 +755,6 @@ export default class SceneGame extends Phaser.Scene {
             return;
         }
 
-    }
-
-
-    /**
-     * updates and shows UI
-     * @param {*} buildingData 
-     */
-    showUiBuildingEnemy(buildingData) {
-        let scene = this;
-
-        scene.txtEnemyBuildingPlayer.setText(buildingData.player + " :Building, Player");
-        scene.txtEnemyBuildingHealth.setText(buildingData.health + " :Building, Health");
-        GameUtilsUi.showGameObjects(scene.uiArmyEnemyBuilding);
     }
 
 }

@@ -1,6 +1,7 @@
 import Phaser from "phaser";
 
-import GameUtilsBuilding from "../../utils/GameUtilsBuilding";
+// eslint-disable-next-line no-unused-vars
+import SceneGame from "../../SceneGame";
 
 /**
  * Ui that displays information on an enemy building. And actions against the enemy.
@@ -9,6 +10,10 @@ import GameUtilsBuilding from "../../utils/GameUtilsBuilding";
  */
 export default class EnemyBuildingInfoScene extends Phaser.Scene {
 
+    /**
+     * 
+     * @param {SceneGame} gameScene 
+     */
     constructor(gameScene) {
         super("EnemyBuildingInfoScene");    //has to be same as above"
         this.handle = "EnemyBuildingInfoScene";    //has to be same as above
@@ -20,7 +25,7 @@ export default class EnemyBuildingInfoScene extends Phaser.Scene {
     }
 
     preload() {
-        this.load.image("btnArmyAttack", "assets/btn-army-attack.png");
+        this.load.image("btnArmyAttackBuilding", "assets/btn-army-attack-building.png");
     }
 
     create() {
@@ -40,10 +45,10 @@ export default class EnemyBuildingInfoScene extends Phaser.Scene {
         this.txtEnemyBuildingPlayer = this.createUiTextHelper(x, y)
             .setOrigin(1, 0); //right-to-left text
 
-        this.txtEnemyBuildingHealth = this.createUiTextHelper(x, y + 300)
+        this.txtEnemyBuildingHealth = this.createUiTextHelper(x, y + 60)
             .setOrigin(1, 0); //right-to-left text
 
-        this.btnEnemyBuildingAttack = this.createUiButtonHelper(-200, y + 660, "btnArmyAttackBuilding", this.armyManager.clickedArmyAttackBuilding)
+        this.btnEnemyBuildingAttack = this.createUiButtonHelper(x, y + 130, "btnArmyAttackBuilding", this.clickedArmyAttackBuilding)
             .setOrigin(1, 0); //right-to-left text
 
         this.uiEnemyBuilding.push(this.txtEnemyBuildingPlayer);
@@ -92,11 +97,44 @@ export default class EnemyBuildingInfoScene extends Phaser.Scene {
     }
 
     updateUi() {
-        //do nothing for now
+        this.updateUiText();
+
+        this.btnEnemyBuildingAttack.setTint("0x555555");
     }
 
     updateUiText(){
-        //TODO: complete me
+        let gameScene = this.gameScene;
+        let enemyBuildingSprite = gameScene.selectedEnemyBuilding;
+        let enemyBuilding = enemyBuildingSprite.getData("data");
+
+        this.txtEnemyBuildingPlayer.setText(enemyBuilding.player + " :Building, Player");
+        this.txtEnemyBuildingHealth.setText(enemyBuilding.health + " :Building, Health");
     }
+
+    /**
+     * main attacks
+     */
+    
+    /**
+      * you've clicked attack on this building
+      */
+    clickedArmyAttackBuilding() {
+        console.log("clicked attacking building");
+        let gameScene = this.gameScene;
+
+        let armySprite = gameScene.selectedArmy;
+
+        if (armySprite == null)
+            return;
+
+        let army = armySprite.getData("data");
+
+        let buildingSprite = gameScene.board.getBuilding(army.row, army.col);
+
+        gameScene.armyManager.armyAttackBuilding(armySprite, buildingSprite);
+
+        gameScene.updateUi();
+    }
+
 
 }

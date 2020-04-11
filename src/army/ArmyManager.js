@@ -632,23 +632,6 @@ export default class ArmyManager {
         }
     }
 
-    clickedArmyAttackBuilding() {
-        console.log("clicked attacking building");
-        let scene = this.gameScene;
-
-        if (scene.selectedArmy == null)
-            return;
-
-        let armySprite = scene.selectedArmy;
-        let army = armySprite.getData("data");
-
-        let buildingSprite = scene.board.getBuilding(army.row, army.col);
-
-        scene.armyManager.armyAttackBuilding(armySprite, buildingSprite);
-
-        scene.updateUi();
-    }
-
     /**
      * attack the thing you are standing on
      * @param {*} armySprite 
