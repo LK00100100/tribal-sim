@@ -37,8 +37,6 @@ export default class ArmyInfoScene extends Phaser.Scene {
         this.load.image("btnArmyDisbandUnits", "assets/btn-army-disband-units.png");
         this.load.image("btnArmyGetFood", "assets/btn-army-get-food.png");
         this.load.image("btnArmyGetWood", "assets/btn-army-get-wood.png");
-        this.load.image("btnArmyAttack", "assets/btn-army-attack.png");
-        this.load.image("btnArmyAttackBuilding", "assets/btn-army-attack-building.png");
         this.load.image("btnArmyBuild", "assets/btn-army-build.png");
 
         //ui, army build
@@ -125,7 +123,7 @@ export default class ArmyInfoScene extends Phaser.Scene {
         this.uiArmyBuildButtons.push(this.btnArmyBuildSouth);
         this.uiArmyBuildButtons.push(this.btnArmyBuildWest);
 
-        this.resetUi();
+        this.updateUi();
     }
 
     /**
@@ -168,14 +166,18 @@ export default class ArmyInfoScene extends Phaser.Scene {
     /**
      * Resets this scene to its original state.
      */
-    resetUi() {
-        let selectedArmy = this.gameScene.selectedArmy.getData("data");
+    updateUi() {
+        let gameScene = this.gameScene;
 
-        GameUtilsUi.showGameObjects(this.uiArmyText);
+        if (!gameScene.selectedArmy)
+            return;
+
+        let selectedArmy = this.gameScene.selectedArmy.getData("data");
 
         this.updateTextArmy(selectedArmy);
         this.showUiArmyButtons(selectedArmy);
     }
+
 
     /**
      * shows the ui army main action buttons
@@ -388,20 +390,6 @@ export default class ArmyInfoScene extends Phaser.Scene {
         //check if we can build there
 
         this.selectedArmyBuildFunc(direction);
-    }
-    /**
-     * updates all elements of the ui for this scene with the correct visualization
-     */
-    updateUi() {
-        let gameScene = this.gameScene;
-
-        if (!gameScene.selectedArmy)
-            return;
-
-        let army = gameScene.selectedArmy.getData("data");
-
-        this.updateTextArmy(army);
-        this.updateUiArmyBuildButtons(army);
     }
 
     /**

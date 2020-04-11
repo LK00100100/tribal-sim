@@ -69,7 +69,7 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         this.uiVillageButtons.push(this.btnBuildQuarry);
         this.uiVillageButtons.push(this.btnBuildHousing);
 
-        this.resetUi();
+        this.updateUi();
     }
 
     //TODO: refactor to gameutils for this, army infoscene, and gamescene
@@ -110,7 +110,7 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         return uiButtonElement;
     }
 
-    resetUi() {
+    updateUi() {
         let gameScene = this.gameScene;
         gameScene.selectedVillage.setTint("0xffff00");
         
@@ -140,15 +140,9 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
 
     }
 
-    //TODO: write more if needed
-    updateUi(){
-        this.resetUi();
-    }
-
     /**
      * main village actions
      */
-
 
     clickedCreateArmyButton(pointer) {
         if (pointer.rightButtonDown())

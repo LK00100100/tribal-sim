@@ -64,7 +64,7 @@ export default class GameEngine {
 
         this.preTurnPhase(player);
 
-        let ai = gameScene.playersAi[player];
+        let ai = gameScene.playerAi[player];
 
         //TODO: replace this function with more functions
         ai.calculateTurn();

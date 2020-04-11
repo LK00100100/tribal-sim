@@ -3,7 +3,6 @@ import Caveman from "./unit/Caveman.js";
 
 import UnitFactory from "./unit/UnitFactory";
 import GameUtils from "../utils/GameUtils.js";
-import GameUtilsUi from "../utils/GameUtilsUi";
 // eslint-disable-next-line no-unused-vars
 import SceneGame from "../SceneGame.js";
 import VillageBuilding from "../buildings/villageBuildings/VillageBuilding.js";
@@ -368,6 +367,7 @@ export default class ArmyManager {
      * @param {Phaser.Pointer} pointer Phaser pointer
      */
     clickedArmy(pointer) {
+        /** @type {SceneGame} */
         let gameScene = this.scene;
         let armyManager = gameScene.armyManager;
 
@@ -385,6 +385,10 @@ export default class ArmyManager {
         else {
             if (pointer.leftButtonDown()) {
                 gameScene.deselectEverything();
+
+                gameScene.selectedEnemyArmy = this;
+
+                gameScene.turnOnSubSceneOnce(gameScene.enemyArmyInfoScene);
 
                 //show basic information
                 console.log("units health: " + otherArmy.getUnitsHealthStatus());
@@ -468,46 +472,6 @@ export default class ArmyManager {
             army.addUnit(caveman);
         }
 
-    }
-
-    //TODO: remove prefix army. add "player" vs no prefix
-
-
-
-
-    armyAttack() {
-        let scene = this.gameScene;
-
-        console.log("ATTACKING");
-        let targetRow = scene.selectedEnemyArmyCoordinates.row;
-        let targetCol = scene.selectedEnemyArmyCoordinates.col;
-
-        let yourArmy = scene.selectedArmy.getData("data");
-        let enemyArmy = scene.board.boardUnits[targetRow][targetCol].getData("data");
-
-        //TODO: remove this later. let player decide how they want to sort (formation)
-        yourArmy.sortUnitsByHealthReverse();
-        enemyArmy.sortUnitsByHealthReverse();
-
-        scene.armyManager.simulateArmiesAttacking(yourArmy, enemyArmy);
-
-        //then calculate casualties
-        //TODO: clean away casualties after confirming deaths
-
-        //update your ui
-        if (yourArmy.size() > 0) {
-            scene.armyManager.showPossibleArmyMoves(yourArmy);
-            scene.updateUi();
-        }
-
-        //update enemy ui
-        if (enemyArmy.size() > 0)
-            scene.showUiArmyEnemy(targetRow, targetCol);
-
-        if (yourArmy.size() == 0 || enemyArmy.size() == 0) {
-            GameUtilsUi.hideGameObjects(scene.uiArmyEnemy);
-            scene.selectedEnemyArmyCoordinates = null;
-        }
     }
 
     //TODO: pass sprites
@@ -733,11 +697,6 @@ export default class ArmyManager {
     removeArmyFromBoard(row, col) {
         let scene = this.gameScene;
         scene.board.boardUnits[row][col] = null;
-    }
-
-    armyAttackCancel() {
-        let scene = this.gameScene;
-        GameUtilsUi.hideGameObjects(scene.uiArmyEnemy);
     }
 
     /**

@@ -1,6 +1,11 @@
+//sub scenes
 import ArmyInfoScene from "./ui/scenes/ArmyInfoScene";
+import EnemyArmyInfoScene from "./ui/scenes/EnemyArmyInfoScene";
+import EnemyBuildingInfoScene from "./ui/scenes/EnemyBuildingInfoScene";
 import HumanVillageInfoScene from "./ui/scenes/HumanVillageInfoScene";
+import TimeInfoScene from "./ui/scenes/TimeInfoScene";
 
+import GameUtilsAi from "./utils/GameUtilsAi";
 import GameUtilsUi from "./utils/GameUtilsUi";
 
 import Board from "./board/Board";
@@ -14,13 +19,6 @@ import ArmyManager from "./army/ArmyManager";
 import RaceObj from "./Race";
 let { Race } = RaceObj;
 
-import CatAi from "./ai/CatAi";
-import CavemanAi from "./ai/CavemanAi";
-import GorillaAi from "./ai/GorillaAi";
-import MeerkatAi from "./ai/MeerkatAi";
-import TigerAi from "./ai/TigerAi";
-import RatsAi from "./ai/RatAi";
-
 import BuildingManager from "./buildings/BuildingManager";
 
 //phaser imports
@@ -29,7 +27,6 @@ import Phaser from "../node_modules/phaser/src/phaser";
 // eslint-disable-next-line no-unused-vars
 import Army from "./army/Army";
 import GameEngine from "./engine/GameEngine";
-import TimeInfoScene from "./ui/scenes/TimeInfoScene";
 
 /**
  * This scene draws out the board and players.
@@ -51,7 +48,7 @@ export default class SceneGame extends Phaser.Scene {
         //1-indexed
         this.playerRace = [
             "", //no player
-            Race.CAVEMAN,
+            Race.CAVEMAN,   //this is the human-player
             Race.CAVEMAN,
             Race.RAT,
             Race.RAT,
@@ -63,6 +60,8 @@ export default class SceneGame extends Phaser.Scene {
             Race.CAVEMAN
         ];
         this.numPlayers = this.playerRace.length - 1;
+
+        this.playerAi;
 
         this.playerHuman = 1;   //this is you
 
@@ -157,13 +156,9 @@ export default class SceneGame extends Phaser.Scene {
             this.playerBuildings[playerNum] = [];
         }
 
-        this.playersAi = [];
-
+        //TODO: separate into another scene
         //ui for the human-player
-        this.uiVillage = [];            //main village actions
         this.uiBuilding = [];           //main building actions
-        this.uiArmyEnemy = [];          //options against enemy armies
-        this.uiArmyEnemyBuilding = [];  //options against enemy buildings
 
         this.groupTerrain;
         this.groupGrid;
@@ -176,8 +171,9 @@ export default class SceneGame extends Phaser.Scene {
         this.selectedBuilding;  //TODO: consolidate this and selectedVillage?
         this.selectedBuyBuilding;
         this.selectedArmy;
+        this.selectedEnemyArmy;
 
-        this.selectedEnemyArmyCoordinates;     //{row, col}
+        this.selectedEnemyArmyCoordinates;     //{row, col} TODO: remove? just get from selected enemyArmy
         this.selectedArmyPossibleMoves;
         this.selectedVillageBuildings;
 
@@ -194,6 +190,8 @@ export default class SceneGame extends Phaser.Scene {
         this.armyInfoScene = new ArmyInfoScene(this);
         this.humanVillageInfoScene = new HumanVillageInfoScene(this);
         this.timeInfoScene = new TimeInfoScene(this);
+        this.enemyArmyInfoScene = new EnemyArmyInfoScene(this);
+        this.enemyBuildingInfoScene = new EnemyBuildingInfoScene(this);
     }
 
     /**
@@ -222,7 +220,6 @@ export default class SceneGame extends Phaser.Scene {
         /**
          * ui stuff
          */
-
         //ui, buildings
         this.load.image("btnBuildDestroy", "assets/btn-build-destroy.png");
 
@@ -389,59 +386,6 @@ export default class SceneGame extends Phaser.Scene {
         this.uiBuilding.push(this.txtBuildName);
         this.uiBuilding.push(this.btnBuildDestroy);
 
-        /**
-         * ui enemy elements
-         */
-
-        x = 1150;
-        y = -160;
-
-        this.txtArmyEnemyName = this.createUiTextHelper(x, y + 120)
-            .setOrigin(1, 0); //right-to-left text
-
-        this.txtArmyEnemyUnits = this.createUiTextHelper(x, y + 180)
-            .setOrigin(1, 0); //right-to-left text
-
-        this.txtArmyEnemyAttackBase = this.createUiTextHelper(x, y + 240)
-            .setOrigin(1, 0); //right-to-left text
-
-        this.txtArmyEnemyDefenseBase = this.createUiTextHelper(x, y + 300)
-            .setOrigin(1, 0); //right-to-left text
-
-        this.btnArmyEnemyAttack = this.createUiButtonHelper(-200, y + 360, "btnArmyAttack", this.armyManager.armyAttack)
-            .setOrigin(1, 0); //right-to-left text
-
-        this.btnArmyEnemyCancel = this.createUiButtonHelper(-200, y + 500, "btnArmyCancel", this.armyManager.armyAttackCancel)
-            .setOrigin(1, 0); //right-to-left text
-
-        this.uiArmyEnemy.push(this.txtArmyEnemyName);
-        this.uiArmyEnemy.push(this.txtArmyEnemyUnits);
-        this.uiArmyEnemy.push(this.txtArmyEnemyAttackBase);
-        this.uiArmyEnemy.push(this.txtArmyEnemyDefenseBase);
-        this.uiArmyEnemy.push(this.btnArmyEnemyAttack);
-        this.uiArmyEnemy.push(this.btnArmyEnemyCancel);
-
-        /**
-        * ui enemy elements building
-        */
-
-        //TODO: set to previous default after separating attack building/unit
-        x = 1150;
-        y = -160;
-
-        this.txtEnemyBuildingPlayer = this.createUiTextHelper(x, y)
-            .setOrigin(1, 0); //right-to-left text
-
-        this.txtEnemyBuildingHealth = this.createUiTextHelper(x, y + 300)
-            .setOrigin(1, 0); //right-to-left text
-
-        this.btnEnemyBuildingAttack = this.createUiButtonHelper(-200, y + 660, "btnArmyAttackBuilding", this.armyManager.clickedArmyAttackBuilding)
-            .setOrigin(1, 0); //right-to-left text
-
-        this.uiArmyEnemyBuilding.push(this.txtEnemyBuildingPlayer);
-        this.uiArmyEnemyBuilding.push(this.txtEnemyBuildingHealth);
-        this.uiArmyEnemyBuilding.push(this.btnEnemyBuildingAttack);
-
         //hide some ui elements
         this.deselectEverything();
 
@@ -506,24 +450,16 @@ export default class SceneGame extends Phaser.Scene {
         this.turnOfPlayer = 1;
         this.day = 1;
 
-        //TODO: initial inputs
-        //TODO: make dynamic-y
-        this.playersAi[2] = new CavemanAi(this, 2);
-        this.playersAi[3] = new RatsAi(this, 3);
-        this.playersAi[4] = new RatsAi(this, 4);
-        this.playersAi[5] = new CavemanAi(this, 5);
-        this.playersAi[6] = new GorillaAi(this, 6);
-        this.playersAi[7] = new TigerAi(this, 7);
-        this.playersAi[8] = new MeerkatAi(this, 8);
-        this.playersAi[9] = new CatAi(this, 9);
-        this.playersAi[10] = new CavemanAi(this, 10);
+        this.playerAi = GameUtilsAi.initAiForPlayers(this, this.playerRace);
 
         /**
-         * turn on sub-scenes (ui)
+         * init sub-scenes (ui)
          */
-        this.scene.add(this.timeInfoScene.handle, this.timeInfoScene, false);
-        this.scene.add(this.humanVillageInfoScene.handle, this.humanVillageInfoScene, false);
-        this.scene.add(this.armyInfoScene.handle, this.armyInfoScene, false);
+        this.initSubScene(this.timeInfoScene);
+        this.initSubScene(this.humanVillageInfoScene);
+        this.initSubScene(this.armyInfoScene);
+        this.initSubScene(this.enemyArmyInfoScene);
+        this.initSubScene(this.enemyBuildingInfoScene);
 
         this.turnOnSubSceneOnce(this.timeInfoScene);
 
@@ -570,6 +506,15 @@ export default class SceneGame extends Phaser.Scene {
         return uiButtonElement;
     }
 
+    /**
+     * one time init of a scene which is subordinate to this gameScene. Does not turn the scene on.
+     * This is required before you turn the scene on/off.
+     * @param {Phaser.Scene} subScene 
+     */
+    initSubScene(subScene) {
+        this.scene.add(subScene.handle, subScene, false);
+    }
+
     //@Override
     update(time, delta) {
         this.controls.update(delta);
@@ -611,6 +556,7 @@ export default class SceneGame extends Phaser.Scene {
             if (gameScene.alreadyLaunched.has(handle)) {
                 gameScene.scene.wake(handle);
             }
+            //first time being on
             else {
                 gameScene.scene.launch(handle);
                 gameScene.alreadyLaunched.add(handle);
@@ -689,19 +635,15 @@ export default class SceneGame extends Phaser.Scene {
         this.txtArmyEnemyAttackBase.setText(enemyArmy.calculateAttackBase() + " :Attack Base");
         this.txtArmyEnemyDefenseBase.setText(enemyArmy.calculateDefenseBase() + " :Defense Base");
 
-        GameUtilsUi.showGameObjects(this.uiArmyEnemy);
 
         //TODO: if not enough moves left, highlight attack red
     }
 
     /**
-     * deselects: army, enemy army and/or the selected building
+     * turns off all subscenes.
+     * deselects: army, enemy army, selections, etc.
      */
     deselectEverything() {
-        GameUtilsUi.hideGameObjects(this.uiVillage);
-        GameUtilsUi.hideGameObjects(this.uiBuilding);
-        GameUtilsUi.hideGameObjects(this.uiArmyEnemy);
-        GameUtilsUi.hideGameObjects(this.uiArmyEnemyBuilding);
 
         if (this.selectedBuyBuilding != null) {
             this.board.unhighlightTiles(this.possibleMoves);
@@ -726,12 +668,16 @@ export default class SceneGame extends Phaser.Scene {
             this.selectedArmy = null;
 
             this.turnOffSubScene(this.armyInfoScene);
-            //this.armyInfoScene = null;
         }
 
         if (this.possibleMoves != null) {
             this.board.unhighlightTiles(this.possibleMoves);
             this.possibleMoves = null;
+        }
+
+        if (this.selectedEnemyArmy != null) {
+            this.turnOffSubScene(this.enemyArmyInfoScene);
+            this.selectedEnemyArmy = null;
         }
     }
 
