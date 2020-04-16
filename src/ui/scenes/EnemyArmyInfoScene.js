@@ -120,6 +120,12 @@ export default class EnemyArmyInfoScene extends Phaser.Scene {
         let gameScene = this.gameScene;
         let gameEngine = gameScene.gameEngine;
 
+        //no enemy army selected, turn this screen off.
+        if(gameEngine.selectedEnemyArmy == null){
+            gameScene.turnOffSubScene(this);
+            return;
+        }
+
         let enemyArmy = gameEngine.selectedEnemyArmy.getData("data");
 
         this.txtArmyEnemyUnits.setText(enemyArmy.units.length + " :Enemy Units");
@@ -138,34 +144,39 @@ export default class EnemyArmyInfoScene extends Phaser.Scene {
      */
     clickedArmyAttack() {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
-        let targetRow = gameScene.selectedEnemyArmyCoordinates.row;
-        let targetCol = gameScene.selectedEnemyArmyCoordinates.col;
+        let targetRow = gameEngine.selectedEnemyArmyCoordinates.row;
+        let targetCol = gameEngine.selectedEnemyArmyCoordinates.col;
 
-        let yourArmy = gameScene.selectedArmy.getData("data");
-        let enemyArmy = gameScene.board.boardUnits[targetRow][targetCol].getData("data");
+        let yourArmy = gameEngine.selectedArmy.getData("data");
+        let enemyArmy = gameEngine.board.boardUnits[targetRow][targetCol].getData("data");
 
         //TODO: remove this later. let player decide how they want to sort (formation)
         yourArmy.sortUnitsByHealthReverse();
         enemyArmy.sortUnitsByHealthReverse();
 
-        gameScene.armyManager.simulateArmiesAttacking(yourArmy, enemyArmy);
+        gameEngine.armyManager.simulateArmiesAttacking(yourArmy, enemyArmy);
 
         //then calculate casualties
         //TODO: clean away casualties after confirming deaths
 
         //update your ui
         if (yourArmy.size() > 0) {
-            gameScene.armyManager.showPossibleArmyMoves(yourArmy);
+            gameEngine.armyManager.showPossibleArmyMoves(yourArmy);
             gameScene.updateUi();
         }
 
         //update enemy ui
         if (enemyArmy.size() > 0)
-            gameScene.showUiArmyEnemy(targetRow, targetCol);
+            this.updateUi();
 
+        //an army is destroyed. turn off all info scenes.
         if (yourArmy.size() == 0 || enemyArmy.size() == 0) {
-            GameUtilsUi.hideGameObjects(gameScene.uiArmyEnemy);
+            gameScene.turnOffSubScene(gameScene.humanArmyInfoScene);
+            gameScene.turnOffSubScene(gameScene.enemyArmyInfoScene);
+
+            gameScene.selectedEnemyArmy = null;
             gameScene.selectedEnemyArmyCoordinates = null;
         }
     }

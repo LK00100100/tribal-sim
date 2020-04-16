@@ -384,9 +384,11 @@ export default class ArmyManager {
      * @param {Phaser.Pointer} pointer Phaser pointer
      */
     clickedArmy(pointer) {
+        /** @type {SceneGame} */
         let gameScene = this.scene;
         let gameEngine = gameScene.gameEngine;
 
+        /** @type {ArmyManager} */
         let armyManager = gameEngine.armyManager;
 
         let otherArmy = this.data.get("data");
@@ -419,6 +421,7 @@ export default class ArmyManager {
                     return;
 
                 //TODO: refactor this to be sprite
+                gameEngine.selectedEnemyArmy = this;
                 gameEngine.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
                 let terrainSprite = gameEngine.board.boardTerrainSprites[targetRow][targetCol];
                 armyManager.processArmyAction(terrainSprite);
@@ -865,13 +868,13 @@ export default class ArmyManager {
                 console.log("attack!");
 
                 gameEngine.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
-                //gameScene.showUiArmyEnemy(targetRow, targetCol);    //TODO: fix this to activate the enemy info screen
+                gameScene.turnOnSubSceneOnce(gameScene.enemyArmyInfoScene);
                 gameScene.cam.pan(armySprite.x, armySprite.y, 500);
             }
             //move closer
             else {
                 console.log("too far to attack! moving closer!");
-                gameEngine.board.unhighlightTiles(gameScene.selectedArmyPossibleMoves);
+                gameEngine.board.unhighlightTiles(gameEngine.selectedArmyPossibleMoves);
 
                 gameEngine.armyManager.moveArmyCloser(armySprite, targetSprite);
 

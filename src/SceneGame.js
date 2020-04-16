@@ -4,7 +4,7 @@ import Phaser from "../node_modules/phaser/src/phaser";
 //sub scenes
 import EnemyArmyInfoScene from "./ui/scenes/EnemyArmyInfoScene";
 import EnemyBuildingInfoScene from "./ui/scenes/EnemyBuildingInfoScene";
-import HumanArmyInfoScene from "./ui/scenes/ArmyInfoScene";
+import HumanArmyInfoScene from "./ui/scenes/HumanArmyInfoScene";
 import HumanBuildingInfoScene from "./ui/scenes/HumanBuildingInfoScene";
 import HumanVillageInfoScene from "./ui/scenes/HumanVillageInfoScene";
 import TimeInfoScene from "./ui/scenes/TimeInfoScene";
