@@ -12,12 +12,15 @@ let { Race } = RaceObj;
 //import managers
 import ArmyManager from "../army/ArmyManager";
 import BuildingManager from "../buildings/BuildingManager";
+import SceneGame from "../SceneGame";
 
 /**
  * Does the main game logic.
  * Pre-move, move, post-move.
  * 
  * Also holds all of the gamedata
+ * 
+ * Be sure to call setGameScene() once
  */
 export default class GameEngine {
 
@@ -158,6 +161,10 @@ export default class GameEngine {
         this.playerAi = GameUtilsAi.initAiForPlayers(this, this.playerRace);
     }
 
+    /**
+     * Should be called after the scene is initialized.
+     * @param {*} gameScene 
+     */
     setGameScene(gameScene) {
         this.gameScene = gameScene;
 
@@ -169,6 +176,8 @@ export default class GameEngine {
     endTurn() {
         /** @type SceneGame */
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
+
         let timeInfoScene = gameScene.timeInfoScene;
 
         //TODO: lock it
@@ -176,28 +185,28 @@ export default class GameEngine {
         timeInfoScene.btnEndTurn.setTint(0xff0000);
 
         //unhighlight moves
-        if (gameScene.selectedArmy != null) {
-            gameScene.board.unhighlightTiles(gameScene.selectedArmyPossibleMoves);
-            gameScene.selectedArmyPossibleMoves = null;
+        if (gameEngine.selectedArmy != null) {
+            gameEngine.board.unhighlightTiles(gameEngine.selectedArmyPossibleMoves);
+            gameEngine.selectedArmyPossibleMoves = null;
         }
 
-        this.postTurnPhase(gameScene.turnOfPlayer);
+        this.postTurnPhase(gameEngine.turnOfPlayer);
 
         //TODO: fix this later
-        for (let i = 2; i <= gameScene.numPlayers; i++) {
-            gameScene.turnOfPlayer = i;
-            this.calculateTurnAiPlayer(gameScene.turnOfPlayer);
+        for (let i = 2; i <= gameEngine.numPlayers; i++) {
+            gameEngine.turnOfPlayer = i;
+            this.calculateTurnAiPlayer(gameEngine.turnOfPlayer);
         }
 
         //TODO: disable button when needed
-        gameScene.day++;
+        gameEngine.day++;
 
         //now player 1's turn
-        gameScene.turnOfPlayer = 1;
-        this.preTurnPhase(gameScene.turnOfPlayer);
+        gameEngine.turnOfPlayer = 1;
+        this.preTurnPhase(gameEngine.turnOfPlayer);
 
-        if (gameScene.selectedArmy != null)
-            gameScene.armyManager.showPossibleArmyMoves(gameScene.selectedArmy.data.get("data"));
+        if (gameEngine.selectedArmy != null)
+            gameEngine.armyManager.showPossibleArmyMoves(gameEngine.selectedArmy.data.get("data"));
 
         timeInfoScene.btnEndTurn.clearTint();
 
@@ -212,12 +221,13 @@ export default class GameEngine {
      */
     calculateTurnAiPlayer(player) {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
         console.log("calculating turn: player: " + player);
 
         this.preTurnPhase(player);
 
-        let ai = gameScene.playerAi[player];
+        let ai = gameEngine.playerAi[player];
 
         //TODO: replace this function with more functions
         ai.calculateTurn();
@@ -230,11 +240,12 @@ export default class GameEngine {
     //replenishment
     preTurnPhase(playerNumber) {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
         /**
          * army stuff
          */
-        let armies = gameScene.playerArmies[playerNumber];
+        let armies = gameEngine.playerArmies[playerNumber];
 
         if (armies != null) {
             armies.forEach(army => {
@@ -247,14 +258,14 @@ export default class GameEngine {
          * village stuff
          */
 
-        let buildings = gameScene.playerBuildings[playerNumber];
+        let buildings = gameEngine.playerBuildings[playerNumber];
 
         buildings.forEach(building => {
             let data = building.data.get("data");
 
             if (data instanceof Village) {
-                let coordinates = gameScene.buildingManager.getVillageBuildings(data);
-                let buildingsData = gameScene.board.getBuildingsData(coordinates);
+                let coordinates = gameEngine.buildingManager.getVillageBuildings(data);
+                let buildingsData = gameEngine.board.getBuildingsData(coordinates);
                 let countsOfBuildings = GameUtilsBuilding.countBuildings(buildingsData);
 
                 data.calculateIncome(countsOfBuildings);
@@ -266,11 +277,12 @@ export default class GameEngine {
 
     postTurnPhase(playerNumber) {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
         /**
          * army stuff
          */
-        let armies = gameScene.playerArmies[playerNumber];
+        let armies = gameEngine.playerArmies[playerNumber];
 
         if (armies != null) {
             armies.forEach((army) => {
@@ -283,13 +295,13 @@ export default class GameEngine {
 
                 //killed through attrition
                 if (army.size() == 0) {
-                    gameScene.armyManager.destroyArmy(army);
+                    gameEngine.armyManager.destroyArmy(army);
                 }
             });
         }
 
         //if we're selecting nothing, turn off
-        if (!gameScene.selectedArmy == null && !gameScene.selectedVillage && !gameScene.selectedBuilding) {
+        if (!gameEngine.selectedArmy == null && !gameEngine.selectedVillage && !gameEngine.selectedBuilding) {
             gameScene.deselectEverything();
         }
 

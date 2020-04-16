@@ -122,7 +122,9 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
 
     updateUi() {
         let gameScene = this.gameScene;
-        gameScene.selectedVillage.setTint("0xffff00");
+        let gameEngine = gameScene.gameEngine;
+
+        gameEngine.selectedVillage.setTint("0xffff00");
         
         this.selectedBuyBuilding = null;
 
@@ -131,7 +133,7 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         GameUtilsUi.showGameObjects(this.uiVillageText);
         GameUtilsUi.showGameObjects(this.uiVillageButtons);
 
-        let village = gameScene.selectedVillage.data.get("data");
+        let village = gameEngine.selectedVillage.data.get("data");
         this.updateUiVillageText(village);
 
         //depopulation warning 
@@ -266,9 +268,10 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         //TODO: put this in some sort of village manager. updateUi should do no calcs
 
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
         
-        let coordinates = gameScene.buildingManager.getVillageBuildings(village);
-        let buildingsData = gameScene.board.getBuildingsData(coordinates);
+        let coordinates = gameEngine.buildingManager.getVillageBuildings(village);
+        let buildingsData = gameEngine.board.getBuildingsData(coordinates);
         let countsOfBuildings = GameUtilsBuilding.countBuildings(buildingsData);
         village.calculateIncome(countsOfBuildings);
 

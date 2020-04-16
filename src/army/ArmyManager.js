@@ -699,8 +699,9 @@ export default class ArmyManager {
      * @param {Number} col 
      */
     removeArmyFromBoard(row, col) {
-        let scene = this.gameScene;
-        scene.board.boardUnits[row][col] = null;
+        let gameEngine = this.gameScene.gameEngine;
+
+        gameEngine.board.boardUnits[row][col] = null;
     }
 
     /**

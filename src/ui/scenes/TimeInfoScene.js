@@ -82,10 +82,11 @@ export default class TimeInfoScene extends Phaser.Scene {
 
     updateUi() {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
         //TODO: replace with icons later
         if (this.txtDay)
-            this.txtDay.setText("Day: " + gameScene.day);
+            this.txtDay.setText("Day: " + gameEngine.day);
     }
 
     clickedEndTurn(pointer) {

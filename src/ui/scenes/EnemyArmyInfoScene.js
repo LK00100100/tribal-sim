@@ -118,7 +118,9 @@ export default class EnemyArmyInfoScene extends Phaser.Scene {
 
     updateUiText(){
         let gameScene = this.gameScene;
-        let enemyArmy = gameScene.selectedEnemyArmy.getData("data");
+        let gameEngine = gameScene.gameEngine;
+
+        let enemyArmy = gameEngine.selectedEnemyArmy.getData("data");
 
         this.txtArmyEnemyUnits.setText(enemyArmy.units.length + " :Enemy Units");
         this.txtArmyEnemyName.setText(enemyArmy.name);
