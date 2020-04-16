@@ -48,14 +48,14 @@ export default class SceneGame extends Phaser.Scene {
         //sub-ui scenes. 
         //note: don't forget to add new stuff to the init function in create()
         this.alreadyLaunched = new Set();
-        this.armyInfoScene = new ArmyInfoScene(this, this.gameScene);
-        this.humanVillageInfoScene = new HumanVillageInfoScene(this, this.gameScene);
-        this.humanBuildingInfoScene = new HumanBuildingInfoScene(this, this.gameScene);
+        this.armyInfoScene = new ArmyInfoScene(this, this.gameEngine);
+        this.humanVillageInfoScene = new HumanVillageInfoScene(this, this.gameEngine);
+        this.humanBuildingInfoScene = new HumanBuildingInfoScene(this, this.gameEngine);
 
-        this.timeInfoScene = new TimeInfoScene(this, this.gameScene);
+        this.timeInfoScene = new TimeInfoScene(this, this.gameEngine);
 
-        this.enemyArmyInfoScene = new EnemyArmyInfoScene(this, this.gameScene);
-        this.enemyBuildingInfoScene = new EnemyBuildingInfoScene(this, this.gameScene);
+        this.enemyArmyInfoScene = new EnemyArmyInfoScene(this, this.gameEngine);
+        this.enemyBuildingInfoScene = new EnemyBuildingInfoScene(this, this.gameEngine);
     }
 
     /**
@@ -592,7 +592,7 @@ export default class SceneGame extends Phaser.Scene {
             if (gameEngine.selectedArmy == null)
                 return;
 
-            gameEngine.processArmyAction(this);
+            gameEngine.armyManager.processArmyAction(this);
             return;
         }
 

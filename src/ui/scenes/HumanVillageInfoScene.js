@@ -126,8 +126,6 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
 
         gameEngine.selectedVillage.setTint("0xffff00");
         
-        this.selectedBuyBuilding = null;
-
         //show village ui
         GameUtils.clearTintArray(this.uiVillageButtons);
         GameUtilsUi.showGameObjects(this.uiVillageText);
@@ -175,8 +173,16 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
     //TODO: repeated code
 
     clickedBuyFarm(pointer) {
+        let gameEngine = this.gameEngine;
+
         if (pointer.rightButtonDown())
             return;
+
+        //deselect me
+        if(gameEngine.selectedBuyBuilding == "Farm"){
+            this.deselectBuyBuilding();
+            return;
+        }
 
         this.deselectBuyBuilding();
 
@@ -187,8 +193,16 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
     }
 
     clickedBuyQuarry(pointer) {
+        let gameEngine = this.gameEngine;
+
         if (pointer.rightButtonDown())
             return;
+
+        //deselect me
+        if(gameEngine.selectedBuyBuilding == "Quarry"){
+            this.deselectBuyBuilding();
+            return;
+        }
 
         this.deselectBuyBuilding();
 
@@ -199,8 +213,16 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
     }
 
     clickedBuyLumberMill(pointer) {
+        let gameEngine = this.gameEngine;
+
         if (pointer.rightButtonDown())
             return;
+
+        //deselect me
+        if(gameEngine.selectedBuyBuilding == "LumberMill"){
+            this.deselectBuyBuilding();
+            return;
+        }
 
         this.deselectBuyBuilding();
 
@@ -211,8 +233,16 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
     }
 
     clickedBuyHousing(pointer) {
+        let gameEngine = this.gameEngine;
+
         if (pointer.rightButtonDown())
             return;
+            
+        //deselect me
+        if(gameEngine.selectedBuyBuilding == "Housing"){
+            this.deselectBuyBuilding();
+            return;
+        }
 
         this.deselectBuyBuilding();
 
@@ -234,7 +264,7 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         gameEngine.board.unhighlightTiles(gameEngine.possibleMoves);
         gameEngine.possibleMoves = null;
 
-        this.selectedBuyBuilding = null;
+        gameEngine.selectedBuyBuilding = null;
     }
 
     //TODO: use building enum instead

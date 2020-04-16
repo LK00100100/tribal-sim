@@ -12,6 +12,7 @@ let { Race } = RaceObj;
 //import managers
 import ArmyManager from "../army/ArmyManager";
 import BuildingManager from "../buildings/BuildingManager";
+// eslint-disable-next-line no-unused-vars
 import SceneGame from "../SceneGame";
 
 /**
@@ -145,7 +146,6 @@ export default class GameEngine {
         //Phaser sprites, human-player selected
         this.selectedVillage;
         this.selectedBuilding;
-        this.selectedBuyBuilding;
         this.selectedArmy;
         this.selectedEnemyArmy;
 
