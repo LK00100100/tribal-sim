@@ -2,9 +2,9 @@
 import Phaser from "../node_modules/phaser/src/phaser";
 
 //sub scenes
-import ArmyInfoScene from "./ui/scenes/ArmyInfoScene";
 import EnemyArmyInfoScene from "./ui/scenes/EnemyArmyInfoScene";
 import EnemyBuildingInfoScene from "./ui/scenes/EnemyBuildingInfoScene";
+import HumanArmyInfoScene from "./ui/scenes/ArmyInfoScene";
 import HumanBuildingInfoScene from "./ui/scenes/HumanBuildingInfoScene";
 import HumanVillageInfoScene from "./ui/scenes/HumanVillageInfoScene";
 import TimeInfoScene from "./ui/scenes/TimeInfoScene";
@@ -48,7 +48,7 @@ export default class SceneGame extends Phaser.Scene {
         //sub-ui scenes. 
         //note: don't forget to add new stuff to the init function in create()
         this.alreadyLaunched = new Set();
-        this.armyInfoScene = new ArmyInfoScene(this, this.gameEngine);
+        this.humanArmyInfoScene = new HumanArmyInfoScene(this, this.gameEngine);
         this.humanVillageInfoScene = new HumanVillageInfoScene(this, this.gameEngine);
         this.humanBuildingInfoScene = new HumanBuildingInfoScene(this, this.gameEngine);
 
@@ -299,7 +299,7 @@ export default class SceneGame extends Phaser.Scene {
         this.initSubScene(this.timeInfoScene);
         this.initSubScene(this.humanVillageInfoScene);
         this.initSubScene(this.humanBuildingInfoScene);
-        this.initSubScene(this.armyInfoScene);
+        this.initSubScene(this.humanArmyInfoScene);
         this.initSubScene(this.enemyArmyInfoScene);
         this.initSubScene(this.enemyBuildingInfoScene);
 
@@ -378,7 +378,7 @@ export default class SceneGame extends Phaser.Scene {
         //TODO: turn this on directly when needed
         //turn on army UI
         if (gameEngine.selectedArmy != null) {
-            this.turnOnSubSceneOnce(this.armyInfoScene);
+            this.turnOnSubSceneOnce(this.humanArmyInfoScene);
         }
 
     }
@@ -496,7 +496,7 @@ export default class SceneGame extends Phaser.Scene {
             gameEngine.board.unhighlightTiles(gameEngine.selectedArmyPossibleMoves);
             gameEngine.selectedArmy = null;
 
-            this.turnOffSubScene(this.armyInfoScene);
+            this.turnOffSubScene(this.humanArmyInfoScene);
         }
 
         if (gameEngine.possibleMoves != null) {

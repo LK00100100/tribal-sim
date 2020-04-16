@@ -16,8 +16,7 @@ import GameEngine from "../../engine/GameEngine";
  * 
  * Opens when the human-player selects his army.
  */
-//TODO: rename HumanArmyInfoScene
-export default class ArmyInfoScene extends Phaser.Scene {
+export default class HumanArmyInfoScene extends Phaser.Scene {
 
     /**
      * 
@@ -25,8 +24,8 @@ export default class ArmyInfoScene extends Phaser.Scene {
      * @param {GameEngine} gameEngine 
      */
     constructor(gameScene, gameEngine) {
-        super("ArmyInfoScene");
-        this.handle = "ArmyInfoScene";    //has to be same as above
+        super("HumanArmyInfoScene");
+        this.handle = "HumanArmyInfoScene";    //has to be same as above
 
         this.gameScene = gameScene;
         this.gameEngine = gameEngine;
