@@ -99,7 +99,9 @@ export default class HumanBuildingInfoScene extends Phaser.Scene {
 
     updateUiText(){
         let gameScene = this.gameScene;
-        let selectedBuildingSprite = gameScene.selectedBuilding;
+        let gameEngine = gameScene.gameEngine;
+
+        let selectedBuildingSprite = gameEngine.selectedBuilding;
 
         let building = selectedBuildingSprite.getData("data");
 
@@ -115,8 +117,9 @@ export default class HumanBuildingInfoScene extends Phaser.Scene {
      */
     clickedDestroyBuilding() {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
-        gameScene.buildingManager.destroyBuilding(gameScene.selectedBuilding);
+        gameEngine.buildingManager.destroyBuilding(gameEngine.selectedBuilding);
 
         gameScene.deselectEverything();
         gameScene.turnOffSubScene(this);

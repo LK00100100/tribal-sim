@@ -489,6 +489,8 @@ export default class SceneGame extends Phaser.Scene {
         if (gameEngine.selectedBuilding != null) {
             gameEngine.selectedBuilding.clearTint();
             gameEngine.selectedBuilding = null;
+
+            this.turnOffSubScene(this.humanBuildingInfoScene);
         }
 
         if (gameEngine.selectedArmy != null) {
@@ -572,7 +574,8 @@ export default class SceneGame extends Phaser.Scene {
         if (pointer.leftButtonDown()) {
             gameScene.deselectEverything();
 
-            if (building.player == gameScene.playerHuman) {
+            //clicked our building
+            if (building.player == gameEngine.playerHuman) {
                 gameScene.deselectEverything();
                 gameEngine.selectedBuilding = this;
                 gameScene.turnOnSubSceneOnce(gameScene.humanBuildingInfoScene);
