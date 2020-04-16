@@ -1,7 +1,11 @@
+//phaser imports
+import Phaser from "../node_modules/phaser/src/phaser";
+
 //sub scenes
 import ArmyInfoScene from "./ui/scenes/ArmyInfoScene";
 import EnemyArmyInfoScene from "./ui/scenes/EnemyArmyInfoScene";
 import EnemyBuildingInfoScene from "./ui/scenes/EnemyBuildingInfoScene";
+import HumanBuildingInfoScene from "./ui/scenes/HumanBuildingInfoScene";
 import HumanVillageInfoScene from "./ui/scenes/HumanVillageInfoScene";
 import TimeInfoScene from "./ui/scenes/TimeInfoScene";
 
@@ -13,20 +17,13 @@ const { Terrain, TerrainSpriteName } = TerrainObj;
 
 import Village from "./buildings/villageBuildings/Village";
 
+import GameEngine from "./engine/GameEngine";
+
 import ArmyManager from "./army/ArmyManager";
+import BuildingManager from "./buildings/BuildingManager";
 
 import RaceObj from "./Race";
 let { Race } = RaceObj;
-
-import BuildingManager from "./buildings/BuildingManager";
-
-//phaser imports
-import Phaser from "../node_modules/phaser/src/phaser";
-
-// eslint-disable-next-line no-unused-vars
-import Army from "./army/Army";
-import GameEngine from "./engine/GameEngine";
-import HumanBuildingInfoScene from "./ui/scenes/HumanBuildingInfoScene";
 
 /**
  * This scene draws out the board and players.
@@ -734,7 +731,7 @@ export default class SceneGame extends Phaser.Scene {
             else{
                 gameScene.selectedEnemyBuilding = this;
 
-                gameScene.turnOnSubSceneOnce(this.enemyBuildingInfoScene);
+                gameScene.turnOnSubSceneOnce(gameScene.enemyBuildingInfoScene);
             }
 
             gameScene.updateUi();
