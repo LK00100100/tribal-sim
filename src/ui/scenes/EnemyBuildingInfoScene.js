@@ -109,6 +109,7 @@ export default class EnemyBuildingInfoScene extends Phaser.Scene {
         //turn off this scene if we have no building
         if(gameEngine.selectedEnemyBuilding == null){
             gameScene.turnOffSubScene(gameScene.enemyBuildingInfoScene);
+            return;
         }
 
         this.updateUiText();

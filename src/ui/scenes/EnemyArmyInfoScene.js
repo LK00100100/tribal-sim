@@ -2,8 +2,6 @@ import Phaser from "phaser";
 
 // eslint-disable-next-line no-unused-vars
 import SceneGame from "../../SceneGame";
-import GameUtilsUi from "../../utils/GameUtilsUi";
-
 
 /**
  * Ui that displays information on an enemy army. And actions against the enemy.
@@ -44,7 +42,7 @@ export default class EnemyArmyInfoScene extends Phaser.Scene {
          * UI - enemy army
          */
         x = 1150;
-        y = -160;
+        y = 100;
 
         this.txtArmyEnemyName = this.createUiTextHelper(x, y + 120)
             .setOrigin(1, 0); //right-to-left text
