@@ -105,7 +105,7 @@ export default class EnemyBuildingInfoScene extends Phaser.Scene {
         let gameScene = this.gameScene;
         let gameEngine = gameScene.gameEngine;
         let selectedArmy = gameEngine.selectedArmy;
-        
+                
         //turn off this scene if we have no building
         if(gameEngine.selectedEnemyBuilding == null){
             gameScene.turnOffSubScene(gameScene.enemyBuildingInfoScene);
@@ -113,6 +113,8 @@ export default class EnemyBuildingInfoScene extends Phaser.Scene {
         }
 
         this.updateUiText();
+
+        this.btnEnemyBuildingAttack.clearTint();
 
         //can't attack. gray out.
         if(selectedArmy == null)

@@ -247,4 +247,33 @@ export default class BuildingManager {
         return answer;
     }
 
+    /**
+     * Turn on the EnemyBuildingInfoScene if the human-player's selected army is on top of 
+     * an enemy building.
+     * @param {Army} army 
+     */
+    turnOnEnemyBuildingInfoSceneCheck(){
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
+        let board = gameEngine.board;
+
+        if(gameEngine.selectedArmy == null)
+            return;
+
+        let army = gameEngine.selectedArmy.getData("data");
+        let armyRow = army.row;
+        let armyCol = army.col;
+
+        let buildingSprite = board.boardBuildings[armyRow][armyCol];
+        if(buildingSprite != null){
+            /** @type {Building} */
+            let building = buildingSprite.getData("data");
+            
+            if(army.player != building.player){
+                gameEngine.selectedEnemyBuilding = buildingSprite;
+                gameScene.turnOnSubSceneOnce(gameScene.enemyBuildingInfoScene);
+            }
+        }
+    }
+
 }

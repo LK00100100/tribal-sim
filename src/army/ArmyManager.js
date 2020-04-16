@@ -399,7 +399,7 @@ export default class ArmyManager {
         //clicked your own human-player army
         if (otherArmy.player == 1) {
             gameEngine.armyManager.selectArmy(pointer, this);
-            gameEngine.armyManager.turnOnEnemyBuildingInfoSceneCheck();
+            gameEngine.buildingManager.turnOnEnemyBuildingInfoSceneCheck();
         }
         //clicked another player's army
         else {
@@ -895,36 +895,7 @@ export default class ArmyManager {
         }
         
         //after moving, if you're on top of an enemy building, show that info screen.
-        gameEngine.armyManager.turnOnEnemyBuildingInfoSceneCheck();
-    }
-
-    /**
-     * Turn on the EnemyBuildingInfoScene if the human-player's selected army is on top of 
-     * an enemy building.
-     * @param {Army} army 
-     */
-    turnOnEnemyBuildingInfoSceneCheck(){
-        let gameScene = this.gameScene;
-        let gameEngine = gameScene.gameEngine;
-        let board = gameEngine.board;
-
-        if(gameEngine.selectedArmy == null)
-            return;
-
-        let army = gameEngine.selectedArmy.getData("data");
-        let armyRow = army.row;
-        let armyCol = army.col;
-
-        let buildingSprite = board.boardBuildings[armyRow][armyCol];
-        if(buildingSprite != null){
-            /** @type {Building} */
-            let building = buildingSprite.getData("data");
-            
-            if(army.player != building.player){
-                gameEngine.selectedEnemyBuilding = buildingSprite;
-                gameScene.turnOnSubSceneOnce(gameScene.enemyBuildingInfoScene);
-            }
-        }
+        gameEngine.buildingManager.turnOnEnemyBuildingInfoSceneCheck();
     }
 
 }
