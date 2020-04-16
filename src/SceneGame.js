@@ -444,7 +444,7 @@ export default class SceneGame extends Phaser.Scene {
             if (gameEngine.selectedArmy == null)
                 return;
 
-            gameEngine.armyManager.processArmyAction(this);
+            gameEngine.armyManager.processHumanArmyAction(this);
             return;
         }
 
@@ -545,9 +545,9 @@ export default class SceneGame extends Phaser.Scene {
         }
 
         if (pointer.rightButtonDown()) {
-            //process action of army of player 1
+            //process action of army of human-player
             if (gameEngine.selectedArmy != null) {
-                gameEngine.armyManager.processArmyAction(this);
+                gameEngine.armyManager.processHumanArmyAction(this);
             }
         }
 
@@ -592,7 +592,7 @@ export default class SceneGame extends Phaser.Scene {
             if (gameEngine.selectedArmy == null)
                 return;
 
-            gameEngine.armyManager.processArmyAction(this);
+            gameEngine.armyManager.processHumanArmyAction(this);
             return;
         }
 

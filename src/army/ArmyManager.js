@@ -378,7 +378,6 @@ export default class ArmyManager {
     }
 
     //TODO: separate select and attack. maybe move this
-    //TODO: replace inner code with scene.processArmyAction()
     /**
      * clicked an army. yours or otherwise
      * @param {Phaser.Pointer} pointer Phaser pointer
@@ -400,6 +399,7 @@ export default class ArmyManager {
         //clicked your own human-player army
         if (otherArmy.player == 1) {
             gameEngine.armyManager.selectArmy(pointer, this);
+            gameEngine.armyManager.turnOnEnemyBuildingInfoSceneCheck();
         }
         //clicked another player's army
         else {
@@ -424,7 +424,7 @@ export default class ArmyManager {
                 gameEngine.selectedEnemyArmy = this;
                 gameEngine.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
                 let terrainSprite = gameEngine.board.boardTerrainSprites[targetRow][targetCol];
-                armyManager.processArmyAction(terrainSprite);
+                armyManager.processHumanArmyAction(terrainSprite);
             }
         }
     }
@@ -832,12 +832,15 @@ export default class ArmyManager {
     }
     
     /**
+     * processes human-player army action
      * process army action such as move to targetSprite
      * @param {*} targetSprite building or terrain sprite
      */
-    processArmyAction(targetSprite) {
+    processHumanArmyAction(targetSprite) {
+        /** @type {SceneGame} */
         let gameScene = this.gameScene;
         let gameEngine = gameScene.gameEngine;
+        let board = gameEngine.board;
 
         let targetRow = targetSprite.data.get("row");
         let targetCol = targetSprite.data.get("col");
@@ -846,9 +849,10 @@ export default class ArmyManager {
             return;
 
         let armySprite = gameEngine.selectedArmy;
+        /** @type {Army} */
         let army = armySprite.getData("data");
 
-        let playerOwner = gameEngine.board.getTileOwnership(targetRow, targetCol);
+        let playerOwner = board.getTileOwnership(targetRow, targetCol);
         let selectedArmyRow = armySprite.data.get("data").row;
         let selectedArmyCol = armySprite.data.get("data").col;
 
@@ -874,16 +878,47 @@ export default class ArmyManager {
             //move closer
             else {
                 console.log("too far to attack! moving closer!");
-                gameEngine.board.unhighlightTiles(gameEngine.selectedArmyPossibleMoves);
+                board.unhighlightTiles(gameEngine.selectedArmyPossibleMoves);
 
                 gameEngine.armyManager.moveArmyCloser(armySprite, targetSprite);
 
                 gameEngine.selectedArmyPossibleMoves = gameEngine.armyManager.getPossibleMovesArmy(armySprite);
-                gameEngine.board.highlightTiles(gameEngine.selectedArmyPossibleMoves);
+                board.highlightTiles(gameEngine.selectedArmyPossibleMoves);
             }
 
         }
+        
+        //after moving, if you're on top of an enemy building, show that info screen.
+        gameEngine.armyManager.turnOnEnemyBuildingInfoSceneCheck();
+    }
 
+    /**
+     * Turn on the EnemyBuildingInfoScene if the human-player's selected army is on top of 
+     * an enemy building.
+     * @param {Army} army 
+     */
+    turnOnEnemyBuildingInfoSceneCheck(){
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
+        let board = gameEngine.board;
+
+        if(gameEngine.selectedArmy == null)
+            return;
+
+        let army = gameEngine.selectedArmy.getData("data");
+        let armyRow = army.row;
+        let armyCol = army.col;
+
+        let buildingSprite = board.boardBuildings[armyRow][armyCol];
+        if(buildingSprite != null){
+            /** @type {Building} */
+            let building = buildingSprite.getData("data");
+            
+            if(army.player != building.player){
+                gameEngine.selectedEnemyBuilding = buildingSprite;
+                gameScene.turnOnSubSceneOnce(gameScene.enemyBuildingInfoScene);
+            }
+        }
     }
 
 }
