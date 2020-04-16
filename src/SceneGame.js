@@ -393,6 +393,7 @@ export default class SceneGame extends Phaser.Scene {
 
         try {
             if (gameScene.alreadyLaunched.has(handle)) {
+                subScene.updateUi();
                 gameScene.scene.wake(handle);
             }
             //first time being on

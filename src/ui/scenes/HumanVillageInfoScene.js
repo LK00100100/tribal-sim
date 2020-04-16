@@ -161,11 +161,13 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
             return;
 
         let gameScene = this.gameScene;
-        let village = gameScene.selectedVillage.data.get("data");
+        let gameEngine = gameScene.gameEngine;
 
-        gameScene.board.unhighlightTiles(gameScene.possibleMoves);
+        let village = gameEngine.selectedVillage.data.get("data");
 
-        gameScene.armyManager.createArmyFromVillage(1, village);
+        gameEngine.board.unhighlightTiles(gameEngine.possibleMoves);
+
+        gameEngine.armyManager.createArmyFromVillage(1, village);
 
         gameScene.updateUi();
     }
@@ -225,11 +227,12 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
      */
     deselectBuyBuilding() {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
         GameUtils.clearTintArray(this.uiVillageButtons);
 
-        gameScene.board.unhighlightTiles(gameScene.possibleMoves);
-        gameScene.possibleMoves = null;
+        gameEngine.board.unhighlightTiles(gameEngine.possibleMoves);
+        gameEngine.possibleMoves = null;
 
         this.selectedBuyBuilding = null;
     }
@@ -241,10 +244,11 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
      */
     preBuyBuilding(buildingType) {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
-        gameScene.selectedBuyBuilding = buildingType;
+        gameEngine.selectedBuyBuilding = buildingType;
 
-        let village = gameScene.selectedVillage.data.get("data");
+        let village = gameEngine.selectedVillage.data.get("data");
 
         //TODO: ensure enough resources from this specific building
         if (village.amountWood < 100) {
@@ -254,10 +258,10 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
 
         console.log("before: build a " + buildingType);
 
-        gameScene.possibleMoves = gameScene.buildingManager.getVillageBuildings(village);
-        gameScene.possibleMoves = gameScene.buildingManager.getBuildableNeighbors(gameScene.possibleMoves);
+        gameEngine.possibleMoves = gameEngine.buildingManager.getVillageBuildings(village);
+        gameEngine.possibleMoves = gameEngine.buildingManager.getBuildableNeighbors(gameEngine.possibleMoves);
 
-        gameScene.board.highlightTiles(gameScene.possibleMoves);
+        gameEngine.board.highlightTiles(gameEngine.possibleMoves);
     }
 
     /**

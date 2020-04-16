@@ -178,11 +178,12 @@ export default class ArmyInfoScene extends Phaser.Scene {
      */
     updateUi() {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
-        if (!gameScene.selectedArmy)
+        if (!gameEngine.selectedArmy)
             return;
 
-        let selectedArmy = this.gameScene.selectedArmy.getData("data");
+        let selectedArmy = gameEngine.selectedArmy.getData("data");
 
         this.updateTextArmy(selectedArmy);
         this.showUiArmyButtons(selectedArmy);
@@ -196,6 +197,7 @@ export default class ArmyInfoScene extends Phaser.Scene {
      */
     showUiArmyButtons(armyData) {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
         //TODO: refactor armyData as just selected
         GameUtilsUi.hideGameObjects(this.uiArmyBuildButtons);
@@ -204,7 +206,7 @@ export default class ArmyInfoScene extends Phaser.Scene {
         let row = armyData.row;
         let col = armyData.col;
 
-        let buildingSprite = gameScene.board.boardBuildings[row][col];
+        let buildingSprite = gameEngine.board.boardBuildings[row][col];
 
         //on-top-of-village buttons
         //TODO: be able to replenish in friendly villages through trade.
@@ -255,12 +257,13 @@ export default class ArmyInfoScene extends Phaser.Scene {
      */
     showUiArmyBuildButtons() {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
         GameUtilsUi.hideGameObjects(this.uiArmyButtons);
         GameUtilsUi.showGameObjects(this.uiArmyBuildButtons);
         GameUtils.clearTintArray(this.uiArmyBuildButtons);
 
-        let army = gameScene.selectedArmy.getData("data");
+        let army = gameEngine.selectedArmy.getData("data");
         this.updateUiArmyBuildButtons(army);
     }
 
@@ -275,10 +278,11 @@ export default class ArmyInfoScene extends Phaser.Scene {
      */
     clickedArmyGetUnits() {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
-        let army = gameScene.selectedArmy.data.get("data");
+        let army = gameEngine.selectedArmy.data.get("data");
 
-        gameScene.armyManager.getUnits(army);
+        gameEngine.armyManager.getUnits(army);
 
         gameScene.updateUi();
         this.updateUi();
@@ -291,14 +295,15 @@ export default class ArmyInfoScene extends Phaser.Scene {
      */
     clickedArmyDisbandUnits() {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
-        let army = gameScene.selectedArmy.getData("data");
+        let army = gameEngine.selectedArmy.getData("data");
         let row = army.row;
         let col = army.col;
 
         let disbandAmount = army.size() >= 10 ? 10 : army.size();
 
-        let buildingSprite = gameScene.board.boardBuildings[row][col];
+        let buildingSprite = gameEngine.board.boardBuildings[row][col];
         let village;
 
         if (buildingSprite == null)
@@ -319,7 +324,7 @@ export default class ArmyInfoScene extends Phaser.Scene {
         village.population += disbandAmount;
 
         if (army.size() == 0)
-            gameScene.armyManager.destroyArmy(army);
+            gameEngine.armyManager.destroyArmy(army);
 
         gameScene.updateUi();
         this.updateUi();
@@ -332,9 +337,10 @@ export default class ArmyInfoScene extends Phaser.Scene {
      */
     clickedArmyGetFood() {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
-        let army = gameScene.selectedArmy.data.get("data");
-        gameScene.armyManager.getFood(army);
+        let army = gameEngine.selectedArmy.data.get("data");
+        gameEngine.armyManager.getFood(army);
 
         gameScene.updateUi();
         this.updateUi();
@@ -345,9 +351,10 @@ export default class ArmyInfoScene extends Phaser.Scene {
      */
     clickedArmyGetWood() {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
-        let army = gameScene.selectedArmy.data.get("data");
-        gameScene.armyManager.getWood(army);
+        let army = gameEngine.selectedArmy.data.get("data");
+        gameEngine.armyManager.getWood(army);
 
         gameScene.updateUi();
         this.updateUi();
@@ -373,8 +380,9 @@ export default class ArmyInfoScene extends Phaser.Scene {
      */
     clickedArmyBuildCancel() {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
-        let army = gameScene.selectedArmy.getData("data");
+        let army = gameEngine.selectedArmy.getData("data");
 
         this.showUiArmyButtons(army);
     }
@@ -382,9 +390,10 @@ export default class ArmyInfoScene extends Phaser.Scene {
     //TODO: just bind(this) functions
     clickedBuildWallWood() {
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
         //TODO: activate buttons if you have enough resources. else display warning
 
-        this.selectedArmyBuildFunc = gameScene.armyManager.armyBuildWallWood;
+        this.selectedArmyBuildFunc = gameEngine.armyManager.armyBuildWallWood;
 
         this.updateUiArmyBuildDirectionButtons();
     }

@@ -109,7 +109,9 @@ export default class EnemyBuildingInfoScene extends Phaser.Scene {
 
     updateUiText(){
         let gameScene = this.gameScene;
-        let enemyBuildingSprite = gameScene.selectedEnemyBuilding;
+        let gameEngine = gameScene.gameEngine;
+
+        let enemyBuildingSprite = gameEngine.selectedEnemyBuilding;
         let enemyBuilding = enemyBuildingSprite.getData("data");
 
         this.txtEnemyBuildingPlayer.setText(enemyBuilding.player + " :Building, Player");
@@ -126,17 +128,18 @@ export default class EnemyBuildingInfoScene extends Phaser.Scene {
     clickedArmyAttackBuilding() {
         console.log("clicked attacking building");
         let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
-        let armySprite = gameScene.selectedArmy;
+        let armySprite = gameEngine.selectedArmy;
 
         if (armySprite == null)
             return;
 
         let army = armySprite.getData("data");
 
-        let buildingSprite = gameScene.board.getBuilding(army.row, army.col);
+        let buildingSprite = gameEngine.board.getBuilding(army.row, army.col);
 
-        gameScene.armyManager.armyAttackBuilding(armySprite, buildingSprite);
+        gameEngine.armyManager.armyAttackBuilding(armySprite, buildingSprite);
 
         gameScene.updateUi();
     }
