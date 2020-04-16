@@ -2,6 +2,8 @@ import Phaser from "phaser";
 
 // eslint-disable-next-line no-unused-vars
 import SceneGame from "../../SceneGame";
+// eslint-disable-next-line no-unused-vars
+import GameEngine from "../../engine/GameEngine";
 
 //TODO: maybe make a village screen separately? for different village-related actions?
 /**
@@ -14,12 +16,14 @@ export default class EnemyBuildingInfoScene extends Phaser.Scene {
     /**
      * 
      * @param {SceneGame} gameScene 
+     * @param {GameEngine} gameEngine
      */
-    constructor(gameScene) {
+    constructor(gameScene, gameEngine) {
         super("EnemyBuildingInfoScene");    //has to be same as above"
         this.handle = "EnemyBuildingInfoScene";    //has to be same as above
 
         this.gameScene = gameScene;
+        this.gameEngine = gameEngine;
 
         //ui elements
         this.uiEnemyBuilding = [];

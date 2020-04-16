@@ -1,8 +1,10 @@
 
 import Phaser from "../node_modules/phaser/src/phaser";
 import SceneGame from "./SceneGame.js";
+import GameEngine from "./engine/GameEngine";
 
-var sceneGame = new SceneGame();
+var gameEngine = new GameEngine();
+var sceneGame = new SceneGame(gameEngine);
 
 var config = {
     type: Phaser.AUTO,

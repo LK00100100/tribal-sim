@@ -15,12 +15,14 @@ export default class EnemyArmyInfoScene extends Phaser.Scene {
     /**
      * 
      * @param {SceneGame} gameScene 
+     * @param {GameEngine} gameEngine
      */
-    constructor(gameScene) {
+    constructor(gameScene, gameEngine) {
         super("EnemyArmyInfoScene");    //has to be same as above"
         this.handle = "EnemyArmyInfoScene";    //has to be same as above
 
         this.gameScene = gameScene;
+        this.gameEngine = gameEngine;
 
         //ui elements
         this.uiArmyEnemy = [];

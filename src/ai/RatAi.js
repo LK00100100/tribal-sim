@@ -38,7 +38,7 @@ export default class RatAi extends Ai {
 
                 //constantly produce rat armies when you can
                 if (buildingData.population >= 20) {
-                    let armySprite = scene.armyManager.createArmy(this.playerNumber, buildingData);
+                    let armySprite = scene.armyManager.createArmyFromVillage(this.playerNumber, buildingData);
 
                     if (armySprite != null)
                         armySprite.getData("data").name = "Wild Rats";

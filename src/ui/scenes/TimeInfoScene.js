@@ -1,5 +1,9 @@
 
 import Phaser from "phaser";
+// eslint-disable-next-line no-unused-vars
+import SceneGame from "../../SceneGame";
+// eslint-disable-next-line no-unused-vars
+import GameEngine from "../../engine/GameEngine";
 
 
 /**
@@ -7,13 +11,17 @@ import Phaser from "phaser";
  */
 export default class TimeInfoScene extends Phaser.Scene {
 
-    constructor(gameScene) {
+    /**
+     * 
+     * @param {SceneGame} gameScene 
+     * @param {GameEngine} gameEngine 
+     */
+    constructor(gameScene, gameEngine) {
         super("TimeInfoScene");
         this.handle = "TimeInfoScene";
 
         this.gameScene = gameScene;
-        //TODO: singleton
-        this.gameEngine = gameScene.gameEngine;
+        this.gameEngine = gameEngine;
     }
 
     //preload assets

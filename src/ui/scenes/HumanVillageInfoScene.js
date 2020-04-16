@@ -5,6 +5,10 @@ import GameUtilsBuilding from "../../utils/GameUtilsBuilding";
 import GameUtilsUi from "../../utils/GameUtilsUi";
 // eslint-disable-next-line no-unused-vars
 import Village from "../../buildings/villageBuildings/Village";
+// eslint-disable-next-line no-unused-vars
+import SceneGame from "../../SceneGame";
+// eslint-disable-next-line no-unused-vars
+import GameEngine from "../../engine/GameEngine";
 
 
 /**
@@ -14,11 +18,17 @@ import Village from "../../buildings/villageBuildings/Village";
  */
 export default class HumanVillageInfoScene extends Phaser.Scene {
 
-    constructor(gameScene) {
+    /**
+     * 
+     * @param {SceneGame} gameScene 
+     * @param {GameEngine} gameEngine 
+     */
+    constructor(gameScene, gameEngine) {
         super("HumanVillageInfoScene");    //has to be same as above"
         this.handle = "HumanVillageInfoScene";    //has to be same as above
 
         this.gameScene = gameScene;
+        this.gameEngine = gameEngine;
 
         //ui elements
         this.uiVillageText = [];
@@ -153,7 +163,7 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
 
         gameScene.board.unhighlightTiles(gameScene.possibleMoves);
 
-        gameScene.armyManager.createArmy(1, village);
+        gameScene.armyManager.createArmyFromVillage(1, village);
 
         gameScene.updateUi();
     }

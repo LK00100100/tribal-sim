@@ -6,6 +6,10 @@ const { Direction } = DirectionObj;
 
 import GameUtils from "../../utils/GameUtils";
 import GameUtilsUi from "../../utils/GameUtilsUi";
+// eslint-disable-next-line no-unused-vars
+import SceneGame from "../../SceneGame";
+// eslint-disable-next-line no-unused-vars
+import GameEngine from "../../engine/GameEngine";
 
 /**
  * Contains the Ui that displays the human-player's army info and actions
@@ -15,11 +19,17 @@ import GameUtilsUi from "../../utils/GameUtilsUi";
 //TODO: rename HumanArmyInfoScene
 export default class ArmyInfoScene extends Phaser.Scene {
 
-    constructor(gameScene) {
+    /**
+     * 
+     * @param {SceneGame} gameScene 
+     * @param {GameEngine} gameEngine 
+     */
+    constructor(gameScene, gameEngine) {
         super("ArmyInfoScene");
         this.handle = "ArmyInfoScene";    //has to be same as above
 
         this.gameScene = gameScene;
+        this.gameEngine = gameEngine;
 
         //ui element groupings
         this.uiArmyText = [];

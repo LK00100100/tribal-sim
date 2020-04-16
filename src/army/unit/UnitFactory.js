@@ -5,6 +5,8 @@ let {getRaceClass, getRaceSpriteName } = RaceObj;
 import Unit from "./Unit";
 
 import GameUtilsBoard from "../../utils/GameUtilsBoard";
+// eslint-disable-next-line no-unused-vars
+import SceneGame from "../../SceneGame";
 
 export default class UnitFactory {
 
@@ -19,23 +21,26 @@ export default class UnitFactory {
     }
 
     /**
-     * draws a sprite on the board. does not place the sprite on the game Board
+     * Draws a sprite on the board. 
+     * Does not place the sprite on the game Board
      * 
-     * @param {Phaser.Scene} scene 
+     * @param {SceneGame} gameScene 
      * @param {Village} village 
      * @param {Races} race 
      * @returns Phaser Sprite
      */
-    static getUnitSprite(scene, row, col, race) {
+    static drawUnitSprite(gameScene, row, col, race) {
+        let gameEngine = gameScene.gameEngine;
+
         let armySprite;
         let x = GameUtilsBoard.convertColToPixel(col);
         let y = GameUtilsBoard.convertRowToPixel(row);
         let spriteName = getRaceSpriteName(race);
 
-        armySprite = scene.add.sprite(x, y, spriteName);
+        armySprite = gameScene.add.sprite(x, y, spriteName);
         armySprite.setDataEnabled()
             .setInteractive()
-            .on("pointerdown", scene.armyManager.clickedArmy)
+            .on("pointerdown", gameEngine.armyManager.clickedArmy)
             .setDepth(2);
 
         return armySprite;

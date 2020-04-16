@@ -9,18 +9,13 @@ import HumanBuildingInfoScene from "./ui/scenes/HumanBuildingInfoScene";
 import HumanVillageInfoScene from "./ui/scenes/HumanVillageInfoScene";
 import TimeInfoScene from "./ui/scenes/TimeInfoScene";
 
-import GameUtilsAi from "./utils/GameUtilsAi";
-
-import Board from "./board/Board";
 import TerrainObj from "./board/Terrain";
 const { Terrain, TerrainSpriteName } = TerrainObj;
 
 import Village from "./buildings/villageBuildings/Village";
 
+// eslint-disable-next-line no-unused-vars
 import GameEngine from "./engine/GameEngine";
-
-import ArmyManager from "./army/ArmyManager";
-import BuildingManager from "./buildings/BuildingManager";
 
 import RaceObj from "./Race";
 let { Race } = RaceObj;
@@ -31,165 +26,36 @@ let { Race } = RaceObj;
  */
 export default class SceneGame extends Phaser.Scene {
 
-    constructor() {
+    /**
+     * @param {GameEngine} gameEngine 
+     */
+    constructor(gameEngine) {
         super("SceneGame");
         this.handle = "SceneGame";
 
-        //TODO: separate scene from game info
-
-        //TODO: singleton for gameengine
-        this.gameEngine = new GameEngine(this);
-        this.board = new Board();
-
-        //TODO: read all this stuff from external source
-        //1-indexed
-        this.playerRace = [
-            "", //no player
-            Race.CAVEMAN,   //this is the human-player
-            Race.CAVEMAN,
-            Race.RAT,
-            Race.RAT,
-            Race.CAVEMAN,
-            Race.GORILLA,
-            Race.TIGER,
-            Race.MEERKAT,
-            Race.CAT,
-            Race.CAVEMAN
-        ];
-        this.numPlayers = this.playerRace.length - 1;
-
-        this.playerAi;
-
-        this.playerHuman = 1;   //this is you
-
-        //TODO: temporary. do fix
-        this.buildings = [
-            {
-                row: 5, col: 2,
-                name: "mad katz",
-                type: "village",
-                player: 1,
-                population: 20,
-                amountFood: 1000,
-                amountStone: 250,
-                amountWood: 500
-            },
-            {
-                row: 16, col: 10,
-                name: "stompers",
-                type: "village",
-                player: 2,
-                population: 10,
-                amountFood: 100,
-                amountStone: 25,
-                amountWood: 50
-            },
-            {
-                row: 6, col: 7,
-                name: "rabid rats",
-                type: "village",
-                player: 3,
-                population: 10,
-                amountFood: 200,
-                amountStone: 0,
-                amountWood: 0
-            },
-            {
-                row: 12, col: 1,
-                name: "desert rats",
-                type: "village",
-                player: 4,
-                population: 10,
-                amountFood: 200,
-                amountStone: 0,
-                amountWood: 0
-            },
-            {
-                row: 11, col: 7,
-                name: "crazy rats",
-                type: "village",
-                player: 3,
-                population: 10,
-                amountFood: 200,
-                amountStone: 0,
-                amountWood: 0
-            },
-            {
-                row: 10, col: 13,
-                name: "clubbers",
-                type: "village",
-                player: 5,
-                population: 10,
-                amountFood: 200,
-                amountStone: 0,
-                amountWood: 0
-            },
-            {
-                row: 16, col: 1,
-                name: "grunters",
-                type: "village",
-                player: 10,
-                population: 10,
-                amountFood: 200,
-                amountStone: 0,
-                amountWood: 0
-            }
-        ];
+        this.gameEngine = gameEngine;
+        gameEngine.setGameScene(this);
 
         //for input and camera
         this.controls;
+        this.cam;
         this.defaultZoomLevel = 0.5;
 
-        this.day;   //what day on earth it is. ex: Day 100
-
-        this.gameOver = false;
-
-        //[player #] = array of army pieces
-        //sprites
-        this.playerArmies = [];
-        this.playerBuildings = [];
-        for (let playerNum = 0; playerNum <= this.numPlayers; playerNum++) {
-            this.playerArmies[playerNum] = [];
-            this.playerBuildings[playerNum] = [];
-        }
-
+        //TODO: use this later to disable the grid
         this.groupTerrain;
         this.groupGrid;
-
-        this.cam;
-
-        //Phaser sprites, human-player selected
-        //TODO: data to be held in class: GameEngine.
-        this.selectedVillage;
-        this.selectedBuilding;
-        this.selectedBuyBuilding;
-        this.selectedArmy;
-        this.selectedEnemyArmy;
-
-        this.selectedEnemyArmyCoordinates;     //{row, col} TODO: remove? just get from selected enemyArmy
-        this.selectedArmyPossibleMoves;
-        this.selectedVillageBuildings;
-        this.selectedEnemyBuilding;
-
-        //TODO: considate army and village moves
-        this.possibleMoves;
-
-        //TODO: move this into gameengine
-        //managers
-        this.buildingManager = new BuildingManager(this);
-        this.armyManager = new ArmyManager(this);
 
         //sub-ui scenes. 
         //note: don't forget to add new stuff to the init function in create()
         this.alreadyLaunched = new Set();
-        this.armyInfoScene = new ArmyInfoScene(this);
-        this.humanVillageInfoScene = new HumanVillageInfoScene(this);
-        this.humanBuildingInfoScene = new HumanBuildingInfoScene(this);
+        this.armyInfoScene = new ArmyInfoScene(this, this.gameScene);
+        this.humanVillageInfoScene = new HumanVillageInfoScene(this, this.gameScene);
+        this.humanBuildingInfoScene = new HumanBuildingInfoScene(this, this.gameScene);
 
-        this.timeInfoScene = new TimeInfoScene(this);
+        this.timeInfoScene = new TimeInfoScene(this, this.gameScene);
 
-        this.enemyArmyInfoScene = new EnemyArmyInfoScene(this);
-        this.enemyBuildingInfoScene = new EnemyBuildingInfoScene(this);
+        this.enemyArmyInfoScene = new EnemyArmyInfoScene(this, this.gameScene);
+        this.enemyBuildingInfoScene = new EnemyBuildingInfoScene(this, this.gameScene);
     }
 
     /**
@@ -232,6 +98,8 @@ export default class SceneGame extends Phaser.Scene {
      * Phaser initialization
      */
     create() {
+        let gameEngine = this.gameEngine;
+        let board = gameEngine.board;
         /**
          * pre init
          */
@@ -244,21 +112,21 @@ export default class SceneGame extends Phaser.Scene {
         let topY = 512;
         let topX = 512;
 
-        this.board.initBoard();
-        console.log(this.board.boardTerrain);
+        board.initBoard();
+        console.log(gameEngine.board.boardTerrain);
         this.groupTerrain = this.add.group();
         this.groupGrid = this.add.group();
-        let theBoard = this.board.boardTerrain;
-        for (let row = 0; row < this.board.boardTerrain.length; row++) {
+        let terrainBoard = board.boardTerrain;
+        for (let row = 0; row < gameEngine.board.boardTerrain.length; row++) {
             y = topY + (row * 256);
-            for (let col = 0; col < this.board.boardTerrain[0].length; col++) {
+            for (let col = 0; col < gameEngine.board.boardTerrain[0].length; col++) {
                 x = topX + (col * 256);
 
-                if (Terrain.getValue(theBoard[row][col])) {
+                if (Terrain.getValue(terrainBoard[row][col])) {
                     throw "terrain type does not exist at: " + row + "," + col;
                 }
 
-                let currentTerrainName = TerrainSpriteName.getSpriteNameFromNumber(theBoard[row][col]);
+                let currentTerrainName = TerrainSpriteName.getSpriteNameFromNumber(terrainBoard[row][col]);
 
                 //tile of terrain
                 tempSprite = this.add.sprite(x, y, currentTerrainName)
@@ -271,19 +139,18 @@ export default class SceneGame extends Phaser.Scene {
                 tempSprite.data.set("col", col);
 
                 this.groupTerrain.add(tempSprite);
-                this.board.boardTerrainSprites[row][col] = tempSprite;
+                gameEngine.board.boardTerrainSprites[row][col] = tempSprite;
 
                 //draw grid
                 tempImage = this.add.image(x, y, "tileGrid");
                 this.groupGrid.add(tempImage);
-
             }
         }
 
         /**
         * draw buildings
         */
-        this.buildings.forEach(building => {
+        gameEngine.buildings.forEach(building => {
             x = topX + (building.col * 256);
             y = topY + (building.row * 256);
             let name = building.name;
@@ -292,7 +159,7 @@ export default class SceneGame extends Phaser.Scene {
             let col = building.col;
 
             let imageName, data;
-            let race = this.playerRace[building.player];
+            let race = gameEngine.playerRace[building.player];
 
             //TODO: pull this out to a building factory
             switch (building.type) {
@@ -325,9 +192,9 @@ export default class SceneGame extends Phaser.Scene {
                 .setDataEnabled()
                 .on("pointerdown", this.clickedVillage);
 
-            this.buildingManager.addBuildingToBoard(row, col, tempSprite);
+            gameEngine.buildingManager.addBuildingToBoard(row, col, tempSprite);
 
-            this.playerBuildings[building.player].push(tempSprite);
+            gameEngine.playerBuildings[building.player].push(tempSprite);
 
             tempSprite.data.set("row", row);
             tempSprite.data.set("col", col);
@@ -341,34 +208,12 @@ export default class SceneGame extends Phaser.Scene {
                 .setDepth(1)
                 .setBackgroundColor("#000000");
 
-            this.board.addText(row, col, tempText);
-
+            board.addText(row, col, tempText);
         });
 
         /**
         * draw UI
         */
-
-        /**
-         * placing units
-         */
-        //TODO: temporary, place gorillas
-        let gorillaPlayerNumber = 6;
-        this.armyManager.createArmyFromCoordinate(gorillaPlayerNumber, 3, 10, "Atomrilla");
-
-        //TODO: temporary, place tigers
-        let tigerPlayerNumber = 7;
-        this.armyManager.createArmyFromCoordinate(tigerPlayerNumber, 6, 12, "Mad Katz");
-        this.armyManager.createArmyFromCoordinate(tigerPlayerNumber, 14, 4, "Tree Katz");
-
-        //TODO: temporary, place meerkats
-        let meerkatPlayerNumber = 8;
-        this.armyManager.createArmyFromCoordinate(meerkatPlayerNumber, 9, 3, "Timons");
-        this.armyManager.createArmyFromCoordinate(meerkatPlayerNumber, 13, 5, "Pumbas");
-
-        //TODO: temporary, place cats
-        let catPlayerNumber = 9;
-        this.armyManager.createArmyFromCoordinate(catPlayerNumber, 4, 13, "Krazy Kats");
 
         //hide some ui elements
         this.deselectEverything();
@@ -426,15 +271,27 @@ export default class SceneGame extends Phaser.Scene {
         //so we can right click without that box appearing
         this.input.mouse.disableContextMenu();
 
+        //TODO: move later
         /**
-         * init variables
+         * placing units
          */
+        //TODO: temporary, place gorillas
+        let gorillaPlayerNumber = 6;
+        this.gameEngine.armyManager.createArmyFromCoordinate(gorillaPlayerNumber, 3, 10, "Atomrilla");
 
-        //init variables
-        this.turnOfPlayer = 1;
-        this.day = 1;
+        //TODO: temporary, place tigers
+        let tigerPlayerNumber = 7;
+        this.gameEngine.armyManager.createArmyFromCoordinate(tigerPlayerNumber, 6, 12, "Mad Katz");
+        this.gameEngine.armyManager.createArmyFromCoordinate(tigerPlayerNumber, 14, 4, "Tree Katz");
 
-        this.playerAi = GameUtilsAi.initAiForPlayers(this, this.playerRace);
+        //TODO: temporary, place meerkats
+        let meerkatPlayerNumber = 8;
+        this.gameEngine.armyManager.createArmyFromCoordinate(meerkatPlayerNumber, 9, 3, "Timons");
+        this.gameEngine.armyManager.createArmyFromCoordinate(meerkatPlayerNumber, 13, 5, "Pumbas");
+
+        //TODO: temporary, place cats
+        let catPlayerNumber = 9;
+        this.gameEngine.armyManager.createArmyFromCoordinate(catPlayerNumber, 4, 13, "Krazy Kats");
 
         /**
          * init sub-scenes (ui)
@@ -446,6 +303,9 @@ export default class SceneGame extends Phaser.Scene {
         this.initSubScene(this.enemyArmyInfoScene);
         this.initSubScene(this.enemyBuildingInfoScene);
 
+        /**
+         * turn on sub scenes
+         */
         this.turnOnSubSceneOnce(this.timeInfoScene);
 
         this.updateUi();
@@ -511,11 +371,13 @@ export default class SceneGame extends Phaser.Scene {
      * updates and shows relevant UI
      */
     updateUi() {
+        let gameEngine = this.gameEngine;
+
         this.timeInfoScene.updateUi();
 
         //TODO: turn this on directly when needed
         //turn on army UI
-        if (this.selectedArmy != null) {
+        if (gameEngine.selectedArmy != null) {
             this.turnOnSubSceneOnce(this.armyInfoScene);
         }
 
@@ -563,9 +425,10 @@ export default class SceneGame extends Phaser.Scene {
     clickedVillage(pointer) {
         /** @type {SceneGame} */
         let gameScene = this.scene;
+        let gameEngine = gameScene.gameEngine;
 
         //already selected? center camera
-        if (gameScene.selectedVillage == this) {
+        if (gameEngine.selectedVillage == this) {
             gameScene.cam.pan(this.x, this.y, 500); //(x, y, duration) 
         }
 
@@ -577,25 +440,25 @@ export default class SceneGame extends Phaser.Scene {
 
         //attacking
         if (pointer.rightButtonDown()) {
-            if (gameScene.selectedArmy == null)
+            if (gameEngine.selectedArmy == null)
                 return;
 
-            gameScene.armyManager.processArmyAction(this);
+            gameEngine.armyManager.processArmyAction(this);
             return;
         }
 
         let village = this.data.get("data");
 
         //enemy village. view info
-        if (village.player != 1){
+        if (village.player != 1) {
             gameScene.deselectEverything();
-            gameScene.selectedEnemyBuilding = this;
+            gameEngine.selectedEnemyBuilding = this;
             gameScene.turnOnSubSceneOnce(gameScene.enemyBuildingInfoScene);
             return;
         }
 
         gameScene.deselectEverything();
-        gameScene.selectedVillage = this;
+        gameEngine.selectedVillage = this;
 
         //turn on human village info screen
         gameScene.turnOnSubSceneOnce(gameScene.humanVillageInfoScene);
@@ -604,71 +467,54 @@ export default class SceneGame extends Phaser.Scene {
     }
 
     /**
-     * populates and shows enemy army data
-     * @param {Number} row
-     * @param {Number} col
-     */
-    showUiArmyEnemy(row, col) {
-
-        let enemyArmy = this.board.boardUnits[row][col].getData("data");
-
-        this.txtArmyEnemyUnits.setText(enemyArmy.units.length + " :Enemy Units");
-        this.txtArmyEnemyName.setText(enemyArmy.name);
-        this.txtArmyEnemyAttackBase.setText(enemyArmy.calculateAttackBase() + " :Attack Base");
-        this.txtArmyEnemyDefenseBase.setText(enemyArmy.calculateDefenseBase() + " :Defense Base");
-
-
-        //TODO: if not enough moves left, highlight attack red
-    }
-
-    /**
      * turns off all subscenes.
      * deselects: army, enemy army, selections, etc.
      */
     deselectEverything() {
+        let gameEngine = this.gameEngine;
 
-        if (this.selectedBuyBuilding != null) {
-            this.board.unhighlightTiles(this.possibleMoves);
-            this.selectedBuyBuilding = null;
+        if (gameEngine.selectedBuyBuilding != null) {
+            gameEngine.board.unhighlightTiles(gameEngine.possibleMoves);
+            gameEngine.selectedBuyBuilding = null;
         }
 
-        if (this.selectedVillage != null) {
-            this.selectedVillage.clearTint();
-            this.selectedVillage = null;
+        if (gameEngine.selectedVillage != null) {
+            gameEngine.selectedVillage.clearTint();
+            gameEngine.selectedVillage = null;
 
             this.turnOffSubScene(this.humanVillageInfoScene);
         }
 
-        if (this.selectedBuilding != null) {
-            this.selectedBuilding.clearTint();
-            this.selectedBuilding = null;
+        if (gameEngine.selectedBuilding != null) {
+            gameEngine.selectedBuilding.clearTint();
+            gameEngine.selectedBuilding = null;
         }
 
-        if (this.selectedArmy != null) {
-            this.selectedArmy.clearTint();
-            this.board.unhighlightTiles(this.selectedArmyPossibleMoves);
-            this.selectedArmy = null;
+        if (gameEngine.selectedArmy != null) {
+            gameEngine.selectedArmy.clearTint();
+            gameEngine.board.unhighlightTiles(gameEngine.selectedArmyPossibleMoves);
+            gameEngine.selectedArmy = null;
 
             this.turnOffSubScene(this.armyInfoScene);
         }
 
-        if (this.possibleMoves != null) {
-            this.board.unhighlightTiles(this.possibleMoves);
-            this.possibleMoves = null;
+        if (gameEngine.possibleMoves != null) {
+            gameEngine.board.unhighlightTiles(gameEngine.possibleMoves);
+            gameEngine.possibleMoves = null;
         }
 
         /**
          * enemy-related info ui
          */
 
-        if (this.selectedEnemyArmy != null) {
+        if (gameEngine.selectedEnemyArmy != null) {
             this.turnOffSubScene(this.enemyArmyInfoScene);
-            this.selectedEnemyArmy = null;
+            gameEngine.selectedEnemyArmy = null;
         }
 
-        if (this.selectedEnemyBuilding != null) {
+        if (gameEngine.selectedEnemyBuilding != null) {
             this.turnOffSubScene(this.enemyBuildingInfoScene);
-            this.selectedEnemyBuilding = null;
+            gameEngine.selectedEnemyBuilding = null;
         }
     }
 
@@ -680,14 +526,16 @@ export default class SceneGame extends Phaser.Scene {
         let terrainSprite = this;
         /** @type {SceneGame} */
         let gameScene = this.scene;
+        let gameEngine = gameScene.gameEngine;
+
         console.log("terrain clicked...");
 
         if (pointer.leftButtonDown()) {
 
             //place building
-            if (gameScene.selectedBuyBuilding != null) {
+            if (gameEngine.selectedBuyBuilding != null) {
                 //TODO: move building stuff
-                gameScene.buildingManager.placeBuildingPlayer(pointer, terrainSprite);
+                gameEngine.buildingManager.placeBuildingPlayer(pointer, terrainSprite);
                 return;
             }
 
@@ -697,8 +545,8 @@ export default class SceneGame extends Phaser.Scene {
 
         if (pointer.rightButtonDown()) {
             //process action of army of player 1
-            if (gameScene.selectedArmy != null) {
-                gameScene.armyManager.processArmyAction(this);
+            if (gameEngine.selectedArmy != null) {
+                gameEngine.armyManager.processArmyAction(this);
             }
         }
 
@@ -712,6 +560,7 @@ export default class SceneGame extends Phaser.Scene {
         //this = selectedBuildingSprite
         /** @type {SceneGame} */
         let gameScene = this.scene;
+        let gameEngine = gameScene.gameEngine;
 
         console.log("building clicked");
 
@@ -722,14 +571,14 @@ export default class SceneGame extends Phaser.Scene {
         if (pointer.leftButtonDown()) {
             gameScene.deselectEverything();
 
-            if (building.player == gameScene.playerHuman){
+            if (building.player == gameScene.playerHuman) {
                 gameScene.deselectEverything();
-                gameScene.selectedBuilding = this;
+                gameEngine.selectedBuilding = this;
                 gameScene.turnOnSubSceneOnce(gameScene.humanBuildingInfoScene);
             }
             //clicked enemy building
-            else{
-                gameScene.selectedEnemyBuilding = this;
+            else {
+                gameEngine.selectedEnemyBuilding = this;
 
                 gameScene.turnOnSubSceneOnce(gameScene.enemyBuildingInfoScene);
             }
@@ -739,10 +588,10 @@ export default class SceneGame extends Phaser.Scene {
 
         //commit 
         if (pointer.rightButtonDown()) {
-            if (gameScene.selectedArmy == null)
+            if (gameEngine.selectedArmy == null)
                 return;
 
-            gameScene.processArmyAction(this);
+            gameEngine.processArmyAction(this);
             return;
         }
 

@@ -4,37 +4,46 @@ import BuildingFactory from "./BuildingFactory";
 import GameUtilsBoard from "../utils/GameUtilsBoard";
 // eslint-disable-next-line no-unused-vars
 import SceneGame from "../SceneGame";
+// eslint-disable-next-line no-unused-vars
+import GameEngine from "../engine/GameEngine";
 
 export default class BuildingManager {
 
-    constructor(gameScene) {
+    /**
+     * 
+     * @param {SceneGame} gameScene 
+     * @param {GameEngine} gameEngine 
+     */
+    constructor(gameScene ,gameEngine) {
         this.gameScene = gameScene;
+        this.gameEngine = gameEngine;
     }
 
     /**
-     * adds building to the board
-     * @param {*} row 
-     * @param {*} col 
+     * Adds building sprite to the board
+     * @param {Number} row 
+     * @param {Number} col 
      * @param {*} buildingSprite 
      */
     addBuildingToBoard(row, col, buildingSprite) {
-        let scene = this.gameScene;
-        scene.board.boardBuildings[row][col] = buildingSprite;
+        let gameEngine = this.gameEngine;
+        gameEngine.board.boardBuildings[row][col] = buildingSprite;
     }
 
     /**
-     * destroy sprite, remove from board and player
+     * Destroy sprite, remove from board and player
      * @param {*} buildingSprite 
      */
     destroyBuilding(buildingSprite) {
-        let scene = this.gameScene;
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
         let building = buildingSprite.getData("data");
         let row = building.row;
         let col = building.col;
         let playerNumber = building.player;
 
-        let playerBuildings = scene.playerBuildings[playerNumber];
+        let playerBuildings = gameEngine.playerBuildings[playerNumber];
         for (let i = 0; i < playerBuildings.length; i++) {
             if (playerBuildings[i] == buildingSprite) {
                 playerBuildings.splice(i, 1);
@@ -42,16 +51,16 @@ export default class BuildingManager {
             }
         }
 
-        scene.board.boardBuildings[row][col] = null;
-        scene.board.destroyText(row, col);
+        gameEngine.board.boardBuildings[row][col] = null;
+        gameEngine.board.destroyText(row, col);
 
         buildingSprite.destroy();
     }
 
     /**
-    * gets an array of buildings connected to target village.
+    * Gets an array of buildings connected to target village.
     * including target village
-    * @param {*} targetVillage data
+    * @param {Village} targetVillage data
     * @returns array of {row, col}
     */
     getVillageBuildings(targetVillage) {
@@ -63,14 +72,14 @@ export default class BuildingManager {
 
     /**
      * used by getVillageBuildings()
-     * @param {*} targetVillage data of
-     * @param {*} row 
-     * @param {*} col 
-     * @param {*} visited - a set of visited coordinates 
+     * @param {Village} targetVillage data of
+     * @param {Number} row 
+     * @param {Number} col 
+     * @param {Set<{row, col}>} visited - a set of visited coordinates 
      */
     getVillageBuildingsHelper(targetVillage, row, col, visited) {
-        let scene = this.gameScene;
-        let board = scene.board;
+        let gameEngine = this.gameEngine;
+        let board = gameEngine.board;
 
         let answer = [];
 
@@ -123,7 +132,8 @@ export default class BuildingManager {
      */
     placeBuilding(selectedVillage, terrainSprite, buildingType) {
         let gameScene = this.gameScene;
-        let board = gameScene.board;
+        let gameEngine = gameScene.gameEngine;
+        let board = gameEngine.board;
         let row = terrainSprite.getData("row");
         let col = terrainSprite.getData("col");
         let x = GameUtilsBoard.convertColToPixel(col);
@@ -155,54 +165,54 @@ export default class BuildingManager {
         tempSprite.data.set("data", building);
 
         board.boardBuildings[row][col] = tempSprite;
-        gameScene.playerBuildings[village.player].push(tempSprite);
+        gameEngine.playerBuildings[village.player].push(tempSprite);
     }
 
     placeBuildingPlayer(pointer, terrainSprite) {
-        /** @type {SceneGame} */
         let gameScene = this.gameScene;
-        let board = gameScene.board;
+        let gameEngine = gameScene.gameEngine;
+        let board = gameEngine.board;
 
         let row = terrainSprite.data.get("row");
         let col = terrainSprite.data.get("col");
 
-        if (gameScene.selectedBuyBuilding == null)
+        if (gameEngine.selectedBuyBuilding == null)
             return;
 
-        if (gameScene.possibleMoves == null)
+        if (gameEngine.possibleMoves == null)
             return;
 
-        if (gameScene.selectedVillage == null)
+        if (gameEngine.selectedVillage == null)
             return;
 
         //not in possible moves
         let isIn = false;
-        for (let i = 0; i < gameScene.possibleMoves.length; i++) {
-            if (gameScene.possibleMoves[i].row == row && gameScene.possibleMoves[i].col == col)
+        for (let i = 0; i < gameEngine.possibleMoves.length; i++) {
+            if (gameEngine.possibleMoves[i].row == row && gameEngine.possibleMoves[i].col == col)
                 isIn = true;
         }
 
         if (!isIn)
             return false;
 
-        gameScene.buildingManager.placeBuilding(gameScene.selectedVillage, terrainSprite, gameScene.selectedBuyBuilding);
+        gameEngine.buildingManager.placeBuilding(gameEngine.selectedVillage, terrainSprite, gameEngine.selectedBuyBuilding);
 
         //re-calculate income
         gameScene.updateUi();
 
         //we're done here
-        board.unhighlightTiles(gameScene.possibleMoves);
-        gameScene.possibleMoves = null;
-        gameScene.selectedBuyBuilding = null;
+        board.unhighlightTiles(gameEngine.possibleMoves);
+        gameEngine.possibleMoves = null;
+        gameEngine.selectedBuyBuilding = null;
         gameScene.humanVillageInfoScene.updateUi();
     }
 
     /**
-     * gets only buildable neighbors of tiles.
-     * @param {*} tiles 
+     * Gets only buildable neighbors of tiles.
+     * @param {Array<{row, col}>} tiles 
      */
     getBuildableNeighbors(tiles) {
-        let board = this.gameScene.board;
+        let board = this.gameEngine.board;
 
         let answer = [];
 

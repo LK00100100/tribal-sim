@@ -2,6 +2,8 @@ import Phaser from "phaser";
 
 // eslint-disable-next-line no-unused-vars
 import SceneGame from "../../SceneGame";
+// eslint-disable-next-line no-unused-vars
+import GameEngine from "../../engine/GameEngine";
 
 /**
  * Ui that displays information on a non-village building. And actions.
@@ -13,12 +15,14 @@ export default class HumanBuildingInfoScene extends Phaser.Scene {
     /**
      * 
      * @param {SceneGame} gameScene 
+     * @param {GameEngine} gameEngine
      */
-    constructor(gameScene) {
+    constructor(gameScene, gameEngine) {
         super("HumanBuildingInfoScene");    //has to be same as below
         this.handle = "HumanBuildingInfoScene";    //has to be same as above
 
         this.gameScene = gameScene;
+        this.gameEngine = gameEngine;
 
         //ui elements
         this.uiBuilding = [];
