@@ -586,8 +586,13 @@ export default class ArmyManager {
         if (army.size() == 0)
             this.destroyArmy(army);
 
-        if (building.health <= 0)
+        if (building.health <= 0){
             gameEngine.buildingManager.destroyBuilding(buildingSprite);
+            
+            //deselect building
+            if(gameEngine.selectedEnemyBuilding == buildingSprite)
+                gameEngine.selectedEnemyBuilding = null;
+        }
     }
 
     /**
@@ -650,6 +655,7 @@ export default class ArmyManager {
         }
     }
 
+    //TODO: rename player-method
     /**
      * attack the thing you are standing on
      * @param {*} armySprite 

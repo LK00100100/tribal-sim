@@ -102,9 +102,20 @@ export default class EnemyBuildingInfoScene extends Phaser.Scene {
     }
 
     updateUi() {
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
+        let selectedArmy = gameEngine.selectedArmy;
+        
+        //turn off this scene if we have no building
+        if(gameEngine.selectedEnemyBuilding == null){
+            gameScene.turnOffSubScene(gameScene.enemyBuildingInfoScene);
+        }
+
         this.updateUiText();
 
-        this.btnEnemyBuildingAttack.setTint("0x555555");
+        //can't attack. gray out.
+        if(selectedArmy == null)
+            this.btnEnemyBuildingAttack.setTint("0x555555");
     }
 
     updateUiText(){
@@ -142,6 +153,7 @@ export default class EnemyBuildingInfoScene extends Phaser.Scene {
         gameEngine.armyManager.armyAttackBuilding(armySprite, buildingSprite);
 
         gameScene.updateUi();
+        this.updateUi();
     }
 
 }
