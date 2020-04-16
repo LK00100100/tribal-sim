@@ -1,0 +1,10 @@
+dictionary:
+human:      a real person who is playing. For now, set as player 1 (until multiplayer)
+computer:   non-human players.
+player:     any human or computer who plays the game.
+
+==========
+Ui notes
+
+buttons will point to methods with the prefix "clicked"
+ui elements will be grouped into sub-phaser scenes.

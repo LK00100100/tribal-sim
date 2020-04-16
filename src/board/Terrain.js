@@ -40,7 +40,7 @@ const getTerrainMovementCost = function (terrainVal) {
 };
 
 export default {
-    Terrain: Terrain,
-    TerrainSpriteName: TerrainSpriteName,
-    getTerrainMovementCost: getTerrainMovementCost
+    Terrain,
+    TerrainSpriteName,
+    getTerrainMovementCost
 };

@@ -105,7 +105,7 @@ export default class CavemanAi extends Ai {
             if (this.threats.size > 0) {
                 //TODO: "power up" units. wait for more people. perhaps let them recruit more from territory
                 if (village.population > (15 * this.buildingPhase) && village.amountFood > 100) {
-                    let armySprite = scene.armyManager.createArmy(this.playerNumber, village);
+                    let armySprite = scene.armyManager.createArmyFromVillage(this.playerNumber, village);
                     if (armySprite != null) {
 
                         let army = armySprite.getData("data");

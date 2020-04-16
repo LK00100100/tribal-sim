@@ -54,7 +54,7 @@ let getRaceClass = function(race){
 };
 
 export default {
-    Race: Race,
-    getRaceClass: getRaceClass,
-    getRaceSpriteName: getRaceSpriteName
+    Race,
+    getRaceClass,
+    getRaceSpriteName
 };

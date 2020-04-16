@@ -3,22 +3,32 @@ import Caveman from "./unit/Caveman.js";
 
 import UnitFactory from "./unit/UnitFactory";
 import GameUtils from "../utils/GameUtils.js";
-import GameUtilsUi from "../utils/GameUtilsUi";
 // eslint-disable-next-line no-unused-vars
 import SceneGame from "../SceneGame.js";
 import VillageBuilding from "../buildings/villageBuildings/VillageBuilding.js";
+// eslint-disable-next-line no-unused-vars
+import GameEngine from "../engine/GameEngine.js";
+// eslint-disable-next-line no-unused-vars
+import Village from "../buildings/villageBuildings/Village.js";
+// eslint-disable-next-line no-unused-vars
+import Building from "../buildings/Building.js";
 
 /**
  * Manages army data on the board.
+ * 
+ * Communicates with the gameScene to alter the scene.
  */
 export default class ArmyManager {
 
+    //TODO: rename scene to gamescene
     /**
      * 
-     * @param {SceneGame} scene 
+     * @param {SceneGame} gameScene 
+     * @param {GameEngine} gameEngine
      */
-    constructor(scene) {
-        this.scene = scene;
+    constructor(gameScene, gameEngine) {
+        this.gameScene = gameScene;
+        this.gameEngine = gameEngine;
     }
 
     /**
@@ -28,18 +38,19 @@ export default class ArmyManager {
      * @param {*} terrainSprite target square
      */
     moveArmyPlayer(armySprite, terrainSprite) {
-        let scene = this.scene;
+        let gameEngine = this.gameEngine;
 
-        scene.board.unhighlightTiles(scene.selectedArmyPossibleMoves);
+        gameEngine.board.unhighlightTiles(gameEngine.selectedArmyPossibleMoves);
 
-        this.moveArmy(armySprite, terrainSprite, scene.selectedArmyPossibleMoves);
+        this.moveArmy(armySprite, terrainSprite, gameEngine.selectedArmyPossibleMoves);
 
-        scene.selectedArmyPossibleMoves = this.getPossibleMovesArmy(armySprite);
-        scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
+        gameEngine.selectedArmyPossibleMoves = this.getPossibleMovesArmy(armySprite);
+        gameEngine.board.highlightTiles(gameEngine.selectedArmyPossibleMoves);
     }
 
     moveArmy(spriteArmy, terrainSprite, possibleMoves) {
-        let scene = this.scene;
+        let scene = this.gameScene;
+        let gameEngine = this.gameEngine;
 
         let army = spriteArmy.data.get("data");
 
@@ -59,7 +70,7 @@ export default class ArmyManager {
             return;
 
         //occupied by a unit already
-        if (scene.board.boardUnits[targetRow][targetCol] != null) {
+        if (gameEngine.board.boardUnits[targetRow][targetCol] != null) {
             return;
         }
 
@@ -81,8 +92,7 @@ export default class ArmyManager {
 
         this.addArmyToBoard(targetRow, targetCol, spriteArmy);
 
-        scene.updateUI();
-
+        scene.updateUi();
     }
 
     /**
@@ -92,23 +102,24 @@ export default class ArmyManager {
     * @param {*} terrainSprite target square
     */
     moveArmyCloser(armySprite, terrainSprite) {
-        let scene = this.scene;
+        let gameEngine = this.gameEngine;
+
         let row = terrainSprite.getData("row");
         let col = terrainSprite.getData("col");
 
-        let neighbors = scene.board.getNeighboringTiles(row, col);
+        let neighbors = gameEngine.board.getNeighboringTiles(row, col);
 
         //remove unwalkable neighbors
         for (let i = neighbors.length - 1; i >= 0; i--) {
             let neighborRow = neighbors[i].row;
             let neighborCol = neighbors[i].col;
 
-            if (!scene.board.isWalkable(neighborRow, neighborCol)) {
+            if (!gameEngine.board.isWalkable(neighborRow, neighborCol)) {
                 neighbors.splice(i, 1);
             }
         }
 
-        let movesCost = scene.armyManager.getPossibleMovesArmy(armySprite);
+        let movesCost = gameEngine.armyManager.getPossibleMovesArmy(armySprite);
         let neighborMovesCost = GameUtils.getIntersectionCoordinates(movesCost, neighbors);
 
         //no where to move
@@ -127,18 +138,17 @@ export default class ArmyManager {
             }
         }
 
-        let targetSprite = scene.board.getTerrain(targetRow, targetCol);
+        let targetSprite = gameEngine.board.getTerrain(targetRow, targetCol);
         this.moveArmy(armySprite, targetSprite, movesCost);
     }
 
     /**
      * gets the cost of moving to row/col according to what is in possibleMoves
-     * @param {*} possibleMoves 
-     * @param {*} row 
-     * @param {*} col 
+     * @param {Array<{row, col}>} possibleMoves
+     * @param {Number} row 
+     * @param {Number} col 
      */
     getMovementCost(possibleMoves, row, col) {
-
         let target = null;
 
         for (let i = 0; i < possibleMoves.length; i++) {
@@ -152,45 +162,28 @@ export default class ArmyManager {
 
         if (target == null) {
             console.log("not a possible move");
-            return 9999;
+            return 999999;
         }
 
         return target.cost;
-
-    }
-
-    createArmyButton(pointer) {
-
-        if (pointer.rightButtonDown())
-            return;
-
-        let scene = this.scene;
-        let village = scene.selectedVillage.data.get("data");
-
-        scene.board.unhighlightTiles(scene.possibleMoves);
-
-        scene.armyManager.createArmy(1, village);
-
-        scene.updateUI();
-
     }
 
     /**
      * creates an army from a village.
      * requires resources and people
-     * @param {*} player 
-     * @param {*} village 
+     * @param {Number} player player number
+     * @param {Village} village 
      */
-    //TODO: rename createArmyFromVillage
-    createArmy(player, village) {
+    createArmyFromVillage(player, village) {
+        let gameScene = this.gameScene;
+        let gameEngine = this.gameEngine;
 
-        let scene = this.scene;
-        let race = scene.playerRace[player];
+        let race = gameEngine.playerRace[player];
         let row = village.row;
         let col = village.col;
 
         //space already occupied
-        if (scene.board.boardUnits[row][col] != null) {
+        if (gameEngine.board.boardUnits[row][col] != null) {
             console.log("already occupied");
             return;
         }
@@ -211,7 +204,7 @@ export default class ArmyManager {
         village.amountFood -= 10;
         village.population -= 10;
 
-        let armySprite = UnitFactory.getUnitSprite(scene, row, col, race);
+        let armySprite = UnitFactory.drawUnitSprite(gameScene, row, col, race);
 
         let army = new Army(player, row, col);
         army.setVillage(village);
@@ -233,7 +226,7 @@ export default class ArmyManager {
         army.moveMax = maxMove;
 
         armySprite.data.set("data", army);
-        scene.playerArmies[player].push(armySprite);
+        gameEngine.playerArmies[player].push(armySprite);
         this.addArmyToBoard(row, col, armySprite);
 
         return armySprite;
@@ -246,21 +239,24 @@ export default class ArmyManager {
      * @param {Number} player player number
      * @param {Number} row 
      * @param {Number} col 
+     * @param {String} name
      */
-    createArmyFromCoordinate(player, row, col) {
+    createArmyFromCoordinate(player, row, col, name) {
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
-        let scene = this.scene;
-        let race = scene.playerRace[player];
+        let race = gameEngine.playerRace[player];
 
         //space already occupied
-        if (scene.board.boardUnits[row][col] != null) {
+        if (gameEngine.board.boardUnits[row][col] != null) {
             console.log("already occupied");
             return;
         }
 
-        let armySprite = UnitFactory.getUnitSprite(scene, row, col, race);
+        let armySprite = UnitFactory.drawUnitSprite(gameScene, row, col, race);
 
         let army = new Army(player, row, col);
+        army.name = name;
 
         //TODO: generate random name
 
@@ -279,44 +275,38 @@ export default class ArmyManager {
         army.amountFood += 1; //0 food = starvation
 
         armySprite.data.set("data", army);
-        scene.playerArmies[player].push(armySprite);
+        gameEngine.playerArmies[player].push(armySprite);
         this.addArmyToBoard(row, col, armySprite);
 
         return armySprite;
     }
 
+    /**
+     * 
+     * @param {*} row 
+     * @param {*} col 
+     * @param {*} armySprite 
+     */
     addArmyToBoard(row, col, armySprite) {
-        this.scene.board.boardUnits[row][col] = armySprite;
+        this.gameEngine.board.boardUnits[row][col] = armySprite;
     }
 
     //TODO: rename prefix to just player (for human players).
-    /**
-     * assumed that the army is on a friendly village.
-     * restocks the arny with one day's worth of food
-     * @param {*} pointer 
-     */
-    armyGetFood() {
-
-        let scene = this.scene;
-
-        let army = scene.selectedArmy.data.get("data");
-        scene.armyManager.getFood(army);
-
-        scene.updateUI();
-    }
 
     //TODO: variable food amount
     /**
      * assumes that an army is on top of a village
-     * @param {*} army 
+     * @param {Army} army 
      */
     getFood(army) {
-        let scene = this.scene;
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
+
         let row = army.row;
         let col = army.col;
         let armyCost = army.getCostDay();
 
-        let building = scene.board.getBuildingData(row, col);
+        let building = gameEngine.board.getBuildingData(row, col);
 
         if (building == null)
             return;
@@ -339,25 +329,18 @@ export default class ArmyManager {
         army.amountFood += armyCost;
     }
 
-    armyGetWood() {
-        let scene = this.scene;
-
-        let army = scene.selectedArmy.data.get("data");
-        scene.armyManager.getWood(army);
-
-        scene.updateUI();
-    }
-
     /**
      * Transfers wood from a village building to an army.
      * @param {Army} army The army to alter
      */
     getWood(army) {
-        let scene = this.scene;
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
+
         let row = army.row;
         let col = army.col;
 
-        let building = scene.board.getBuildingData(row, col);
+        let building = gameEngine.board.getBuildingData(row, col);
 
         if (building == null)
             return;
@@ -383,27 +366,6 @@ export default class ArmyManager {
     }
 
     /**
-     * human-player clicks "selectedArmy, build."
-     * Should just show stuff that can be built
-     * @param {Phaser.Scene} scene
-     */
-    armyBuild() {
-        this.scene.showUiArmyBuildButtons();
-    }
-
-    /**
-     * human-player clicks "army > build > cancel build"
-     * Should go back to the main army actions
-     * @param {Phaser.Scene} scene
-     */
-    armyBuildCancel() {
-        let scene = this.scene;
-        let armyData = scene.selectedArmy.getData("data");
-
-        scene.showUiArmyButtons(armyData);
-    }
-
-    /**
      * 
      * @param {Army} army 
      * @param {Direction} direction such as Direction.EAST
@@ -415,23 +377,39 @@ export default class ArmyManager {
         return army;
     }
 
-    //TODO: separate select and attack
-    //TODO: replace inner code with scene.processArmyAction()
+    //TODO: separate select and attack. maybe move this
+    /**
+     * clicked an army. yours or otherwise
+     * @param {Phaser.Pointer} pointer Phaser pointer
+     */
     clickedArmy(pointer) {
-        let scene = this.scene;
+        /** @type {SceneGame} */
+        let gameScene = this.scene;
+        let gameEngine = gameScene.gameEngine;
+
+        /** @type {ArmyManager} */
+        let armyManager = gameEngine.armyManager;
+
         let otherArmy = this.data.get("data");
         let targetRow = otherArmy.row;
         let targetCol = otherArmy.col;
 
         console.log("clicked army");
 
-        //clicked your own army
+        //clicked your own human-player army
         if (otherArmy.player == 1) {
-            scene.armyManager.selectArmy(pointer, this);
+            gameEngine.armyManager.selectArmy(pointer, this);
+            gameEngine.buildingManager.turnOnEnemyBuildingInfoSceneCheck();
         }
         //clicked another player's army
         else {
             if (pointer.leftButtonDown()) {
+                gameScene.deselectEverything();
+
+                gameEngine.selectedEnemyArmy = this;
+
+                gameScene.turnOnSubSceneOnce(gameScene.enemyArmyInfoScene);
+
                 //show basic information
                 console.log("units health: " + otherArmy.getUnitsHealthStatus());
                 console.log("units food: " + otherArmy.amountFood);
@@ -439,28 +417,31 @@ export default class ArmyManager {
             //show "attack screen"
             else if (pointer.rightButtonDown()) {
 
-                if (scene.selectedArmy == null)
+                if (gameEngine.selectedArmy == null)
                     return;
 
                 //TODO: refactor this to be sprite
-                scene.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
-                let terrainSprite = scene.board.boardTerrainSprites[targetRow][targetCol];
-                scene.processArmyAction(terrainSprite);
+                gameEngine.selectedEnemyArmy = this;
+                gameEngine.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
+                let terrainSprite = gameEngine.board.boardTerrainSprites[targetRow][targetCol];
+                armyManager.processHumanArmyAction(terrainSprite);
             }
         }
     }
 
+    //TODO: put human in the human-related funcs
     /**
      * you are selecting your own army. for human-players
      * @param {*} pointer 
      * @param {*} armySprite 
      */
     selectArmy(pointer, armySprite) {
-        let scene = this.scene;
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
         //double click panning
-        if (pointer.leftButtonDown() && scene.selectedArmy == armySprite) {
-            scene.cam.pan(armySprite.x, armySprite.y, 500);
+        if (pointer.leftButtonDown() && gameEngine.selectedArmy == armySprite) {
+            gameScene.cam.pan(armySprite.x, armySprite.y, 500);
         }
 
         if (pointer.rightButtonDown())
@@ -468,9 +449,9 @@ export default class ArmyManager {
 
         let army = armySprite.data.get("data");
 
-        scene.deselectEverything();
+        gameScene.deselectEverything();
 
-        scene.selectedArmy = armySprite;
+        gameEngine.selectedArmy = armySprite;
         console.log("selecting army");
         console.log("army health: " + army.getUnitsHealthStatus());
 
@@ -478,32 +459,19 @@ export default class ArmyManager {
 
         this.showPossibleArmyMoves(army);
 
-        scene.updateUI();
-    }
-
-    /**
-     * get units from a village
-     */
-    armyGetUnits() {
-        let scene = this.scene;
-        let army = scene.selectedArmy.data.get("data");
-
-        console.log("get more units");
-
-        scene.armyManager.getUnits(army);
-
-        scene.updateUI();
+        gameScene.updateUi();
     }
 
     //TODO: make compatible with rats
     //TODO: make... not 10
     getUnits(army) {
-        let scene = this.scene;
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
 
         let row = army.row;
         let col = army.col;
 
-        let buildingSprite = scene.board.boardBuildings[row][col];
+        let buildingSprite = gameEngine.board.boardBuildings[row][col];
         let village;
 
         if (buildingSprite == null)
@@ -529,93 +497,11 @@ export default class ArmyManager {
 
     }
 
-    //TODO: remove prefix army. add "player" vs no prefix
-
-    /**
-     * puts some people back into their own village
-     * returns the last units in the "units" roster
-     * @param {*} pointer
-     */
-    armyDisbandUnits() {
-        console.log("disbanding!");
-
-        let scene = this.scene;
-        let army = scene.selectedArmy.getData("data");
-
-        let disbandAmount = army.size() >= 10 ? 10 : army.size();
-
-        let row = army.row;
-        let col = army.col;
-        //TODO: refactor
-        let buildingSprite = scene.board.boardBuildings[row][col];
-        let village;
-
-        if (buildingSprite == null)
-            return;
-
-        let buildingData = buildingSprite.data.get("data");
-
-        //is this our village?
-        if (buildingData.player == army.player)
-            village = buildingData.village;
-        else
-            return;
-
-        for (let i = 0; i < disbandAmount; i++) {
-            army.units.pop();
-        }
-
-        village.population += disbandAmount;
-
-        if (army.size() == 0)
-            scene.armyManager.destroyArmy(army);
-
-        scene.updateUI();
-
-    }
-
-
-
-    armyAttack() {
-        let scene = this.scene;
-
-        console.log("ATTACKING");
-        let targetRow = scene.selectedEnemyArmyCoordinates.row;
-        let targetCol = scene.selectedEnemyArmyCoordinates.col;
-
-        let yourArmy = scene.selectedArmy.getData("data");
-        let enemyArmy = scene.board.boardUnits[targetRow][targetCol].getData("data");
-
-        //TODO: remove this later. let player decide how they want to sort (formation)
-        yourArmy.sortUnitsByHealthReverse();
-        enemyArmy.sortUnitsByHealthReverse();
-
-        scene.armyManager.simulateArmiesAttacking(yourArmy, enemyArmy);
-
-        //then calculate casualties
-        //TODO: clean away casualties after confirming deaths
-
-        //update your ui
-        if (yourArmy.size() > 0) {
-            scene.armyManager.showPossibleArmyMoves(yourArmy);
-            scene.updateUI();
-        }
-
-        //update enemy ui
-        if (enemyArmy.size() > 0)
-            scene.showUiArmyEnemy(targetRow, targetCol);
-
-        if (yourArmy.size() == 0 || enemyArmy.size() == 0) {
-            GameUtilsUi.hideGameObjects(scene.uiArmyEnemy);
-            scene.selectedEnemyArmyCoordinates = null;
-        }
-    }
-
     //TODO: pass sprites
     /**
      * simulates an army attacking the other army. and vice versa
-     * @param {*} yourArmy data
-     * @param {*} enemyArmy data
+     * @param {Army} yourArmy data
+     * @param {Army} enemyArmy data
      */
     simulateArmiesAttacking(yourArmy, enemyArmy) {
         this.simulateArmyAttackArmyOneWay(yourArmy, enemyArmy);
@@ -643,9 +529,7 @@ export default class ArmyManager {
 
     }
 
-    //TODO: pass sprites
     simulateArmyAttackArmyOneWay(yourArmy, enemyArmy) {
-
         let yourUnits = yourArmy.units;
         let enemyUnits = enemyArmy.units;
 
@@ -678,7 +562,9 @@ export default class ArmyManager {
      * @param {*} buildingSprite
      */
     simulateArmyAttackingBuilding(armySprite, buildingSprite) {
-        let scene = this.scene;
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
+
         let army = armySprite.getData("data");
         let building = buildingSprite.getData("data");
 
@@ -700,9 +586,13 @@ export default class ArmyManager {
         if (army.size() == 0)
             this.destroyArmy(army);
 
-        if (building.health <= 0)
-            scene.buildingManager.destroyBuilding(buildingSprite);
-
+        if (building.health <= 0){
+            gameEngine.buildingManager.destroyBuilding(buildingSprite);
+            
+            //deselect building
+            if(gameEngine.selectedEnemyBuilding == buildingSprite)
+                gameEngine.selectedEnemyBuilding = null;
+        }
     }
 
     /**
@@ -711,7 +601,6 @@ export default class ArmyManager {
      * @param {*} building data
      */
     simulateArmyAttackingBuildingOneWay(yourArmy, building) {
-
         let yourUnits = yourArmy.units;
 
         yourUnits.forEach(unit => {
@@ -721,16 +610,14 @@ export default class ArmyManager {
             //enemy defense
             building.health -= attack;
         });
-
     }
 
     /**
      * a building (with population) fights back against an occupying army.
-     * @param {*} building data
-     * @param {*} enemyArmy data
+     * @param {Building} building data
+     * @param {Army} enemyArmy data
      */
     simulateBuildingAttackingArmyOneWay(building, enemyArmy) {
-
         if (building.population == null)
             return;
 
@@ -758,7 +645,6 @@ export default class ArmyManager {
                 currentTarget = 0;
 
         }
-
     }
 
     purgeDeadUnits(armyData) {
@@ -769,26 +655,11 @@ export default class ArmyManager {
         }
     }
 
-    clickedArmyAttackBuilding() {
-        console.log("clicked attacking building");
-        let scene = this.scene;
-
-        if (scene.selectedArmy == null)
-            return;
-
-        let armySprite = scene.selectedArmy;
-        let army = armySprite.getData("data");
-
-        let buildingSprite = scene.board.getBuilding(army.row, army.col);
-
-        scene.armyManager.armyAttackBuilding(armySprite, buildingSprite);
-
-        scene.updateUI();
-    }
-
+    //TODO: rename player-method
     /**
      * attack the thing you are standing on
      * @param {*} armySprite 
+     * @param {*} buildingSprite
      */
     armyAttackBuilding(armySprite, buildingSprite) {
 
@@ -798,15 +669,21 @@ export default class ArmyManager {
     }
 
     //TODO: probably just sprites argument
+    /**
+     * Removes the army piece from the board and removes the army sprite.
+     * @param {Army} armyData 
+     */
     destroyArmy(armyData) {
-        let scene = this.scene;
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
+
         let row = armyData.row;
         let col = armyData.col;
         let playerNumber = armyData.player;
 
-        let sprite = scene.board.boardUnits[row][col];
+        let sprite = gameEngine.board.boardUnits[row][col];
 
-        let playersArmies = scene.playerArmies[playerNumber];
+        let playersArmies = gameEngine.playerArmies[playerNumber];
         for (let i = 0; i < playersArmies.length; i++) {
             if (playersArmies[i] == sprite) {
                 playersArmies.splice(i, 1);
@@ -817,41 +694,38 @@ export default class ArmyManager {
         this.removeArmyFromBoard(row, col);
 
         //TODO: probably just sprites
-        if (scene.selectedArmy != null && scene.selectedArmy.getData("data") == armyData) {
-            scene.deselectEverything();
+        if (gameEngine.selectedArmy != null && gameEngine.selectedArmy.getData("data") == armyData) {
+            gameScene.deselectEverything();
         }
 
         sprite.destroy();
     }
 
     /**
-     * this removes the army from the board.
-     * this does not completely destroy the sprite
-     * and do any player's army book-keeping
-     * @param {*} row 
-     * @param {*} col 
+     * This removes the army from the board.
+     * This does not completely destroy the sprite and do any player's army book-keeping
+     * @param {Number} row 
+     * @param {Number} col 
      */
     removeArmyFromBoard(row, col) {
-        let scene = this.scene;
-        scene.board.boardUnits[row][col] = null;
-    }
+        let gameEngine = this.gameScene.gameEngine;
 
-    armyAttackCancel() {
-        let scene = this.scene;
-        GameUtilsUi.hideGameObjects(scene.uiArmyEnemy);
+        gameEngine.board.boardUnits[row][col] = null;
     }
 
     /**
-     * gets squares that you can move to.
-     * also returns squares with enemy units.
-     * @param {*} row 
-     * @param {*} col 
-     * @param {*} moveAmount 
-     * @returns an array of {row, col, cost}
+     * Gets squares that you can move to.
+     * Also returns squares with enemy units.
+     * @param {Number} row 
+     * @param {Number} col 
+     * @param {Number} moveAmount 
+     * @returns {Array<{row, col, cost}>}
      */
     getPossibleMoves(row, col, moveAmount) {
-        let scene = this.scene;
-        let board = scene.board;
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
+
+        let board = gameEngine.board;
         //TODO: redo this whole thing to be correct. BFS from 1 to moveAmount
 
         let possibleMoves = [];
@@ -938,16 +812,18 @@ export default class ArmyManager {
     }
 
     /**
-     * highlights the squares that an army can move
-     * @param {*} armyData 
+     * Highlights the squares that an army can move
+     * @param {Army} armyData 
      */
     showPossibleArmyMoves(armyData) {
-        let scene = this.scene;
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
+
         let possibleMoves = this.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
 
-        scene.selectedArmyPossibleMoves = possibleMoves;
+        gameEngine.selectedArmyPossibleMoves = possibleMoves;
 
-        scene.board.highlightTiles(scene.selectedArmyPossibleMoves);
+        gameEngine.board.highlightTiles(gameEngine.selectedArmyPossibleMoves);
     }
 
     /**
@@ -960,6 +836,66 @@ export default class ArmyManager {
 
         return this.getPossibleMoves(army.row, army.col, army.moveAmount);
     }
+    
+    /**
+     * processes human-player army action
+     * process army action such as move to targetSprite
+     * @param {*} targetSprite building or terrain sprite
+     */
+    processHumanArmyAction(targetSprite) {
+        /** @type {SceneGame} */
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
+        let board = gameEngine.board;
 
+        let targetRow = targetSprite.data.get("row");
+        let targetCol = targetSprite.data.get("col");
+
+        if (gameEngine.selectedArmy == null)
+            return;
+
+        let armySprite = gameEngine.selectedArmy;
+        /** @type {Army} */
+        let army = armySprite.getData("data");
+
+        let playerOwner = board.getTileOwnership(targetRow, targetCol);
+        let selectedArmyRow = armySprite.data.get("data").row;
+        let selectedArmyCol = armySprite.data.get("data").col;
+
+        //own square
+        if (army.row == targetRow && army.col == targetCol) {
+            return; //do nothing
+        }
+
+        //empty terrain
+        if (playerOwner == 0) {
+            gameEngine.armyManager.moveArmyPlayer(armySprite, targetSprite);
+        }
+        //enemy terrain
+        else {
+            //if adjacent, show attack info screen
+            if (GameUtils.areAdjacent(selectedArmyRow, selectedArmyCol, targetRow, targetCol)) {
+                console.log("attack!");
+
+                gameEngine.selectedEnemyArmyCoordinates = { row: targetRow, col: targetCol };
+                gameScene.turnOnSubSceneOnce(gameScene.enemyArmyInfoScene);
+                gameScene.cam.pan(armySprite.x, armySprite.y, 500);
+            }
+            //move closer
+            else {
+                console.log("too far to attack! moving closer!");
+                board.unhighlightTiles(gameEngine.selectedArmyPossibleMoves);
+
+                gameEngine.armyManager.moveArmyCloser(armySprite, targetSprite);
+
+                gameEngine.selectedArmyPossibleMoves = gameEngine.armyManager.getPossibleMovesArmy(armySprite);
+                board.highlightTiles(gameEngine.selectedArmyPossibleMoves);
+            }
+
+        }
+        
+        //after moving, if you're on top of an enemy building, show that info screen.
+        gameEngine.buildingManager.turnOnEnemyBuildingInfoSceneCheck();
+    }
 
 }
