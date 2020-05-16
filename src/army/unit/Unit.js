@@ -1,5 +1,8 @@
 import GameUtils from "../../utils/GameUtils";
 
+/**
+ * A representation of one person
+ */
 export default class Unit {
 
     //TODO: implement vision

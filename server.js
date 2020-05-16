@@ -1,3 +1,5 @@
+//note lk: don't use this now
+
 //from https://github.com/heroku/node-js-getting-started
 
 const express = require("express");

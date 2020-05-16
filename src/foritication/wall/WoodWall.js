@@ -1,4 +1,4 @@
-import Wall from "Wall";
+import Wall from "./Wall";
 
 export default class WoodWall extends Wall {
 

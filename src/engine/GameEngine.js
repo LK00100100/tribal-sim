@@ -12,6 +12,8 @@ let { Race } = RaceObj;
 //import managers
 import ArmyManager from "../army/ArmyManager";
 import BuildingManager from "../buildings/BuildingManager";
+import FortificationManager from "../foritication/FortificationManager";
+
 // eslint-disable-next-line no-unused-vars
 import SceneGame from "../SceneGame";
 
@@ -32,6 +34,7 @@ export default class GameEngine {
         //managers
         this.buildingManager;
         this.armyManager;
+        this.fortificationManager;
 
         this.board = new Board();
 
@@ -170,6 +173,7 @@ export default class GameEngine {
 
         this.buildingManager = new BuildingManager(this.gameScene, this);
         this.armyManager = new ArmyManager(this.gameScene, this);
+        this.fortificationManager = new FortificationManager(this.gameScene, this);
     }
 
     //TODO: make it for every player

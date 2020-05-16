@@ -8,6 +8,9 @@ import GameUtilsBoard from "../../utils/GameUtilsBoard";
 // eslint-disable-next-line no-unused-vars
 import SceneGame from "../../SceneGame";
 
+/**
+ * This class makes it easier to create units and unit sprites.
+ */
 export default class UnitFactory {
 
     /**

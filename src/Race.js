@@ -40,6 +40,10 @@ const RaceClass = [
     Gorilla
 ];
 
+/**
+ * 
+ * @param {Number} race enum number from race
+ */
 let getRaceSpriteName = function (race) {
     return RaceSpriteName[race];
 };

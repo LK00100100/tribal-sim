@@ -392,6 +392,16 @@ export default class HumanArmyInfoScene extends Phaser.Scene {
         let gameEngine = gameScene.gameEngine;
         //TODO: activate buttons if you have enough resources. else display warning
 
+        //deselect
+        if(this.selectedArmyBuildFunc == gameEngine.armyManager.armyBuildWallWood){
+            this.btnArmyBuildWallWood.clearTint();
+            this.selectedArmyBuildFunc = null;
+            this.updateUiArmyBuildDirectionButtons();
+            return;
+        }
+
+        this.btnArmyBuildWallWood.setTint("0x005500");
+
         this.selectedArmyBuildFunc = gameEngine.armyManager.armyBuildWallWood;
 
         this.updateUiArmyBuildDirectionButtons();
@@ -435,6 +445,7 @@ export default class HumanArmyInfoScene extends Phaser.Scene {
     }
 
     updateUiArmyBuildDirectionButtons() {
+        //grey out
         this.btnArmyBuildEast.setTint("0x777777");
         this.btnArmyBuildNorth.setTint("0x777777");
         this.btnArmyBuildSouth.setTint("0x777777");

@@ -12,6 +12,11 @@ import GameEngine from "../engine/GameEngine.js";
 import Village from "../buildings/villageBuildings/Village.js";
 // eslint-disable-next-line no-unused-vars
 import Building from "../buildings/Building.js";
+import WoodWall from "../foritication/wall/WoodWall";
+
+import DirectionObj from "../board/Direction";
+// eslint-disable-next-line no-unused-vars
+const { Direction } = DirectionObj;
 
 /**
  * Manages army data on the board.
@@ -371,7 +376,34 @@ export default class ArmyManager {
      * @param {Direction} direction such as Direction.EAST
      */
     armyBuildWallWood(army, direction) {
-        direction;
+        let gameScene = this.gameScene;
+        let gameEngine = gameScene.gameEngine;
+        
+        let row = army.row;
+        let col = army.col;
+
+        let woodWall = new WoodWall();
+
+        //resource check
+        if (army.amountWood < woodWall.costWood) {
+            console.log("not enough wood");
+            return;
+        }
+
+        army.amountWood -= woodWall.costWood;
+
+        //space check
+        if (gameEngine.board.hasFortication(row, col, direction)) {
+            console.log("can't build. something already there");
+            return;
+        }
+
+        //create sprite and place on board
+
+
+
+
+
 
         //TODO: complete
         return army;
@@ -586,11 +618,11 @@ export default class ArmyManager {
         if (army.size() == 0)
             this.destroyArmy(army);
 
-        if (building.health <= 0){
+        if (building.health <= 0) {
             gameEngine.buildingManager.destroyBuilding(buildingSprite);
-            
+
             //deselect building
-            if(gameEngine.selectedEnemyBuilding == buildingSprite)
+            if (gameEngine.selectedEnemyBuilding == buildingSprite)
                 gameEngine.selectedEnemyBuilding = null;
         }
     }
@@ -836,7 +868,7 @@ export default class ArmyManager {
 
         return this.getPossibleMoves(army.row, army.col, army.moveAmount);
     }
-    
+
     /**
      * processes human-player army action
      * process army action such as move to targetSprite
@@ -893,7 +925,7 @@ export default class ArmyManager {
             }
 
         }
-        
+
         //after moving, if you're on top of an enemy building, show that info screen.
         gameEngine.buildingManager.turnOnEnemyBuildingInfoSceneCheck();
     }

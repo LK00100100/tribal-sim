@@ -1,6 +1,8 @@
 // eslint-disable-next-line no-unused-vars
 import Building from "../buildings/Building";
 import TerrainObj from "./Terrain";
+// eslint-disable-next-line no-unused-vars
+import Fortication from "../foritication/Fortification";
 let { getTerrainMovementCost } = TerrainObj;
 
 //TODO: make board (holds data) and boardManager (does stuff with the board)
@@ -15,8 +17,10 @@ export default class Board {
         this.boardSailable = [];
 
         //these hold gameobjects (which hold data)
-        this.boardTerrainSprites = []; //holds terrain sprites
+        this.boardTerrainSprites = [];  //holds terrain sprites
         this.boardBuildings = [];       //holds building sprites
+        //is null if there's nothing. else [row][col][direction] = forticationSprite
+        this.boardFortications = [];    //holds fortication sprites
         this.boardText = [];            //holds text
         this.boardUnits = [];           //holds occupying units
 
@@ -60,6 +64,7 @@ export default class Board {
             for (let col = 0; col < this.cols; col++) {
                 answer = true;
 
+                //TODO: change later to check everytime. and remove this board
                 if (this.boardTerrain[row][col] == 1)
                     answer = false;
                 else
@@ -70,44 +75,33 @@ export default class Board {
             this.boardWalkable.push(theRow);
         }
 
-        //init board of terrain sprites
-        for (let row = 0; row < this.rows; row++) {
-            let theRow = [];
-            for (let col = 0; col < this.cols; col++) {
-                theRow.push(null);
-            }
-            this.boardTerrainSprites.push(theRow);
-        }
-
-        //init board units
-        for (let row = 0; row < this.rows; row++) {
-            let theRow = [];
-            for (let col = 0; col < this.cols; col++) {
-                theRow.push(null);
-            }
-            this.boardUnits.push(theRow);
-        }
-
-        //init board buildings
-        for (let row = 0; row < this.rows; row++) {
-            let theRow = [];
-            for (let col = 0; col < this.cols; col++) {
-                theRow.push(null);
-            }
-            this.boardBuildings.push(theRow);
-        }
-
-        //init board text
-        for (let row = 0; row < this.rows; row++) {
-            let theRow = [];
-            for (let col = 0; col < this.cols; col++) {
-                theRow.push(null);
-            }
-            this.boardText.push(theRow);
-        }
-
+        this.initMatrix(this.boardTerrainSprites);
+        this.initMatrix(this.boardUnits);
+        this.initMatrix(this.boardBuildings);
+        this.initMatrix(this.boardFortications);
+        this.initMatrix(this.boardText);
     }
 
+    /**
+     * init a 2d grid with rows of nulls
+     * @param {Array<Array>>} matrix 
+     */
+    initMatrix(matrix) {
+        for (let row = 0; row < this.rows; row++) {
+            let theRow = [];
+            for (let col = 0; col < this.cols; col++) {
+                theRow.push(null);
+            }
+            matrix.push(theRow);
+        }
+    }
+
+    /**
+     * Adds floating text to the board.
+     * @param {Number} row 
+     * @param {Number} col 
+     * @param {Phaser.Sprite} text 
+     */
     addText(row, col, text) {
         this.boardText[row][col] = text;
     }
@@ -177,14 +171,14 @@ export default class Board {
         }
 
         return true;
-
     }
 
     /**
      * returns the movement cost of a board's square
      * call isWalkable before you use this.
-     * @param {*} row 
-     * @param {*} col 
+     * @param {Number} row 
+     * @param {Number} col 
+     * @returns {Number} movement cost
      */
     movementCost(row, col) {
         let terrainVal = this.boardTerrain[row][col];
@@ -222,6 +216,7 @@ export default class Board {
         return this.boardUnits[row][col];
     }
 
+    //TODO: rename get builing sprite
     getBuilding(row, col) {
         if (!this.isWithinBounds(row, col))
             return null;
@@ -231,8 +226,8 @@ export default class Board {
 
     /**
      * returns buildingData. null if nothing
-     * @param {*} row 
-     * @param {*} col 
+     * @param {Number} row 
+     * @param {Number} col 
      * @returns {Building}
      */
     getBuildingData(row, col) {
@@ -248,8 +243,8 @@ export default class Board {
      * returns player number of who is occupying it with a unit
      * 
      * a building by itself is not occupying
-     * @param {*} row 
-     * @param {*} col 
+     * @param {Number} row 
+     * @param {Number} col 
      */
     getTileOwnership(row, col) {
 
@@ -263,9 +258,9 @@ export default class Board {
 
     /**
      * gets the neighbors of one tile
-     * @param {*} row 
-     * @param {*} col 
-     * @return an array of {row, col}
+     * @param {Number} row 
+     * @param {Number} col 
+     * @returns {Array<{row, col}>} an array of {row, col}
      */
     getNeighboringTiles(row, col) {
         let tiles = [];
@@ -286,9 +281,9 @@ export default class Board {
 
     /**
      * like getNeighboringTiles but it returns all neighbors within a certain inclusive distance
-     * @param {*} tiles - array of {row, col}
-     * @param {*} distance - how far the neighbors should be
-     * @return an array of {row, col} of neighbors within an inclusive distance
+     * @param {Array<{row, col}>} tiles - array of {row, col}
+     * @param {Number} distance - how far the neighbors should be
+     * @returns {Array<{row, col}>} an array of {row, col} of neighbors within an inclusive distance
      */
     getFarNeighboringTiles(tiles, distance) {
         let totalNeighbors = [];
@@ -336,6 +331,10 @@ export default class Board {
         return totalNeighbors;
     }
 
+    /**
+     * Unhighlight sprite tiles
+     * @param {Array<{row, col}>} tiles 
+     */
     unhighlightTiles(tiles) {
         if (tiles == null)
             return;
@@ -346,7 +345,8 @@ export default class Board {
     }
 
     /**
-     * @param {*} tiles an array of row/col
+     * Highlight the sprite tiles
+     * @param {Array<row, col>} tiles an array of row/col
      */
     highlightTiles(tiles) {
         if (tiles == null)
@@ -403,7 +403,7 @@ export default class Board {
      * breadth-first search (BFS) of distance
      * @param {Number} row 
      * @param {Number} col 
-     * @param {*} distance 
+     * @param {Number} distance 
      */
     getTerritory(row, col, distance) {
         let answer = this.getTerritoryHelper(row, col, distance);
@@ -411,6 +411,12 @@ export default class Board {
         return answer;
     }
 
+    /**
+     * Used only by this.getTerritory()
+     * @param {Number} row 
+     * @param {Number} col 
+     * @param {Number} movesLeft 
+     */
     getTerritoryHelper(row, col, movesLeft) {
 
         let answer = [];
@@ -465,6 +471,58 @@ export default class Board {
         }
 
         return answer;
+    }
+
+    /**
+     * Adds a Fortication object on the board
+     * @param {Number} row 
+     * @param {Number} col 
+     * @param {Phaser.Sprite} fortication 
+     * @param {Direction} direction 
+     */
+    addFortication(row, col, fortication, direction) {
+        if (this.boardFortications[row][col] == null)
+            this.boardFortications[row][col] = {};
+
+        this.boardFortications[row][col][direction] = fortication;
+    }
+
+    /**
+     * Adds a Fortication object on the board
+     * @param {Number} row 
+     * @param {Number} col 
+     * @param {Phaser.Sprite} fortication 
+     * @param {Direction} direction 
+     */
+    removeFortication(row, col, direction) {
+        if (this.boardFortications[row][col] == null)
+            return;
+
+        if (!(direction in this.boardFortications[row][col]))
+            return;
+
+        this.boardFortications[row][col][direction].destroy();
+        delete this.boardFortications[row][col][direction];
+
+        //no fortifications here
+        if (this.boardFortications[row][col].length == 0)
+            this.boardFortications[row][col] = null;
+    }
+
+    /**
+     * Does this spot have a fortication?
+     * @param {Number} row 
+     * @param {Number} col 
+     * @param {Number} direction 
+     */
+    hasFortication(row, col, direction) {
+        if (this.boardFortications[row][col] == null)
+            return false;
+
+        if (!(direction in this.boardFortications[row][col]))
+            return false;
+
+        return true;
     }
 
 }

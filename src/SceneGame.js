@@ -81,9 +81,9 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image("buildQuarry", "assets/build-quarry.png");
         this.load.image("buildHousing", "assets/build-housing.png");
 
-        /**
-         * ui stuff
-         */
+        //fortification
+        this.load.image("fortWallWoodHorizontal", "assets/fort-wall-wood-horizontal.png");
+        this.load.image("fortWallWoodVertical", "assets/fort-wall-wood-vertical.png");
 
         //armies
         this.load.image("armyCat", "assets/army-cat.png");
