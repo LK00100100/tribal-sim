@@ -111,19 +111,19 @@ export default class EnemyArmyInfoScene extends Phaser.Scene {
     }
 
     updateUi() {
-        if(this.gameEngine.selectedArmy == null){
+        if (this.gameEngine.selectedArmy == null) {
             this.btnArmyEnemyAttack.visible = false;
         }
 
         this.updateUiText();
     }
 
-    updateUiText(){
+    updateUiText() {
         let gameScene = this.gameScene;
         let gameEngine = gameScene.gameEngine;
 
         //no enemy army selected, turn this screen off.
-        if(gameEngine.selectedEnemyArmy == null){
+        if (gameEngine.selectedEnemyArmy == null) {
             gameScene.turnOffSubScene(this);
             return;
         }
@@ -139,7 +139,7 @@ export default class EnemyArmyInfoScene extends Phaser.Scene {
     /**
      * main actions
      */
-    
+
     /**
      * if you have your selected army, and then you right click an enemy (within range),
      * then you can click this and actually attack this enemy army.
