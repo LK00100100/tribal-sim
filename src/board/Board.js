@@ -1,9 +1,12 @@
 // eslint-disable-next-line no-unused-vars
 import Building from "../buildings/Building";
 import TerrainObj from "./Terrain";
-// eslint-disable-next-line no-unused-vars
-import Fortication from "../foritication/Fortification";
 let { getTerrainMovementCost } = TerrainObj;
+import directionObj from "./Direction";
+// eslint-disable-next-line no-unused-vars
+let Direction = directionObj.Direction;
+let DirectionUtils = directionObj.DirectionUtils;
+
 
 //TODO: make board (holds data) and boardManager (does stuff with the board)
 export default class Board {
@@ -19,12 +22,12 @@ export default class Board {
         //these hold gameobjects (which hold data)
         this.boardTerrainSprites = [];  //holds terrain sprites
         this.boardBuildings = [];       //holds building sprites
-        //is null if there's nothing. else [row][col][direction] = forticationSprite
-        this.boardFortications = [];    //holds fortication sprites
+        //is null if there's nothing. else [row][col] = {direction : forticationSprite}
+        this.boardFortications = [];
         this.boardText = [];            //holds text
         this.boardUnits = [];           //holds occupying units
 
-        //TODO: pull this out completely.
+        //TODO: pull this out completely. use Direction.directionVal
         this.directions = [[-1, 0], [1, 0], [0, -1], [0, 1]];
     }
 
@@ -130,6 +133,12 @@ export default class Board {
         return true;
     }
 
+    /**
+     * Can we walk on this square?
+     * @param {Number} row 
+     * @param {Number} col 
+     * @returns {Boolean} true if we can walk on this spot. false otherwise.
+     */
     isWalkable(row, col) {
 
         if (this.isWithinBounds(row, col) == false)
@@ -524,6 +533,30 @@ export default class Board {
             return false;
 
         return true;
+    }
+
+    /**
+     * is there a wall between row,col and row2,col2?
+     * @param {Number} row 
+     * @param {Number} col 
+     * @param {Number} row2 
+     * @param {Number} col2
+     * @returns {Boolean} true if there's a wall in between. false otherwise
+     */
+    isWallInBetween(row, col, row2, col2) {
+        let directionValRow = row2 - row;
+        let directionValCol = col2 - col;
+
+        let direction = DirectionUtils.convertDirectionValToDirection(directionValRow, directionValCol);
+        let oppositeDirection = DirectionUtils.getOppositeDirection(direction);
+
+        if (this.hasFortication(row, col, direction))
+            return true;
+
+        if (this.hasFortication(row2, col2, oppositeDirection))
+            return true;
+
+        return false;
     }
 
 }

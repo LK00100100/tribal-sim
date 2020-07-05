@@ -383,7 +383,7 @@ export default class ArmyManager {
     armyBuildWallWood(army, direction) {
         let gameScene = this.gameScene;
         let gameEngine = gameScene.gameEngine;
-        
+
         let row = army.row;
         let col = army.col;
 
@@ -400,7 +400,7 @@ export default class ArmyManager {
             console.log("can't build. fortification already there");
             return false;
         }
-        
+
         army.amountWood -= woodWall.costWood;
 
         //create sprite and place on board
@@ -748,6 +748,7 @@ export default class ArmyManager {
     /**
      * Gets squares that you can move to.
      * Also returns squares with enemy units.
+     * This is basically BFS.
      * @param {Number} row 
      * @param {Number} col 
      * @param {Number} moveAmount 
@@ -818,9 +819,11 @@ export default class ArmyManager {
                     };
 
                     if (board.isWalkable(row + i, col + j)) {
-                        if (moveAmount >= cost + terrainCost) {
-                            possibleMoves.push(tempSquare);
-                            queue.push(tempSquare);
+                        if (!board.isWallInBetween(row, col, row + i, col + j)) {
+                            if (moveAmount >= cost + terrainCost) {
+                                possibleMoves.push(tempSquare);
+                                queue.push(tempSquare);
+                            }
                         }
                     }
                     //you can't walk here since there is a unit
