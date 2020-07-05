@@ -2,6 +2,8 @@
 import GameUtils from "../utils/GameUtils";
 import Meerkat from "../army/unit/Meerkat";
 import Ai from "./Ai";
+// eslint-disable-next-line no-unused-vars
+import GameEngine from "../engine/GameEngine";
 
 /**
  * Meerkat
@@ -16,11 +18,11 @@ export default class MeerkatAi extends Ai {
     //TODO: separate scene and the blob of game data
     /**
      * 
-     * @param {*} scene Phaser Scene
+     * @param {GameEngine} gameEngine
      * @param {Number} playerNumber 
      */
-    constructor(scene, playerNumber) {
-        super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
+    constructor(gameEngine, playerNumber) {
+        super(gameEngine, playerNumber);
 
         this.reproductionChance = 0.3; //TODO: should be dependent on the population. more = high chance
         this.reproduceAmount = 1;
@@ -29,10 +31,8 @@ export default class MeerkatAi extends Ai {
     }
 
     calculateTurn() {
-        let scene = this.scene;
+        let gameEngine = this.gameEngine;
         console.log("meerkats doing stuff...");
-
-        //let scene = this.scene;
 
         //TODO: complete
 
@@ -63,20 +63,20 @@ export default class MeerkatAi extends Ai {
 
             //TODO: attack all weaker armies (if they randomly feel like it.)
 
-            let possibleMovesArmy = scene.armyManager.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
+            let possibleMovesArmy = gameEngine.armyManager.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
 
             //TODO: hard hack reeeee
             //move in deserts only
             let possibleMovesDesert = possibleMovesArmy.filter((coordinate) => {
-                return scene.board.boardTerrain[coordinate.row][coordinate.col] == 3;
+                return gameEngine.board.boardTerrain[coordinate.row][coordinate.col] == 3;
             });
 
             //pick a random square to move to
             let pickedIndex = GameUtils.getRandomInt(possibleMovesDesert.length);
             let pickedCoordinate = possibleMovesDesert[pickedIndex];
 
-            let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
-            scene.armyManager.moveArmy(armySprite, terrainSprite, possibleMovesDesert);
+            let terrainSprite = gameEngine.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
+            gameEngine.armyManager.moveArmy(armySprite, terrainSprite, possibleMovesDesert);
         });
     }
 

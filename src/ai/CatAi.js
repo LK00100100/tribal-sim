@@ -2,6 +2,8 @@
 import GameUtils from "../utils/GameUtils";
 import Cat from "../army/unit/Cat";
 import Ai from "./Ai";
+// eslint-disable-next-line no-unused-vars
+import GameEngine from "../engine/GameEngine";
 
 /**
  * Cat
@@ -13,11 +15,11 @@ export default class CatAi extends Ai {
     //TODO: separate scene and the blob of game data
     /**
      * 
-     * @param {*} scene Phaser Scene
+     * @param {GameEngine} gameEngine
      * @param {Number} playerNumber 
      */
-    constructor(scene, playerNumber) {
-        super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
+    constructor(gameEngine, playerNumber) {
+        super(gameEngine, playerNumber);
 
         this.reproductionChance = 0.1; //TODO: should be dependent on the population. more = high chance
         this.reproduceAmount = 1;   //TODO: research reproduction rate
@@ -26,7 +28,8 @@ export default class CatAi extends Ai {
     }
 
     calculateTurn() {
-        let scene = this.scene;
+        let gameEngine = this.gameEngine;
+
         console.log("doing cat stuff...");
 
         //let scene = this.scene;
@@ -56,15 +59,14 @@ export default class CatAi extends Ai {
 
             //TODO: move 
             //TODO: attack all weaker armies (if they randomly feel like it.)
-            let possibleMovesArmy = scene.armyManager.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
+            let possibleMovesArmy = gameEngine.armyManager.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
 
             //pick a random square to move to
             let pickedIndex = GameUtils.getRandomInt(possibleMovesArmy.length);
             let pickedCoordinate = possibleMovesArmy[pickedIndex];
 
-            let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
-            scene.armyManager.moveArmy(armySprite, terrainSprite, possibleMovesArmy);
-
+            let terrainSprite = gameEngine.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
+            gameEngine.armyManager.moveArmy(armySprite, terrainSprite, possibleMovesArmy);
         });
     }
 

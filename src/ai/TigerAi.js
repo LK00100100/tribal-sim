@@ -2,6 +2,8 @@
 import GameUtils from "../utils/GameUtils";
 import Tiger from "../army/unit/Tiger";
 import Ai from "./Ai";
+// eslint-disable-next-line no-unused-vars
+import GameEngine from "../engine/GameEngine";
 
 /**
  * Tiger
@@ -17,11 +19,11 @@ export default class TigerAi extends Ai {
     //TODO: separate scene and the blob of game data
     /**
      * 
-     * @param {*} scene Phaser Scene
+     * @param {GameEngine} gameEngine
      * @param {Number} playerNumber 
      */
-    constructor(scene, playerNumber) {
-        super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
+    constructor(gameEngine, playerNumber) {
+        super(gameEngine, playerNumber);
 
         this.reproductionChance = 0.1; //TODO: should be dependent on the population. more = high chance
         this.reproduceAmount = 1;   //TODO: research reproduction rate
@@ -30,10 +32,8 @@ export default class TigerAi extends Ai {
     }
 
     calculateTurn() {
-        let scene = this.scene;
+        let gameEngine = this.gameEngine;
         console.log("tigers doing tiger stuff...");
-
-        //let scene = this.scene;
 
         //TODO: complete
 
@@ -63,12 +63,12 @@ export default class TigerAi extends Ai {
 
             //TODO: attack all weaker armies (if they randomly feel like it.)
 
-            let possibleMovesArmy = scene.armyManager.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
+            let possibleMovesArmy = gameEngine.armyManager.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
 
             //TODO: hard hack reeeee
             //move in forests only
             let possibleMovesForest = possibleMovesArmy.filter((coordinate) => {
-                return scene.board.boardTerrain[coordinate.row][coordinate.col] == 4;
+                return gameEngine.board.boardTerrain[coordinate.row][coordinate.col] == 4;
             });
 
             //if we have movement
@@ -77,8 +77,8 @@ export default class TigerAi extends Ai {
                 let pickedIndex = GameUtils.getRandomInt(possibleMovesForest.length);
                 let pickedCoordinate = possibleMovesForest[pickedIndex];
 
-                let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
-                scene.armyManager.moveArmy(armySprite, terrainSprite, possibleMovesForest);
+                let terrainSprite = gameEngine.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
+                gameEngine.armyManager.moveArmy(armySprite, terrainSprite, possibleMovesForest);
             }
         });
     }

@@ -5,19 +5,18 @@ import Rat from "../army/unit/Rat.js";
 import Ai from "./Ai.js";
 
 // eslint-disable-next-line no-unused-vars
-import SceneGame from "../SceneGame";
+import GameEngine from "../engine/GameEngine.js";
 
 export default class RatAi extends Ai {
 
     /**
      * 
-     * @param {SceneGame} scene 
-     * @param {*} playerNumber 
+     * @param {GameEngine} gameEngine
+     * @param {Number} playerNumber 
      */
-    constructor(scene, playerNumber) {
-        super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
+    constructor(gameEngine, playerNumber) {
+        super(gameEngine, playerNumber);
 
-        this.scene = scene;
         this.territorySize = 3;
         this.reproductionChance = 0.33;
         this.reproduceAmount = 1;
@@ -25,7 +24,7 @@ export default class RatAi extends Ai {
 
     calculateTurn() {
         console.log("rats doing rat stuff...");
-        let scene = this.scene;
+        let gameEngine = this.gameEngine;
 
         this.buildings.forEach(building => {
             let buildingData = building.data.get("data");
@@ -38,7 +37,7 @@ export default class RatAi extends Ai {
 
                 //constantly produce rat armies when you can
                 if (buildingData.population >= 20) {
-                    let armySprite = scene.armyManager.createArmyFromVillage(this.playerNumber, buildingData);
+                    let armySprite = gameEngine.armyManager.createArmyFromVillage(this.playerNumber, buildingData);
 
                     if (armySprite != null)
                         armySprite.getData("data").name = "Wild Rats";
@@ -61,8 +60,8 @@ export default class RatAi extends Ai {
             let village = armyData.village;
 
             //TODO: fix this. ignore units on board and "move through" them
-            let territory = scene.board.getTerritory(village.row, village.col, this.territorySize);
-            let possibleMovesArmy = scene.armyManager.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
+            let territory = gameEngine.board.getTerritory(village.row, village.col, this.territorySize);
+            let possibleMovesArmy = gameEngine.armyManager.getPossibleMoves(armyData.row, armyData.col, armyData.moveAmount);
 
             //move in territory
             let territoryMoves = GameUtils.getIntersectionCoordinates(possibleMovesArmy, territory);
@@ -72,10 +71,10 @@ export default class RatAi extends Ai {
             territoryMoves.push(startArmy);
 
             //check adjacent squares for enemy
-            let neighbors = scene.board.getNeighboringTiles(armyData.row, armyData.col);
+            let neighbors = gameEngine.board.getNeighboringTiles(armyData.row, armyData.col);
             let enemySprite = null;
             neighbors.forEach(neighbor => {
-                let unit = scene.board.getUnit(neighbor.row, neighbor.col);
+                let unit = gameEngine.board.getUnit(neighbor.row, neighbor.col);
 
                 if (unit == null)
                     return;
@@ -89,19 +88,19 @@ export default class RatAi extends Ai {
 
             //attack enemy neighbors
             if (enemySprite != null) {
-                scene.armyManager.simulateArmiesAttacking(armyData, enemySprite.getData("data"));
+                gameEngine.armyManager.simulateArmiesAttacking(armyData, enemySprite.getData("data"));
             }
             else {
-                let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(scene.board, territoryMoves, this.playerNumber);
+                let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(gameEngine.board, territoryMoves, this.playerNumber);
 
-                let buildingSprite = scene.board.getBuilding(row, col);
+                let buildingSprite = gameEngine.board.getBuilding(row, col);
 
                 //if we're standing on a building and it's not ours,
                 //attack it and end turn
                 if (buildingSprite != null) {
                     let building = buildingSprite.getData("data");
                     if (building.player != this.playerNumber) {
-                        scene.armyManager.armyAttackBuilding(armySprite, buildingSprite);
+                        gameEngine.armyManager.armyAttackBuilding(armySprite, buildingSprite);
                         return;
                     }
                 }
@@ -110,10 +109,10 @@ export default class RatAi extends Ai {
                 if (enemySprites.length > 0) {
                     let enemySprite = enemySprites[0];
                     let enemyData = enemySprite.getData("data");
-                    let targetTerrain = scene.board.getTerrain(enemyData.row, enemyData.col);
-                    scene.armyManager.moveArmyCloser(armySprite, targetTerrain);
+                    let targetTerrain = gameEngine.board.getTerrain(enemyData.row, enemyData.col);
+                    gameEngine.armyManager.moveArmyCloser(armySprite, targetTerrain);
 
-                    scene.armyManager.simulateArmiesAttacking(armyData, enemyData);
+                    gameEngine.armyManager.simulateArmiesAttacking(armyData, enemyData);
                 }
                 //no enemies around
                 else {
@@ -136,8 +135,8 @@ export default class RatAi extends Ai {
                     let pickedIndex = GameUtils.getRandomInt(territoryMoves.length);
                     let pickedCoordinate = territoryMoves[pickedIndex];
 
-                    let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
-                    scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
+                    let terrainSprite = gameEngine.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
+                    gameEngine.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
             
                 }
             }

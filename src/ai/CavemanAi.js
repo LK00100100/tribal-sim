@@ -5,7 +5,7 @@ import GameUtilsBuilding from "../utils/GameUtilsBuilding.js";
 import Ai from "./Ai.js";
 
 // eslint-disable-next-line no-unused-vars
-import SceneGame from "../SceneGame";
+import GameEngine from "../engine/GameEngine.js";
 
 /**
  * 
@@ -17,13 +17,11 @@ export default class CavemanAi extends Ai {
 
     /**
      * 
-     * @param {SceneGame} scene 
-     * @param {*} playerNumber 
+     * @param {GameEngine} gameEngine 
+     * @param {Number} playerNumber 
      */
-    constructor(scene, playerNumber) {
-        super(scene, playerNumber, scene.playerArmies[playerNumber], scene.playerBuildings[playerNumber]);
-
-        this.scene = scene;
+    constructor(gameEngine, playerNumber) {
+        super(gameEngine, playerNumber);
 
         this.territorySize = 1;
         this.threatMemory = 60; //remember threats for 90 days
@@ -35,7 +33,7 @@ export default class CavemanAi extends Ai {
     calculateTurn() {
         console.log("cavemen doing cavemen stuff...");
 
-        let scene = this.scene;
+        let gameEngine = this.gameEngine;
 
         let village = null; //the last village
 
@@ -52,9 +50,9 @@ export default class CavemanAi extends Ai {
                 console.log("   village starvation pop:" + buildingData.starvationAmount);
 
                 //get buildable tiles
-                let villageBuildingTiles = scene.buildingManager.getVillageBuildings(buildingData);
-                let buildingsData = scene.board.getBuildingsData(villageBuildingTiles);
-                let buildableTiles = scene.buildingManager.getBuildableNeighbors(villageBuildingTiles);
+                let villageBuildingTiles = gameEngine.buildingManager.getVillageBuildings(buildingData);
+                let buildingsData = gameEngine.board.getBuildingsData(villageBuildingTiles);
+                let buildableTiles = gameEngine.buildingManager.getBuildableNeighbors(villageBuildingTiles);
 
                 //count buildings
                 let buildingCounts = GameUtilsBuilding.countBuildings(buildingsData);
@@ -64,7 +62,7 @@ export default class CavemanAi extends Ai {
                     //TODO: pick semi-random? based off of distance?
                     let randomIndex = GameUtils.getRandomInt(buildableTiles.length);
                     let pickedTile = buildableTiles[randomIndex];
-                    let terrainSprite = scene.board.getTerrain(pickedTile.row, pickedTile.col);
+                    let terrainSprite = gameEngine.board.getTerrain(pickedTile.row, pickedTile.col);
 
                     this.stageOneBuilding(buildingCounts, building, terrainSprite);
 
@@ -82,12 +80,12 @@ export default class CavemanAi extends Ai {
         let territory;
         //calculate territory
         if (village != null) {
-            let villageBuildings = scene.buildingManager.getVillageBuildings(village);
-            let villageNeighbors = scene.board.getFarNeighboringTiles(villageBuildings, this.territorySize);
+            let villageBuildings = gameEngine.buildingManager.getVillageBuildings(village);
+            let villageNeighbors = gameEngine.board.getFarNeighboringTiles(villageBuildings, this.territorySize);
             territory = villageBuildings.concat(villageNeighbors);
 
             //get dangerous threats
-            let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(scene.board, territory, this.playerNumber);
+            let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(gameEngine.board, territory, this.playerNumber);
 
             //update threats
             enemySprites.forEach(enemySprite => {
@@ -105,7 +103,7 @@ export default class CavemanAi extends Ai {
             if (this.threats.size > 0) {
                 //TODO: "power up" units. wait for more people. perhaps let them recruit more from territory
                 if (village.population > (15 * this.buildingPhase) && village.amountFood > 100) {
-                    let armySprite = scene.armyManager.createArmyFromVillage(this.playerNumber, village);
+                    let armySprite = gameEngine.armyManager.createArmyFromVillage(this.playerNumber, village);
                     if (armySprite != null) {
 
                         let army = armySprite.getData("data");
@@ -113,10 +111,10 @@ export default class CavemanAi extends Ai {
 
                         //TODO: make getUnits(#)
                         if (this.buildingPhase >= 2)
-                            scene.armyManager.getUnits(army);
+                            gameEngine.armyManager.getUnits(army);
 
                         if (this.buildingPhase >= 3) {
-                            scene.armyManager.getUnits(army);
+                            gameEngine.armyManager.getUnits(army);
                         }
                     }
 
@@ -139,16 +137,16 @@ export default class CavemanAi extends Ai {
             if (territory == null)
                 return;
 
-            let possibleMovesArmy = scene.armyManager.getPossibleMoves(row, col, army.moveAmount);
+            let possibleMovesArmy = gameEngine.armyManager.getPossibleMoves(row, col, army.moveAmount);
 
             //move in territory
             let territoryMoves = GameUtils.getIntersectionCoordinates(possibleMovesArmy, territory);
 
             //check adjacent squares for enemy
-            let neighbors = scene.board.getNeighboringTiles(army.row, army.col);
+            let neighbors = gameEngine.board.getNeighboringTiles(army.row, army.col);
             let enemySprite = null;
             neighbors.forEach(neighbor => {
-                let unit = scene.board.getUnit(neighbor.row, neighbor.col);
+                let unit = gameEngine.board.getUnit(neighbor.row, neighbor.col);
 
                 if (unit == null)
                     return;
@@ -162,19 +160,19 @@ export default class CavemanAi extends Ai {
 
             //attack enemy neighbors
             if (enemySprite != null) {
-                scene.armyManager.simulateArmiesAttacking(army, enemySprite.getData("data"));
+                gameEngine.armyManager.simulateArmiesAttacking(army, enemySprite.getData("data"));
             }
             else {
-                let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(scene.board, territoryMoves, this.playerNumber);
+                let enemySprites = GameUtilsArmy.filterCoordinatesEnemies(gameEngine.board, territoryMoves, this.playerNumber);
 
-                let buildingSprite = scene.board.getBuilding(row, col);
+                let buildingSprite = gameEngine.board.getBuilding(row, col);
 
                 //if we're standing on a building and it's not ours,
                 //attack it and end turn
                 if (buildingSprite != null) {
                     let building = buildingSprite.getData("data");
                     if (building.player != this.playerNumber) {
-                        scene.armyManager.armyAttackBuilding(armySprite, buildingSprite);
+                        gameEngine.armyManager.armyAttackBuilding(armySprite, buildingSprite);
                         return;
                     }
                 }
@@ -183,10 +181,10 @@ export default class CavemanAi extends Ai {
                 if (enemySprites.length > 0) {
                     let enemySprite = enemySprites[0];
                     let enemyData = enemySprite.getData("data");
-                    let targetTerrain = scene.board.getTerrain(enemyData.row, enemyData.col);
-                    scene.armyManager.moveArmyCloser(armySprite, targetTerrain);
+                    let targetTerrain = gameEngine.board.getTerrain(enemyData.row, enemyData.col);
+                    gameEngine.armyManager.moveArmyCloser(armySprite, targetTerrain);
 
-                    scene.armyManager.simulateArmiesAttacking(army, enemyData);
+                    gameEngine.armyManager.simulateArmiesAttacking(army, enemyData);
                 }
                 //no enemies around
                 else {
@@ -197,8 +195,8 @@ export default class CavemanAi extends Ai {
                         let pickedIndex = GameUtils.getRandomInt(territoryMoves.length);
                         let pickedCoordinate = territoryMoves[pickedIndex];
 
-                        let terrainSprite = scene.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
-                        scene.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
+                        let terrainSprite = gameEngine.board.getTerrain(pickedCoordinate.row, pickedCoordinate.col);
+                        gameEngine.armyManager.moveArmy(armySprite, terrainSprite, territoryMoves);
                     }
 
                 }
@@ -207,7 +205,7 @@ export default class CavemanAi extends Ai {
             //TODO: in the future, check move counts. food/attack = 1 move each.
 
             //check if we're in our territory
-            let building = scene.board.getBuildingData(row, col);
+            let building = gameEngine.board.getBuildingData(row, col);
             if (building != null) {
 
                 //are we in the army's village territory?
@@ -223,7 +221,7 @@ export default class CavemanAi extends Ai {
                 //make sure you have several days worth of food.
                 if (army.amountFood <= this.armyDaysOfFood * army.getCostDay()) {
                     for (let i = 0; i < this.armyDaysOfFood; i++)
-                        scene.armyManager.getFood(army);
+                        gameEngine.armyManager.getFood(army);
                 }
 
             }
@@ -243,7 +241,7 @@ export default class CavemanAi extends Ai {
     }
 
     stageOneBuilding(buildingCounts, village, terrainSprite) {
-        let scene = this.scene;
+        let gameEngine = this.gameEngine;
         let countFarm = buildingCounts.countFarm;
         let countHousing = buildingCounts.countHousing;
         let countLumberMill = buildingCounts.countLumberMill;
@@ -252,23 +250,23 @@ export default class CavemanAi extends Ai {
         this.buildingPhase = 1;
 
         if (countLumberMill < 3) {
-            scene.buildingManager.placeBuilding(village, terrainSprite, "LumberMill");
+            gameEngine.buildingManager.placeBuilding(village, terrainSprite, "LumberMill");
             return;
         }
 
         if (countFarm < 4) {
-            scene.buildingManager.placeBuilding(village, terrainSprite, "Farm");
+            gameEngine.buildingManager.placeBuilding(village, terrainSprite, "Farm");
             return;
         }
 
         if (countQuarry < 1) {
-            scene.buildingManager.placeBuilding(village, terrainSprite, "Quarry");
+            gameEngine.buildingManager.placeBuilding(village, terrainSprite, "Quarry");
             return;
         }
 
         //if we have enough food
         if (countHousing < 3 && countFarm > countHousing) {
-            scene.buildingManager.placeBuilding(village, terrainSprite, "Housing");
+            gameEngine.buildingManager.placeBuilding(village, terrainSprite, "Housing");
             return;
         }
 
@@ -277,7 +275,7 @@ export default class CavemanAi extends Ai {
     }
 
     stageTwoBuilding(buildingCounts, village, terrainSprite) {
-        let scene = this.scene;
+        let gameEngine = this.gameEngine;
         let countFarm = buildingCounts.countFarm;
         let countHousing = buildingCounts.countHousing;
         let countLumberMill = buildingCounts.countLumberMill;
@@ -288,23 +286,23 @@ export default class CavemanAi extends Ai {
         this.buildingPhase = 2;
 
         if (countLumberMill < 5) {
-            scene.buildingManager.placeBuilding(village, terrainSprite, "LumberMill");
+            gameEngine.buildingManager.placeBuilding(village, terrainSprite, "LumberMill");
             return;
         }
 
         if (countFarm < 6) {
-            scene.buildingManager.placeBuilding(village, terrainSprite, "Farm");
+            gameEngine.buildingManager.placeBuilding(village, terrainSprite, "Farm");
             return;
         }
 
         if (countQuarry < 2) {
-            scene.buildingManager.placeBuilding(village, terrainSprite, "Quarry");
+            gameEngine.buildingManager.placeBuilding(village, terrainSprite, "Quarry");
             return;
         }
 
         //if we have enough food
         if (countHousing < 6 && countFarm > countHousing) {
-            scene.buildingManager.placeBuilding(village, terrainSprite, "Housing");
+            gameEngine.buildingManager.placeBuilding(village, terrainSprite, "Housing");
             return;
         }
 
@@ -312,7 +310,7 @@ export default class CavemanAi extends Ai {
     }
 
     stageThreeBuilding(buildingCounts, village, terrainSprite) {
-        let scene = this.scene;
+        let gameEngine = this.gameEngine;
         let countFarm = buildingCounts.countFarm;
         let countHousing = buildingCounts.countHousing;
 
@@ -326,11 +324,11 @@ export default class CavemanAi extends Ai {
 
         //expand population
         if (countFarm > countHousing) {
-            scene.buildingManager.placeBuilding(village, terrainSprite, "Housing");
+            gameEngine.buildingManager.placeBuilding(village, terrainSprite, "Housing");
         }
         //build more farms
         else {
-            scene.buildingManager.placeBuilding(village, terrainSprite, "Farm");
+            gameEngine.buildingManager.placeBuilding(village, terrainSprite, "Farm");
         }
     }
 

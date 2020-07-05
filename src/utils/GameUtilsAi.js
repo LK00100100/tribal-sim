@@ -9,16 +9,16 @@ import RaceObj from "../Race";
 let { Race } = RaceObj;
 
 // eslint-disable-next-line no-unused-vars
-import SceneGame from "../SceneGame";
+import GameEngine from "../engine/GameEngine";
 
 export default class GameUtilsAi {
 
     /**
      * Init the the correct ai for the correct race.
-     * @param {SceneGame} gameScene
+     * @param {GameEngine} gameEngine
      * @param {Array<Race>} raceArray 
      */
-    static initAiForPlayers(gameScene, raceArray) {
+    static initAiForPlayers(gameEngine, raceArray) {
         let playerAi = [];
 
         for (let playerNum = 2; playerNum < raceArray.length; playerNum++) {
@@ -50,7 +50,7 @@ export default class GameUtilsAi {
                 throw "race not supported for AI";
             }
 
-            playerAi[playerNum] = new selectedAi(gameScene, playerNum);
+            playerAi[playerNum] = new selectedAi(gameEngine, playerNum);
         }
 
         return playerAi;

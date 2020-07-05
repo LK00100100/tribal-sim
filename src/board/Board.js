@@ -149,6 +149,7 @@ export default class Board {
      */
     isBuildable(row, col) {
 
+        //TODO: get what isBuildable in the buildings themselves. maybe an ocean is builadable
         //TODO: make terrain enums
         if (this.isWithinBounds(row, col) == false)
             return false;

@@ -1,3 +1,5 @@
+// eslint-disable-next-line no-unused-vars
+import GameEngine from "../engine/GameEngine";
 
 export default class Ai {
 
@@ -5,16 +7,15 @@ export default class Ai {
     //TODO: and neutral...
     //TODO: friends and like-points itemized calculation
     /**
-     * @param {*} scene game
-     * @param {*} playerNumber 
-     * @param {*} armies array of armySprites
-     * @param {*} buildings array of buildingSprites
+     * @param {GameEngine} gameEngine
+     * @param {Number} playerNumber 
      */
-    constructor(scene, playerNumber, armies, buildings) {
-        this.scene = scene;
+    constructor(gameEngine, playerNumber) {
+        this.gameEngine = gameEngine;
+        
         this.playerNumber = playerNumber;
-        this.armies = armies;
-        this.buildings = buildings;
+        this.armies = this.gameEngine.playerArmies[playerNumber]; //array of armySprites
+        this.buildings = this.gameEngine.playerBuildings[playerNumber]; //array of buildingSprites
 
         //either distance from village buildings
         //or distance from one point
