@@ -111,6 +111,10 @@ export default class EnemyArmyInfoScene extends Phaser.Scene {
     }
 
     updateUi() {
+        if(this.gameEngine.selectedArmy == null){
+            this.btnArmyEnemyAttack.visible = false;
+        }
+
         this.updateUiText();
     }
 
