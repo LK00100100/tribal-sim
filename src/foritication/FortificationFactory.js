@@ -24,31 +24,57 @@ export default class FortificationFactory {
         let spriteName = "";
         let orientation;
         if (direction == Direction.WEST || direction == Direction.EAST)
-            orientation = "vertical";
+            orientation = "Vertical";
         else if (direction == Direction.NORTH || direction == Direction.SOUTH)
-            orientation = "horizontal";
+            orientation = "Horizontal";
         else
             throw "not supported!";
 
         if (fortication instanceof WoodWall)
-            spriteName = "fort-wall-wood-";
+            spriteName = "fortWallWood";
 
-        if(spriteName == "")
+        if (spriteName == "")
             throw "not supported!";
 
-        return  spriteName + orientation + ".png";
+        return spriteName + orientation;
     }
 
     /**
      * Returns the drawing offset from the center of a tile.
+     * For column offset.
      * @param {Direction} direction 
      */
-    static getWallOffset(direction) {
-        if(direction == Direction.WEST || direction == Direction.NORTH)
-            return -128;
+    static getWallOffsetX(direction) {
+        let halfWallThickness = 30 / 2;
 
-        if(direction == Direction.EAST || direction == Direction.SOUTH)
-            return 128;
+        if (direction == Direction.WEST)
+            return -128 + halfWallThickness;
+
+        if (direction == Direction.EAST)
+            return 128 - halfWallThickness;
+
+        if (direction == Direction.NORTH || direction == Direction.SOUTH)
+            return 0;
+
+        throw "not supported";
+    }
+
+    /**
+     * Returns the drawing offset from the center of a tile.
+     * For row offset.
+     * @param {Direction} direction 
+     */
+    static getWallOffsetY(direction) {
+        let halfWallThickness = 30 / 2;
+
+        if (direction == Direction.NORTH)
+            return -128 + halfWallThickness;
+
+        if (direction == Direction.SOUTH)
+            return 128 - halfWallThickness;
+
+        if (direction == Direction.EAST || direction == Direction.WEST)
+            return 0;
 
         throw "not supported";
     }
@@ -68,8 +94,8 @@ export default class FortificationFactory {
         let gameEngine = gameScene.gameEngine;
         let x = GameUtilsBoard.convertColToPixel(col);
         let y = GameUtilsBoard.convertRowToPixel(row);
-        x += FortificationFactory.getWallOffset(direction);
-        y += FortificationFactory.getWallOffset(direction);
+        x += FortificationFactory.getWallOffsetX(direction);
+        y += FortificationFactory.getWallOffsetY(direction);
 
         //draw sprite
         let spriteName = FortificationFactory.getFortificationSpriteName(fortication, direction);
@@ -80,9 +106,9 @@ export default class FortificationFactory {
             .setDepth(3);
 
         foriticationSprite.data.set("data", fortication);
-        
+
         //rotate if needed
-        if(direction == Direction.EAST || direction == Direction.SOUTH)
+        if (direction == Direction.EAST || direction == Direction.SOUTH)
             foriticationSprite.angle += 180;
 
         return foriticationSprite;

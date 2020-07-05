@@ -15,9 +15,11 @@ import Building from "../buildings/Building.js";
 import WoodWall from "../foritication/wall/WoodWall";
 
 import DirectionObj from "../board/Direction";
+import FortificationFactory from "../foritication/FortificationFactory.js";
 // eslint-disable-next-line no-unused-vars
 const { Direction } = DirectionObj;
 
+//TODO: split up some functions
 /**
  * Manages army data on the board.
  * 
@@ -371,9 +373,12 @@ export default class ArmyManager {
     }
 
     /**
+     * Checks to see if we can build here.
+     * And then builds there using the army's resources
      * 
      * @param {Army} army 
      * @param {Direction} direction such as Direction.EAST
+     * @returns {Boolean} true if placed. false otherwise.
      */
     armyBuildWallWood(army, direction) {
         let gameScene = this.gameScene;
@@ -387,26 +392,21 @@ export default class ArmyManager {
         //resource check
         if (army.amountWood < woodWall.costWood) {
             console.log("not enough wood");
-            return;
+            return false;
         }
-
-        army.amountWood -= woodWall.costWood;
 
         //space check
         if (gameEngine.board.hasFortication(row, col, direction)) {
-            console.log("can't build. something already there");
-            return;
+            console.log("can't build. fortification already there");
+            return false;
         }
+        
+        army.amountWood -= woodWall.costWood;
 
         //create sprite and place on board
-
-
-
-
-
-
-        //TODO: complete
-        return army;
+        let woodWallSprite = FortificationFactory.drawFortificationSprite(gameScene, row, col, woodWall, direction);
+        gameEngine.board.addFortication(row, col, woodWallSprite, direction);
+        return true;
     }
 
     //TODO: separate select and attack. maybe move this

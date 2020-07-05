@@ -47,7 +47,7 @@ export default class SceneGame extends Phaser.Scene {
 
         //sub-ui scenes. 
         //note: don't forget to add new stuff to the init function in create()
-        this.alreadyLaunched = new Set();
+        this.launchedScenes = new Set();
         this.humanArmyInfoScene = new HumanArmyInfoScene(this, this.gameEngine);
         this.humanVillageInfoScene = new HumanVillageInfoScene(this, this.gameEngine);
         this.humanBuildingInfoScene = new HumanBuildingInfoScene(this, this.gameEngine);
@@ -82,8 +82,8 @@ export default class SceneGame extends Phaser.Scene {
         this.load.image("buildHousing", "assets/build-housing.png");
 
         //fortification
-        this.load.image("fortWallWoodHorizontal", "assets/fort-wall-wood-horizontal.png");
-        this.load.image("fortWallWoodVertical", "assets/fort-wall-wood-vertical.png");
+        this.load.image("fortWallWoodHorizontal", "assets/walls/wood/fort-wall-wood-horizontal.png");
+        this.load.image("fortWallWoodVertical", "assets/walls/wood/fort-wall-wood-vertical.png");
 
         //armies
         this.load.image("armyCat", "assets/army-cat.png");
@@ -392,14 +392,14 @@ export default class SceneGame extends Phaser.Scene {
         let gameScene = subScene.gameScene;
 
         try {
-            if (gameScene.alreadyLaunched.has(handle)) {
+            if (gameScene.launchedScenes.has(handle)) {
                 subScene.updateUi();
                 gameScene.scene.wake(handle);
             }
             //first time being on
             else {
                 gameScene.scene.launch(handle);
-                gameScene.alreadyLaunched.add(handle);
+                gameScene.launchedScenes.add(handle);
             }
         }
         catch (err) {

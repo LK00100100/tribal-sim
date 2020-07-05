@@ -71,9 +71,9 @@ export default class GameEngine {
                 type: "village",
                 player: 1,
                 population: 20,
-                amountFood: 1000,
-                amountStone: 250,
-                amountWood: 500
+                amountFood: 100,
+                amountStone: 1500,
+                amountWood: 1500
             },
             {
                 row: 16, col: 10,

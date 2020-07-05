@@ -415,9 +415,10 @@ export default class HumanArmyInfoScene extends Phaser.Scene {
         if (this.selectedArmyBuildFunc == null)
             return;
 
-        //check if we can build there
+        let selectedArmy = this.gameEngine.selectedArmy.getData("data");
 
-        this.selectedArmyBuildFunc(direction);
+        //check if we can build on this spot
+        this.selectedArmyBuildFunc(selectedArmy, direction);
     }
 
     /**
