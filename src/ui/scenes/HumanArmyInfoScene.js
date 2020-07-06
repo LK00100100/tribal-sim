@@ -199,6 +199,7 @@ export default class HumanArmyInfoScene extends Phaser.Scene {
         let gameEngine = gameScene.gameEngine;
 
         //TODO: refactor armyData as just selected
+        GameUtilsUi.hideGameObjects(this.uiArmyButtons);
         GameUtilsUi.hideGameObjects(this.uiArmyBuildButtons);
         this.selectedArmyBuildFunc = null;
 
@@ -207,7 +208,9 @@ export default class HumanArmyInfoScene extends Phaser.Scene {
 
         let buildingSprite = gameEngine.board.boardBuildings[row][col];
 
-        //on-top-of-village buttons
+        this.btnArmyBuild.visible = true;
+
+        //"on top of your own village" buttons
         //TODO: be able to replenish in friendly villages through trade.
         if (buildingSprite != null) {
 
