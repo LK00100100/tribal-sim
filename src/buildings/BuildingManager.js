@@ -14,7 +14,7 @@ export default class BuildingManager {
      * @param {SceneGame} gameScene 
      * @param {GameEngine} gameEngine 
      */
-    constructor(gameScene ,gameEngine) {
+    constructor(gameScene, gameEngine) {
         this.gameScene = gameScene;
         this.gameEngine = gameEngine;
     }
@@ -151,7 +151,7 @@ export default class BuildingManager {
             return;
 
         village.amountWood -= 100;
-        
+
         let building = BuildingFactory.getVillageBuilding(buildingType, row, col, village);
         //TODO: move this?
         let tempSprite = gameScene.add.sprite(x, y, "build" + buildingType)
@@ -209,7 +209,8 @@ export default class BuildingManager {
 
     /**
      * Gets only buildable neighbors of tiles.
-     * @param {Array<{row, col}>} tiles 
+     * @param {Array<{row, col}>} tiles an array of the connected buildings
+     * @returns {Array<{row, col}>} an array of buildable tiles
      */
     getBuildableNeighbors(tiles) {
         let board = this.gameEngine.board;
@@ -237,6 +238,10 @@ export default class BuildingManager {
                     continue;
                 }
 
+                if (board.isWallInBetween(row, col, row + i, col + j)) {
+                    continue;
+                }
+
                 if (visited.has(key))
                     continue;
 
@@ -252,12 +257,12 @@ export default class BuildingManager {
      * an enemy building.
      * @param {Army} army 
      */
-    turnOnEnemyBuildingInfoSceneCheck(){
+    turnOnEnemyBuildingInfoSceneCheck() {
         let gameScene = this.gameScene;
         let gameEngine = gameScene.gameEngine;
         let board = gameEngine.board;
 
-        if(gameEngine.selectedArmy == null)
+        if (gameEngine.selectedArmy == null)
             return;
 
         let army = gameEngine.selectedArmy.getData("data");
@@ -265,11 +270,11 @@ export default class BuildingManager {
         let armyCol = army.col;
 
         let buildingSprite = board.boardBuildings[armyRow][armyCol];
-        if(buildingSprite != null){
+        if (buildingSprite != null) {
             /** @type {Building} */
             let building = buildingSprite.getData("data");
-            
-            if(army.player != building.player){
+
+            if (army.player != building.player) {
                 gameEngine.selectedEnemyBuilding = buildingSprite;
                 gameScene.turnOnSubSceneOnce(gameScene.enemyBuildingInfoScene);
             }

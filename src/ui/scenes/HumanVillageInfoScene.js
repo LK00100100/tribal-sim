@@ -267,7 +267,7 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
         gameEngine.selectedBuyBuilding = null;
     }
 
-    //TODO: use building enum instead
+    //TODO: use building enum instead. or maybe building class is better
     /**
      * Show the user build options
      * @param {String} buildingType 
@@ -290,6 +290,7 @@ export default class HumanVillageInfoScene extends Phaser.Scene {
 
         gameEngine.possibleMoves = gameEngine.buildingManager.getVillageBuildings(village);
         gameEngine.possibleMoves = gameEngine.buildingManager.getBuildableNeighbors(gameEngine.possibleMoves);
+
 
         gameEngine.board.highlightTiles(gameEngine.possibleMoves);
     }
