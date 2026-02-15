@@ -10,7 +10,7 @@ A strategy game that simulates tribes.
 
 This game uses Phaser 3.
 
-**This repository is under construction. This game will be published when completed**
+**This repository is under construction. This game is probably abandoned! Mostly me messing around with Phaser.js. I need to implement a different design for turn-based games.**
 
 **The art below is all placeholder art**
 
